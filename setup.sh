@@ -13,7 +13,7 @@ print_header() {
 }
 
 prompt_dependencies() {
-    echo "Ensure core dependencies are installed (Hyprland, Waybar, Alacritty, etc.)."
+    echo "Ensure core dependencies are installed."
     read -p "Are core dependencies installed? (y/N): " deps_installed
     deps_installed=$(echo "$deps_installed" | tr '[:upper:]' '[:lower:]')
     if [[ "$deps_installed" != "y" && "$deps_installed" != "yes" ]]; then
@@ -64,11 +64,11 @@ TEMP_CLONE_DIR=""
 if [ -d ".git" ] && [ -d "$(git rev-parse --show-toplevel 2>/dev/null)/hypr" ]; then
     echo "Running from Git repository. Attempting to update..."
     DOTFILES_SOURCE_DIR="$(git rev-parse --show-toplevel)"
-    (cd "$DOTFILES_SOURCE_DIR" && git pull origin main)
+    (cd "$DOTFILES_SOURCE_DIR" && git pull origin main) 
     if [ $? -ne 0 ]; then echo "ERROR: 'git pull' failed."; exit 1; fi
     echo "Repository updated from $DOTFILES_SOURCE_DIR."
 else
-    echo "Not in a recognized dotfiles Git repository. Cloning fresh..."
+    echo "Not in a recognized local dotfiles Git repository. Cloning fresh..."
     TEMP_CLONE_DIR=$(mktemp -d -t ${REPO_NAME}_XXXXXX)
     git clone --depth 1 "$GIT_REPO_URL" "$TEMP_CLONE_DIR"
     if [ $? -ne 0 ]; then echo "ERROR: Failed to clone $GIT_REPO_URL."; rm -rf "$TEMP_CLONE_DIR"; exit 1; fi
@@ -101,7 +101,7 @@ echo ""
 echo "Copying Configuration Files from $DOTFILES_SOURCE_DIR ..."
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "hypr" "Hyprland"
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "waybar" "Waybar"
-copy_single_file "alacritty/alacritty.yml" "alacritty/alacritty.yml" "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Alacritty"
+copy_single_file "alacritty/alacritty.toml" "alacritty/alacritty.toml" "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Alacritty"
 
 if [ -n "$TEMP_CLONE_DIR" ] && [ -d "$TEMP_CLONE_DIR" ]; then
     echo "Removing temporary clone directory $TEMP_CLONE_DIR..."
