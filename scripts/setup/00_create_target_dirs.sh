@@ -1,0 +1,11 @@
+#!/bin/bash
+echo "Ensuring target directories..."
+mkdir -p "$HYPR_CONF_TARGET_DIR"
+mkdir -p "$HYPR_SCRIPTS_TARGET_DIR"
+mkdir -p "$WAYBAR_TARGET_DIR"
+mkdir -p "$ALACRITTY_TARGET_DIR"
+mkdir -p "$ROFI_TARGET_DIR"
+mkdir -p "$(dirname "$HYPRLOCK_TARGET_FILE")"
+mkdir -p "$WALLPAPER_DIR_TARGET"
+echo "Target directories ensured."
+echo ""
