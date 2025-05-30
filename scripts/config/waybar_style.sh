@@ -1,0 +1,29 @@
+#!/bin/bash
+TARGET_FILE="$WAYBAR_TARGET_DIR/style.css"
+echo "Generating $TARGET_FILE..."
+mkdir -p "$(dirname "$TARGET_FILE")"
+cat << 'EOF' > "$TARGET_FILE"
+* {border:none;border-radius:0;font-family:"JetBrainsMono Nerd Font","Font Awesome 6 Free Solid",sans-serif;font-size:14px;min-height:0;padding:0;margin:0;}
+window#waybar {background-color:#0a0a0a;color:#cccccc;border-bottom:2px solid #DC143C;}
+#mode,#clock,#battery,#cpu,#memory,#network,#pulseaudio,#tray,#custom-power,#hyprland-window {padding:0px 10px;margin:3px 4px;color:#cccccc;background-color:#1a1a1a;border-radius:8px;border:1px solid #2c2c2c;}
+#workspaces {background-color:#141414;padding:0 3px;margin:3px 6px;border-radius:8px;border:1px solid #3d3d3d;}
+#workspaces button {padding:2px 8px;margin:2px 1px;color:#555555;background-color:#141414;border-radius:6px;border:1px solid transparent;font-weight:bold;transition:background-color 0.2s ease-in-out,color 0.2s ease-in-out,border-color 0.2s ease-in-out;}
+#workspaces button.persistent {color:#404040;}
+#workspaces button.visible {color:#cccccc;background-color:#2c2c2c;}
+#workspaces button.focused {color:#f0f0f0;background-color:#DC143C;border-color:#a0102c;}
+#workspaces button.urgent {color:#000000;background-color:#FFD700;}
+#workspaces button:hover {color:#ffffff;background-color:#3d3d3d;border-color:#555555;}
+#workspaces button.visible:hover {color:#ffffff;background-color:#4a4a4a;border-color:#6c7086;}
+#workspaces button.focused:hover {color:#f0f0f0;background-color:#a0102c;border-color:#DC143C;}
+#workspaces button.urgent:hover {color:#0a0a0a;background-color:#ffec80;}
+#mode {background-color:#a0102c;color:#f0f0f0;font-weight:bold;padding:0 12px;}
+#hyprland-window {color:#b4befe;font-weight:normal;background-color:transparent;border:none;padding-right:15px;}
+#clock {color:#E6E6FA;font-weight:bold;} #clock:hover {color:#DC143C;}
+#pulseaudio {background-color:#2c2c2c;color:#fab387;} #pulseaudio.muted {background-color:#3d3d3d;color:#6c7086;}
+#network {background-color:#2c2c2c;color:#f9e2af;} #network.disconnected {background-color:#f38ba8;color:#0a0a0a;}
+#cpu {background-color:#2c2c2c;color:#89b4fa;} #memory {background-color:#2c2c2c;color:#cba6f7;}
+#tray {background-color:#141414;padding:0 6px;margin-right:5px;}
+#custom-power {color:#DC143C;background-color:#1a1a1a;font-size:16px;padding:0 12px;} #custom-power:hover {background-color:#a0102c;color:#f0f0f0;}
+tooltip {background-color:#141414;border:1px solid #DC143C;border-radius:6px;color:#cccccc;padding:10px;} tooltip label {color:#cccccc;}
+EOF
+echo "$TARGET_FILE generated."
