@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+source "$(dirname "$0")/../config_lib/common.sh"
+
 HYPRPAPER_CONF_FILE="$CONFIG_TARGET_DIR/hypr/hyprpaper.conf"
 DEFAULT_WALLPAPER_NAME="crimson_black_wallpaper.png"
 DEFAULT_WALLPAPER_PATH="$WALLPAPER_DIR_TARGET/$DEFAULT_WALLPAPER_NAME"

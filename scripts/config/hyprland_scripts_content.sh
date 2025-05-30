@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+source "$(dirname "$0")/../config_lib/common.sh"
+
+SCRIPT_DIR_NAME="Hyprland Helper Scripts"
+prepare_script_generation_dir "$HYPR_SCRIPTS_TARGET_DIR" "$SCRIPT_DIR_NAME"
+
 cat << 'EOF' > "$HYPR_SCRIPTS_TARGET_DIR/idle_config.sh"
 #!/usr/bin/env bash
 set -euo pipefail

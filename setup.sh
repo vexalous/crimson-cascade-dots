@@ -6,6 +6,8 @@ BACKUP_DIR_BASE="$HOME/config_backups_crimson_cascade"
 GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
 REPO_NAME="crimson-cascade-dots"
 
+DOTFILES_SOURCE_DIR=""
+TEMP_CLONE_DIR=""
 
 source "$(dirname "$0")/scripts/setup_lib/ui.sh"
 source "$(dirname "$0")/scripts/setup_lib/dependencies.sh"
@@ -15,6 +17,11 @@ source "$(dirname "$0")/scripts/setup_lib/git_ops.sh"
 
 print_header
 
+determine_source_dir
+DOTFILES_SOURCE_DIR="$DOTFILES_SOURCE_DIR_GLOBAL"
+TEMP_CLONE_DIR="$TEMP_CLONE_DIR_GLOBAL"
+
+if [ -n "$TEMP_CLONE_DIR" ]; then
     prompt_dependencies
 fi
 

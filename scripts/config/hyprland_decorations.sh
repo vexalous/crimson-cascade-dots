@@ -10,8 +10,14 @@ cat << EOF > "$TARGET_FILE"
 decoration {
     rounding = 8
     blur {
-        enabled = true; size = 6; passes = 3; new_optimizations = true;
-        xray = true; noise = 0.015; contrast = 1.0; brightness = 0.95;
+        enabled = true
+        size = 6
+        passes = 3
+        new_optimizations = true
+        xray = true
+        noise = 0.015
+        contrast = 1.0
+        brightness = 0.95
     }
 }
 EOF

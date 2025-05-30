@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
 CRIMSON="#DC143C"
 LIGHT_GRAY="#cccccc"
 NEAR_BLACK="#0a0a0a"
