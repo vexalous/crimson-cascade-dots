@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+source "$(dirname "$0")/../config_lib/common.sh"
+
 HYPRPAPER_CONF_FILE="$CONFIG_TARGET_DIR/hypr/hyprpaper.conf"
 DEFAULT_WALLPAPER_NAME="crimson_black_wallpaper.png"
 DEFAULT_WALLPAPER_PATH="$WALLPAPER_DIR_TARGET/$DEFAULT_WALLPAPER_NAME"
@@ -16,10 +19,11 @@ if [[ "$use_default" == "n" || "$use_default" == "no" ]]; then
         echo "WARNING: Custom path '$custom_path' not found. Defaulting."; USER_WALLPAPER_PATH="$DEFAULT_WALLPAPER_PATH"; fi
 else USER_WALLPAPER_PATH="$DEFAULT_WALLPAPER_PATH"; fi
 echo "Using wallpaper: $USER_WALLPAPER_PATH for Hyprpaper."
-mkdir -p "$(dirname "$HYPRPAPER_CONF_FILE")"
+
+prepare_target_file_write "$HYPRPAPER_CONF_FILE" "Hyprpaper"
 cat << EOF > "$HYPRPAPER_CONF_FILE"
 preload = $USER_WALLPAPER_PATH
 wallpaper = ,$USER_WALLPAPER_PATH
 ipc = off
 EOF
-echo "$HYPRPAPER_CONF_FILE configured."
+finish_target_file_write "$HYPRPAPER_CONF_FILE" "Hyprpaper"

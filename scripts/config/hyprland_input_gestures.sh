@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET_FILE="$HYPR_CONF_TARGET_DIR/input_gestures.conf"
+source "$(dirname "$0")/../config_lib/common.sh"
 
-echo "Generating $TARGET_FILE..."
-mkdir -p "$(dirname "$TARGET_FILE")"
+TARGET_FILE="$HYPR_CONF_TARGET_DIR/input_gestures.conf"
+prepare_target_file_write "$TARGET_FILE" "Hyprland Input Gestures"
 
 cat << EOF > "$TARGET_FILE"
 input {
@@ -21,5 +21,4 @@ input {
 gestures {
 }
 EOF
-
-echo "$TARGET_FILE generated."
+finish_target_file_write "$TARGET_FILE" "Hyprland Input Gestures"

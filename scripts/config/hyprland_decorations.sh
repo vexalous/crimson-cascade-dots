@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET_FILE="$HYPR_CONF_TARGET_DIR/decorations.conf"
+source "$(dirname "$0")/../config_lib/common.sh"
 
-echo "Generating $TARGET_FILE..."
-mkdir -p "$(dirname "$TARGET_FILE")"
+TARGET_FILE="$HYPR_CONF_TARGET_DIR/decorations.conf"
+prepare_target_file_write "$TARGET_FILE" "Hyprland Decorations"
 
 cat << EOF > "$TARGET_FILE"
 decoration {
@@ -15,5 +15,4 @@ decoration {
     }
 }
 EOF
-
-echo "$TARGET_FILE generated."
+finish_target_file_write "$TARGET_FILE" "Hyprland Decorations"

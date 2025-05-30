@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+source "$(dirname "$0")/../config_lib/common.sh"
+
 TARGET_FILE="$WAYBAR_TARGET_DIR/style.css"
-echo "Generating $TARGET_FILE..."
-mkdir -p "$(dirname "$TARGET_FILE")"
+prepare_target_file_write "$TARGET_FILE" "Waybar Style"
 cat << 'EOF' > "$TARGET_FILE"
 * {border:none;border-radius:0;font-family:"JetBrainsMono Nerd Font","Font Awesome 6 Free Solid",sans-serif;font-size:14px;min-height:0;padding:0;margin:0;}
 window#waybar {background-color:#0a0a0a;color:#cccccc;border-bottom:2px solid #DC143C;}
@@ -27,4 +29,4 @@ window#waybar {background-color:#0a0a0a;color:#cccccc;border-bottom:2px solid #D
 #custom-power {color:#DC143C;background-color:#1a1a1a;font-size:16px;padding:0 12px;} #custom-power:hover {background-color:#a0102c;color:#f0f0f0;}
 tooltip {background-color:#141414;border:1px solid #DC143C;border-radius:6px;color:#cccccc;padding:10px;} tooltip label {color:#cccccc;}
 EOF
-echo "$TARGET_FILE generated."
+finish_target_file_write "$TARGET_FILE" "Waybar Style"

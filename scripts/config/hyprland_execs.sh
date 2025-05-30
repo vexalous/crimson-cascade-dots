@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET_FILE="$HYPR_CONF_TARGET_DIR/execs.conf"
+source "$(dirname "$0")/../config_lib/common.sh"
 
-echo "Generating $TARGET_FILE..."
-mkdir -p "$(dirname "$TARGET_FILE")"
+TARGET_FILE="$HYPR_CONF_TARGET_DIR/execs.conf"
+prepare_target_file_write "$TARGET_FILE" "Hyprland Execs"
 
 cat << EOF > "$TARGET_FILE"
 exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
@@ -18,5 +18,4 @@ exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
 exec-once = hyprctl setcursor $TARGET_CURSOR_THEME $TARGET_CURSOR_SIZE
 EOF
-
-echo "$TARGET_FILE generated."
+finish_target_file_write "$TARGET_FILE" "Hyprland Execs"
