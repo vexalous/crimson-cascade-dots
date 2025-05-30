@@ -1,0 +1,16 @@
+#!/bin/bash
+
+TARGET_FILE="$HYPR_CONF_TARGET_DIR/env.conf"
+
+echo "Generating $TARGET_FILE..."
+mkdir -p "$(dirname "$TARGET_FILE")"
+
+cat << EOF > "$TARGET_FILE"
+env = XCURSOR_SIZE,$TARGET_CURSOR_SIZE
+env = HYPRCURSOR_THEME,$TARGET_CURSOR_THEME
+env = HYPRCURSOR_SIZE,$TARGET_CURSOR_SIZE
+env = XCURSOR_THEME,$TARGET_CURSOR_THEME
+env = QT_QPA_PLATFORM,wayland
+EOF
+
+echo "$TARGET_FILE generated."
