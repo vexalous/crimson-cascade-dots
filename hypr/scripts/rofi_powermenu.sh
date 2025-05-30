@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 shutdown="Shutdown"
 reboot="Reboot"
 lock="Lock Screen"

@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 hypridle \
     timeout 300 'hyprlock' \
     timeout 330 'hyprctl dispatch dpms off' \

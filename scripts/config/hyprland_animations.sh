@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 TARGET_FILE="$HYPR_CONF_TARGET_DIR/animations.conf"
 
