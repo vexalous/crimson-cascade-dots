@@ -1,0 +1,20 @@
+#!/bin/bash
+
+TARGET_FILE="$HYPR_CONF_TARGET_DIR/general.conf"
+
+echo "Generating $TARGET_FILE..."
+mkdir -p "$(dirname "$TARGET_FILE")"
+
+cat << EOF > "$TARGET_FILE"
+general {
+    gaps_in = 5
+    gaps_out = 10
+    border_size = 2
+    col.active_border = rgba(DC143Cee) rgba(8B0000aa) 45deg
+    col.inactive_border = rgba(3d3d3dcc)
+    layout = dwindle
+    allow_tearing = false
+}
+EOF
+
+echo "$TARGET_FILE generated."
