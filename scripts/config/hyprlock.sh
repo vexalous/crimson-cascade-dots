@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$(dirname "$0")/../config_lib/common.sh"
+
 set -euo pipefail
 set -o errtrace
 
@@ -168,7 +170,7 @@ _perform_main_operation() {
     local final_target_path
     final_target_path="$(readlink -m "$HYPRLOCK_TARGET_FILE")"
     
-    printf "%s: INFO: Preparing to generate Hyprlock configuration at resolved absolute path: %s\n" "$SCRIPT_NAME" "$final_target_path"
+    prepare_target_file_write "$final_target_path" "Hyprlock"
 
     local target_parent_directory
     target_parent_directory="$(dirname "$final_target_path")"
@@ -237,7 +239,7 @@ _perform_main_operation() {
     
     trap - EXIT
 
-    printf "%s: SUCCESS: Hyprlock configuration file %s generated successfully.\n" "$SCRIPT_NAME" "$final_target_path"
+    finish_target_file_write "$final_target_path" "Hyprlock"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

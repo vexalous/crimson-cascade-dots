@@ -8,15 +8,45 @@ ICON_LOW="/usr/share/icons/Papirus-Dark/48x48/status/notification-display-bright
 ICON_MEDIUM="/usr/share/icons/Papirus-Dark/48x48/status/notification-display-brightness-medium.svg"
 ICON_HIGH="/usr/share/icons/Papirus-Dark/48x48/status/notification-display-brightness-high.svg"
 
-B=$(brightnessctl g)
-M=$(brightnessctl m)
-P=$((B*100/M))
+get_brightness_percentage() {
+    local current_brightness val_max_brightness
+    current_brightness=$(brightnessctl g)
+    val_max_brightness=$(brightnessctl m)
+    if [[ -z "$val_max_brightness" || "$val_max_brightness" -eq 0 ]]; then
+        echo 0
+        return
+    fi
+    echo "$((current_brightness * 100 / val_max_brightness))"
+}
 
-if [ $P -lt 34 ];then 
-    I=$ICON_LOW
-elif [ $P -lt 67 ];then 
-    I=$ICON_MEDIUM
-else 
-    I=$ICON_HIGH
-fi
-notify-send -h string:x-canonical-private-synchronous:bright_notif -h int:value:$P -u low -i "$I" -a "$APP_NAME" "Brightness ${P}%" --hint=string:fgcolor:$LIGHT_GRAY,string:bgcolor:$NEAR_BLACK,string:hlcolor:$CRIMSON
+get_brightness_icon() {
+    local percentage="$1"
+    if [ "$percentage" -lt 34 ]; then
+        echo "$ICON_LOW"
+    elif [ "$percentage" -lt 67 ]; then
+        echo "$ICON_MEDIUM"
+    else
+        echo "$ICON_HIGH"
+    fi
+}
+
+send_brightness_notification() {
+    local percentage="$1"
+    local icon_path="$2"
+    notify-send -h string:x-canonical-private-synchronous:bright_notif \
+                -h int:value:"$percentage" \
+                -u low \
+                -i "$icon_path" \
+                -a "$APP_NAME" \
+                "Brightness ${percentage}%" \
+                --hint="string:fgcolor:$LIGHT_GRAY,string:bgcolor:$NEAR_BLACK,string:hlcolor:$CRIMSON"
+}
+
+main() {
+    local brightness_p icon
+    brightness_p=$(get_brightness_percentage)
+    icon=$(get_brightness_icon "$brightness_p")
+    send_brightness_notification "$brightness_p" "$icon"
+}
+
+main

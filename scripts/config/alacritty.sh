@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 TARGET_FILE="$ALACRITTY_TARGET_DIR/alacritty.toml"
-echo "Generating $TARGET_FILE..."
-mkdir -p "$(dirname "$TARGET_FILE")"
+prepare_target_file_write "$TARGET_FILE" "Alacritty"
 cat << 'EOF' > "$TARGET_FILE"
 [env]
 TERM = "alacritty"
@@ -58,4 +57,4 @@ key = "C"
 mods = "Control|Shift"
 action = "Copy"
 EOF
-echo "$TARGET_FILE generated."
+finish_target_file_write "$TARGET_FILE" "Alacritty"

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HYPRLAND_CONF_MAIN_TARGET="$CONFIG_TARGET_DIR/hypr/hyprland.conf"
+source "$(dirname "$0")/../config_lib/common.sh"
 
-echo "Generating main Hyprland config: $HYPRLAND_CONF_MAIN_TARGET"
-mkdir -p "$(dirname "$HYPRLAND_CONF_MAIN_TARGET")"
+HYPRLAND_CONF_MAIN_TARGET="$CONFIG_TARGET_DIR/hypr/hyprland.conf"
+prepare_target_file_write "$HYPRLAND_CONF_MAIN_TARGET" "Hyprland Main"
 
 cat << EOF > "$HYPRLAND_CONF_MAIN_TARGET"
 monitor=,preferred,auto,1
@@ -19,5 +19,4 @@ source = $HYPR_CONF_TARGET_DIR/animations.conf
 source = $HYPR_CONF_TARGET_DIR/keybinds.conf
 source = $HYPR_CONF_TARGET_DIR/windowrules.conf
 EOF
-
-echo "Main Hyprland config ($HYPRLAND_CONF_MAIN_TARGET) generated."
+finish_target_file_write "$HYPRLAND_CONF_MAIN_TARGET" "Hyprland Main"
