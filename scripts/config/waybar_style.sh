@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 TARGET_FILE="$WAYBAR_TARGET_DIR/style.css"
 echo "Generating $TARGET_FILE..."
 mkdir -p "$(dirname "$TARGET_FILE")"

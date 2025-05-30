@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 TARGET_FILE="$WAYBAR_TARGET_DIR/config"
 WAYBAR_H=$WAYBAR_EXPECTED_HEIGHT
 SCRIPTS_P="$HYPR_SCRIPTS_TARGET_DIR"

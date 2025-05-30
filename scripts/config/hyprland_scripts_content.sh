@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 echo "Generating Hyprland helper scripts in $HYPR_SCRIPTS_TARGET_DIR..."
 mkdir -p "$HYPR_SCRIPTS_TARGET_DIR"
 cat << 'EOF' > "$HYPR_SCRIPTS_TARGET_DIR/idle_config.sh"

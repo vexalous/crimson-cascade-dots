@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DIR_BASE="$HOME/config_backups_crimson_cascade"
@@ -43,7 +44,7 @@ copy_component() {
     if [ -d "$full_source_path" ]; then mkdir -p "$full_target_path"; cp -rT "$full_source_path/" "$full_target_path/"; else cp "$full_source_path" "$full_target_path"; fi
     if [ $? -eq 0 ]; then
         echo "$component_name_for_msg files copied to $full_target_path."
-        if [ "$component_name_for_msg" == "Hyprland" ] && [ -d "$full_target_path/scripts" ]; then chmod +x $full_target_path/scripts/*.sh 2>/dev/null; fi
+        if [ "$component_name_for_msg" == "Hyprland" ] && [ -d "$full_target_path/scripts" ]; then chmod +x $full_target_path/scripts/*.sh; fi
     else echo "ERROR: Failed to copy $component_name_for_msg from $full_source_path."; fi; echo ""
 }
 
@@ -64,7 +65,7 @@ TEMP_CLONE_DIR=""
 if [ -d ".git" ] && [ -d "$(git rev-parse --show-toplevel 2>/dev/null)/hypr" ]; then
     echo "Running from Git repository. Attempting to update..."
     DOTFILES_SOURCE_DIR="$(git rev-parse --show-toplevel)"
-    (cd "$DOTFILES_SOURCE_DIR" && git pull origin main) 
+    git -C "$DOTFILES_SOURCE_DIR" pull origin main
     if [ $? -ne 0 ]; then echo "ERROR: 'git pull' failed."; exit 1; fi
     echo "Repository updated from $DOTFILES_SOURCE_DIR."
 else
