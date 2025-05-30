@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$(dirname "$0")/../config_lib/common.sh"
+
 export LC_ALL=C
 set -euo pipefail
 
@@ -64,7 +66,7 @@ fi
 
 readonly _FINAL_CONFIG_FILE_PATH="${_CANONICAL_TARGET_CONFIG_DIR}/${WINDOWRULES_CONFIG_FILENAME}"
 
-_log_message "Target Hyprland window rules file: ${_FINAL_CONFIG_FILE_PATH}"
+prepare_target_file_write "$_FINAL_CONFIG_FILE_PATH" "Hyprland Window Rules"
 
 if ! mkdir -p -- "${_CANONICAL_TARGET_CONFIG_DIR}"; then
     _exit_with_error "Failed to create target directory: '${_CANONICAL_TARGET_CONFIG_DIR}'."
@@ -133,5 +135,5 @@ if ! chmod 0600 -- "${_FINAL_CONFIG_FILE_PATH}"; then
     _exit_with_error "Failed to set permissions (0600) on the final configuration file: '${_FINAL_CONFIG_FILE_PATH}'. Verify ownership."
 fi
 
-_log_message "Successfully generated Hyprland window rules: ${_FINAL_CONFIG_FILE_PATH}"
+finish_target_file_write "$_FINAL_CONFIG_FILE_PATH" "Hyprland Window Rules"
 exit 0

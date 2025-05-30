@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "$(dirname "$0")/../config_lib/common.sh"
 
 TARGET_FILE="$HYPR_CONF_TARGET_DIR/misc.conf"
-
-echo "Generating $TARGET_FILE..."
-mkdir -p "$(dirname "$TARGET_FILE")"
+prepare_target_file_write "$TARGET_FILE" "Hyprland Misc"
 
 cat << EOF > "$TARGET_FILE"
 misc {
@@ -17,5 +18,4 @@ misc {
     background_color = rgba(0a0a0aff)
 }
 EOF
-
-echo "$TARGET_FILE generated."
+finish_target_file_write "$TARGET_FILE" "Hyprland Misc"

@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "$(dirname "$0")/../config_lib/common.sh"
 
 TARGET_FILE="$HYPR_CONF_TARGET_DIR/keybinds.conf"
-
-echo "Generating $TARGET_FILE"
-mkdir -p "$(dirname "$TARGET_FILE")"
+prepare_target_file_write "$TARGET_FILE" "Hyprland Keybinds"
 
 cat << 'EOF' > "$TARGET_FILE"
 $mainMod = SUPER
@@ -98,5 +99,4 @@ bind = SHIFT, Print, exec, grim - | swappy -f -
 bind = $mainMod SHIFT, S, exec, grim -g "$(slurp -d -b '#0a0a0acc' -c '#DC143Cff' -s '#00000055' -w 2)" - | wl-copy && makoctl notify "Screenshot Copied" "Selected area copied to clipboard."
 bind = $mainMod, L, exec, hyprlock
 EOF
-
-echo "$TARGET_FILE"
+finish_target_file_write "$TARGET_FILE" "Hyprland Keybinds"

@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "$(dirname "$0")/../config_lib/common.sh"
 
 TARGET_FILE="$HYPR_CONF_TARGET_DIR/general.conf"
-
-echo "Generating $TARGET_FILE..."
-mkdir -p "$(dirname "$TARGET_FILE")"
+prepare_target_file_write "$TARGET_FILE" "Hyprland General"
 
 cat << EOF > "$TARGET_FILE"
 general {
@@ -16,5 +17,4 @@ general {
     allow_tearing = false
 }
 EOF
-
-echo "$TARGET_FILE generated."
+finish_target_file_write "$TARGET_FILE" "Hyprland General"
