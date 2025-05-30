@@ -52,44 +52,12 @@ process_mic_mute_status() {
         icon_path="$ICON_MIC"
         display_text="Mic On"
         percentage_value=100
+
     fi
     send_notification "$notification_title" "$percentage_value" "$icon_path" "$display_text"
 }
 
-process_volume_status() {
-    local notification_title="Volume"
-    local current_volume
-    current_volume=$(get_current_volume_percentage)
-    local icon_path
-    local display_text
-    local percentage_value
 
-    if is_sink_muted || [ "$current_volume" -eq 0 ]; then
-        icon_path="$ICON_MUTED"
-        display_text="Muted"
-        percentage_value=0
-    elif [ "$current_volume" -lt 34 ]; then
-        icon_path="$ICON_LOW"
-        display_text="${current_volume}%"
-        percentage_value="$current_volume"
-    elif [ "$current_volume" -lt 67 ]; then
-        icon_path="$ICON_MEDIUM"
-        display_text="${current_volume}%"
-        percentage_value="$current_volume"
-    else
-        icon_path="$ICON_HIGH"
-        display_text="${current_volume}%"
-        percentage_value="$current_volume"
-    fi
-    send_notification "$notification_title" "$percentage_value" "$icon_path" "$display_text"
-}
-
-main() {
-    if [[ "$1" == "MUTE" ]]; then
-        process_mic_mute_status
-    else
-        process_volume_status
-    fi
 }
 
 main

@@ -20,34 +20,4 @@ get_brightness_percentage() {
     echo "$((current_brightness * 100 / val_max_brightness))"
 }
 
-get_brightness_icon() {
-    local percentage="$1"
-    if [ "$percentage" -lt 34 ]; then
-        echo "$ICON_LOW"
-    elif [ "$percentage" -lt 67 ]; then
-        echo "$ICON_MEDIUM"
-    else
-        echo "$ICON_HIGH"
-    fi
-}
-
-send_brightness_notification() {
-    local percentage="$1"
-    local icon_path="$2"
-    notify-send -h string:x-canonical-private-synchronous:bright_notif \
-                -h int:value:"$percentage" \
-                -u low \
-                -i "$icon_path" \
-                -a "$APP_NAME" \
-                "Brightness ${percentage}%" \
-                --hint="string:fgcolor:$LIGHT_GRAY,string:bgcolor:$NEAR_BLACK,string:hlcolor:$CRIMSON"
-}
-
-main() {
-    local brightness_p icon
-    brightness_p=$(get_brightness_percentage)
-    icon=$(get_brightness_icon "$brightness_p")
-    send_brightness_notification "$brightness_p" "$icon"
-}
-
 main
