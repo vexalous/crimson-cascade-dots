@@ -2,7 +2,7 @@
 
 TARGET_FILE="$HYPR_CONF_TARGET_DIR/keybinds.conf"
 
-echo "Generating $TARGET_FILE with Sway/i3 style keybinds..."
+echo "Generating $TARGET_FILE"
 mkdir -p "$(dirname "$TARGET_FILE")"
 
 cat << 'EOF' > "$TARGET_FILE"
@@ -37,10 +37,10 @@ bind = $mainMod SHIFT, Right, movewindow, r
 bind = $mainMod, F, fullscreen, 0
 bind = $mainMod SHIFT, Space, togglefloating,
 
-bind = $mainMod, S, layoutmsg, togglesplit # Dwindle: toggle horiz/vert split for next container
+bind = $mainMod, S, layoutmsg, togglesplit
 # For master layout, you might want:
 # bind = $mainMod, S, layoutmsg, swapwithmaster
-# bind = $mainMod, S, layoutmsg, orientationnext # if master layout supports it
+# bind = $mainMod, S, layoutmsg, orientationnext
 
 binde = $mainMod, R, submap, resize
 submap = resize
@@ -99,4 +99,4 @@ bind = $mainMod SHIFT, S, exec, grim -g "$(slurp -d -b '#0a0a0acc' -c '#DC143Cff
 bind = $mainMod, L, exec, hyprlock
 EOF
 
-echo "$TARGET_FILE generated with Sway/i3 style keybinds."
+echo "$TARGET_FILE"
