@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CRIMSON="#DC143C"
-LIGHT_GRAY="#cccccc"
-NEAR_BLACK="#0a0a0a"
+# Source shared colors
+# shellcheck source=./colors.sh
+source "$(dirname "$0")/colors.sh"
+
 APP_NAME="Brightness"
 ICON_LOW="/usr/share/icons/Papirus-Dark/48x48/status/notification-display-brightness-low.svg"
 ICON_MEDIUM="/usr/share/icons/Papirus-Dark/48x48/status/notification-display-brightness-medium.svg"
@@ -17,7 +18,7 @@ get_brightness_percentage() {
         echo 0
         return
     fi
-    echo "$((current_brightness * 100 / val_max_brightness))"
+    echo $((current_brightness * 100 / val_max_brightness))
 }
 
 get_brightness_icon() {
@@ -31,23 +32,19 @@ get_brightness_icon() {
     fi
 }
 
-send_brightness_notification() {
-    local percentage="$1"
-    local icon_path="$2"
-    notify-send -h string:x-canonical-private-synchronous:bright_notif \
-                -h int:value:"$percentage" \
-                -u low \
-                -i "$icon_path" \
-                -a "$APP_NAME" \
-                "Brightness ${percentage}%" \
-                --hint="string:fgcolor:$LIGHT_GRAY,string:bgcolor:$NEAR_BLACK,string:hlcolor:$CRIMSON"
-}
-
 main() {
-    local brightness_p icon
+    local brightness_p icon notify_message
     brightness_p=$(get_brightness_percentage)
     icon=$(get_brightness_icon "$brightness_p")
-    send_brightness_notification "$brightness_p" "$icon"
+
+    notify_message="${brightness_p}%"
+
+    "$(dirname "$0")/notify.sh" \
+        -a "$APP_NAME" \
+        -t "Brightness" \
+        -m "$notify_message" \
+        -i "$icon" \
+        -p "$brightness_p"
 }
 
 main

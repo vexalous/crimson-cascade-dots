@@ -15,8 +15,8 @@ echo "INFO: Using default wallpaper: $USER_WALLPAPER_PATH for Hyprpaper."
 
 prepare_target_file_write "$HYPRPAPER_CONF_FILE" "Hyprpaper"
 cat << EOF > "$HYPRPAPER_CONF_FILE"
-preload = $USER_WALLPAPER_PATH
-wallpaper = ,$USER_WALLPAPER_PATH
+preload = \$HOME/.config/hypr/wallpaper/${DEFAULT_WALLPAPER_NAME}
+wallpaper = ,\$HOME/.config/hypr/wallpaper/${DEFAULT_WALLPAPER_NAME}
 ipc = off
 EOF
 finish_target_file_write "$HYPRPAPER_CONF_FILE" "Hyprpaper"
