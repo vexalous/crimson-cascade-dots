@@ -16,7 +16,8 @@ _do_backup_item() {
         if mv "$target_config_path" "$SPECIFIC_BACKUP_DIR/$BASENAME"; then
             echo "Backup of $BASENAME successful."
         else
-            echo "WARNING: Backup of $BASENAME failed."
+            echo "ERROR: Backup of $BASENAME to $SPECIFIC_BACKUP_DIR/$BASENAME failed." >&2
+            exit 1
         fi
     fi
 }
