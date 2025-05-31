@@ -77,9 +77,9 @@ window#waybar {
 #workspaces {
     background-color: var(--module-alt-bg-color);
     padding: 0 3px;
-    margin: var(--module-margin); /* Adjusted to use common module margin */
+    margin: var(--module-margin);
     border-radius: var(--module-radius);
-    border: 1px solid var(--module-hover-bg-color); /* #3d3d3d */
+    border: 1px solid var(--module-hover-bg-color);
 }
 
 #workspaces button {
@@ -140,7 +140,7 @@ window#waybar {
     background-color: var(--accent-dark-color);
     color: var(--text-hover-color);
     font-weight: bold;
-    padding: 0 12px; /* Custom padding for mode */
+    padding: 0 12px;
 }
 
 #hyprland-window {
@@ -148,7 +148,7 @@ window#waybar {
     font-weight: normal;
     background-color: transparent;
     border: none;
-    padding-right: 15px; /* Custom padding */
+    padding-right: 15px;
 }
 
 #clock {
@@ -160,7 +160,7 @@ window#waybar {
 }
 
 #pulseaudio {
-    background-color: var(--module-border-color); /* #2c2c2c */
+    background-color: var(--module-border-color);
     color: var(--pulseaudio-text-color);
 }
 #pulseaudio.muted {
@@ -169,7 +169,7 @@ window#waybar {
 }
 
 #network {
-    background-color: var(--module-border-color); /* #2c2c2c */
+    background-color: var(--module-border-color);
     color: var(--network-text-color);
 }
 #network.disconnected {
@@ -178,25 +178,25 @@ window#waybar {
 }
 
 #cpu {
-    background-color: var(--module-border-color); /* #2c2c2c */
+    background-color: var(--module-border-color);
     color: var(--cpu-text-color);
 }
 #memory {
-    background-color: var(--module-border-color); /* #2c2c2c */
+    background-color: var(--module-border-color);
     color: var(--memory-text-color);
 }
 
 #tray {
     background-color: var(--module-alt-bg-color);
-    padding: 0 6px; /* Custom padding */
-    margin-right: 5px; /* Custom margin */
+    padding: 0 6px;
+    margin-right: 5px;
 }
 
 #custom-power {
     color: var(--accent-color);
     background-color: var(--module-bg-color);
     font-size: 16px;
-    padding: 0 12px; /* Custom padding */
+    padding: 0 12px;
 }
 #custom-power:hover {
     background-color: var(--accent-dark-color);
