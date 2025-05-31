@@ -36,6 +36,25 @@ ensure_target_dirs "$CONFIG_TARGET_DIR" "${target_dirs_to_ensure[@]}"
 
 echo "Copying Configuration Files from $DOTFILES_SOURCE_DIR ..."
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "hypr" "Hyprland"
+
+echo "Ensuring HYPR_SCRIPTS_DIR is set in Hyprland environment configuration..."
+target_env_file="$CONFIG_TARGET_DIR/hypr/conf/env.conf"
+scripts_dir_value="$CONFIG_TARGET_DIR/hypr/scripts" # This will expand to /home/user/.config/hypr/scripts
+env_line_to_set="env = HYPR_SCRIPTS_DIR,$scripts_dir_value"
+env_line_pattern_base="env = HYPR_SCRIPTS_DIR,"
+comment_env_line_pattern_base="# *env = HYPR_SCRIPTS_DIR,"
+
+if [ -f "$target_env_file" ]; then
+    # Remove existing definitions (commented or active)
+    sed -i "/^ *\$env_line_pattern_base/d" "$target_env_file"
+    sed -i "/^ *\$comment_env_line_pattern_base/d" "$target_env_file"
+
+    # Add the correct definition
+    echo "$env_line_to_set" >> "$target_env_file"
+    echo "HYPR_SCRIPTS_DIR set in $target_env_file"
+else
+    echo "Warning: $target_env_file not found. Cannot set HYPR_SCRIPTS_DIR."
+fi
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "waybar" "Waybar"
 copy_single_file "alacritty/alacritty.toml" "alacritty/alacritty.toml" "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Alacritty"
 
