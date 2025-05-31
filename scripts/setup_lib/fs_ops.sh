@@ -37,7 +37,7 @@ copy_component() {
     fi
 
     if [ -d "$full_source_path" ]; then
-        if ! mkdir -p "$full_target_path"; then # Ensure target component dir exists if source is a dir
+        if ! mkdir -p "$full_target_path"; then
              echo "ERROR: Failed to create target directory $full_target_path for $component_name_for_msg." >&2
              exit 1
         fi
@@ -45,7 +45,7 @@ copy_component() {
             echo "ERROR: Failed to copy directory $component_name_for_msg from $full_source_path to $full_target_path." >&2
             exit 1
         fi
-    else # It's a file
+    else
         if ! cp "$full_source_path" "$full_target_path"; then
             echo "ERROR: Failed to copy file $component_name_for_msg from $full_source_path to $full_target_path." >&2
             exit 1
@@ -56,7 +56,6 @@ copy_component() {
     if [ "$component_name_for_msg" == "Hyprland" ] && [ -d "$full_target_path/scripts" ]; then
         if ! chmod +x "$full_target_path/scripts/"*.sh; then
             echo "WARNING: Failed to make Hyprland scripts executable in $full_target_path/scripts/." >&2
-            # Decide if this should be a fatal error - for now, a warning.
         fi
     fi
     echo ""
@@ -86,7 +85,7 @@ copy_single_file() {
         fi
         echo "$component_name_for_msg file copied."
     else
-        echo "WARNING: Source '$full_source_path' not found. $component_name_for_msg config not copied." # This part is fine
+        echo "WARNING: Source '$full_source_path' not found. $component_name_for_msg config not copied."
     fi
     echo ""
 }
