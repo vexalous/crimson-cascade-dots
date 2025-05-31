@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if ! command -v pactl &> /dev/null; then
+    echo "ERROR: 'pactl' command not found. This script requires 'pactl' to function." >&2
+    # Try to send a notification if notify-send is available
+    if command -v notify-send &> /dev/null; then
+        notify-send -u critical -a "Volume Script" "Error: 'pactl' command not found."
+    fi
+    exit 1
+fi
+
 CRIMSON="#DC143C"
 LIGHT_GRAY="#cccccc"
 NEAR_BLACK="#0a0a0a"
@@ -12,7 +21,18 @@ ICON_MIC_MUTED="/usr/share/icons/Papirus-Dark/48x48/devices/audio-input-micropho
 ICON_MIC="/usr/share/icons/Papirus-Dark/48x48/devices/audio-input-microphone.svg"
 
 get_current_volume_percentage() {
-    pactl get-sink-volume @DEFAULT_SINK@ | grep -Po '[0-9]+(?=%)' | head -n 1
+    local volume_output
+    volume_output=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | grep -Po '[0-9]+(?=%)' | head -n 1)
+    if [[ -z "$volume_output" ]] || ! [[ "$volume_output" =~ ^[0-9]+$ ]]; then
+        echo "Error: Could not parse volume percentage from pactl." >&2
+        # Attempt to send a notification about the error
+        if command -v notify-send &> /dev/null; then
+            notify-send -u normal -a "Volume Script" "Error: Could not parse volume from pactl."
+        fi
+        echo "0" # Return a default/fallback value
+    else
+        echo "$volume_output"
+    fi
 }
 
 is_sink_muted() {
