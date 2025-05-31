@@ -19,7 +19,6 @@ DOTFILES_SOURCE_DIR=""
 TEMP_CLONE_DIR=""
 
 source "$(dirname "$0")/scripts/setup_lib/ui.sh"
-source "$(dirname "$0")/scripts/setup_lib/dependencies.sh"
 source "$(dirname "$0")/scripts/setup_lib/backup.sh"
 source "$(dirname "$0")/scripts/setup_lib/fs_ops.sh"
 source "$(dirname "$0")/scripts/setup_lib/git_ops.sh"
@@ -28,9 +27,6 @@ print_header
 
 read -r DOTFILES_SOURCE_DIR TEMP_CLONE_DIR < <(determine_source_dir)
 
-if [ -n "$TEMP_CLONE_DIR" ]; then
-    verify_core_dependencies
-fi
 
 declare -a components_to_backup=("hypr" "waybar" "alacritty" "rofi")
 handle_backup_process "${components_to_backup[@]}"
