@@ -17,12 +17,10 @@ source "$(dirname "$0")/scripts/setup_lib/git_ops.sh"
 
 print_header
 
-determine_source_dir
-DOTFILES_SOURCE_DIR="$DOTFILES_SOURCE_DIR_GLOBAL"
-TEMP_CLONE_DIR="$TEMP_CLONE_DIR_GLOBAL"
+read -r DOTFILES_SOURCE_DIR TEMP_CLONE_DIR < <(determine_source_dir)
 
 if [ -n "$TEMP_CLONE_DIR" ]; then
-    prompt_dependencies
+    verify_core_dependencies
 fi
 
 declare -a components_to_backup=("hypr" "waybar" "alacritty" "rofi")

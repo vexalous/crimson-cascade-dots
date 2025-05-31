@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 source "$(dirname "$0")/../config_lib/common.sh"
-
-set -euo pipefail
-set -o errtrace
 
 if ((BASH_VERSINFO[0] < 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 3) )); then
     printf "FATAL: This script requires Bash version 4.3 or later for 'declare -gr' and robust variable checks.\n" >&2
