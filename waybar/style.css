@@ -12,35 +12,51 @@ window#waybar {
     --bg-color: #0a0a0a;
     --fg-color: #e0e0e0;
     --accent-color: #FF244C;
-    --accent-dark-color: #B81D3A;
+    --accent-dark-color: #B81D3A; /* Darker shade of accent for hover or borders */
+
+    /* Greyscale palette for backgrounds, text, and borders */
+    --medium-grey-color: #6c7086;  /* General purpose medium grey */
+    --dimmed-grey-color: #777;     /* Dimmed grey, e.g., for inactive text */
+    --dark-grey-color: #606060;      /* Dark grey, e.g., for specific UI elements text */
+    --darker-grey-color: #4a4a4a;    /* Darker grey, e.g., for hover backgrounds */
+
+    /* UI element base styles */
     --module-bg-color: #1a1a1a;
-    --module-alt-bg-color: #141414;
+    --module-alt-bg-color: #141414; /* Alternative background for some modules or states */
     --module-border-color: #2c2c2c;
     --module-hover-bg-color: #3d3d3d;
-    --text-hover-color: #f0f0f0;
-    --text-bright-color: #fff;
-    --workspace-button-fg-dimmed: #777;
-    --workspace-button-fg-persistent: #606060;
-    --workspace-button-bg-visible: var(--module-border-color);
-    --workspace-button-hover-border-color: var(--workspace-button-fg-dimmed);
-    --workspace-button-visible-hover-bg-color: #4a4a4a;
-    --workspace-button-visible-hover-border-color: #6c7086;
-    --urgent-bg-color: #FFD700;
-    --urgent-fg-color: #000;
-    --urgent-hover-bg-color: #ffec80; /* Lighter yellow for hover */
-    --urgent-hover-fg-color: var(--bg-color);
+    --text-hover-color: #f0f0f0;      /* Text color on hover over interactive elements */
+    --text-bright-color: #fff;        /* Brightest text color, e.g., for highlighted hover text */
 
-    /* Module specific colors - kept some existing ones that are not directly bg/fg/accent */
-    --hyprland-window-text-color: #cba6f7; /* Kept: Pastel purple */
-    --clock-text-color: #E6E6FA; /* Kept: Lavender */
-    --pulseaudio-text-color: #fab387; /* Kept: Peach */
-    --pulseaudio-muted-bg-color: var(--module-hover-bg-color);
-    --pulseaudio-muted-text-color: #6c7086;
-    --network-text-color: #f9e2af; /* Kept: Pastel yellow */
-    --network-disconnected-bg-color: #f38ba8; /* Kept: Mauve/pink for disconnected */
-    --network-disconnected-text-color: var(--bg-color);
-    --cpu-text-color: #89b4fa; /* Kept: Pastel blue */
-    --memory-text-color: #cba6f7; /* Kept: Pastel purple */
+    /* Workspace buttons */
+    --workspace-button-fg-dimmed: var(--dimmed-grey-color);                /* Dimmed foreground for non-active workspace buttons */
+    --workspace-button-fg-persistent: var(--dark-grey-color);              /* Foreground for persistent workspace buttons */
+    --workspace-button-bg-visible: var(--module-border-color);             /* Background for visible (active on monitor) workspace buttons */
+    --workspace-button-hover-border-color: var(--workspace-button-fg-dimmed); /* Border color for hovered workspace buttons */
+    --workspace-button-visible-hover-bg-color: var(--darker-grey-color);   /* Background for hovered visible workspace buttons */
+    --workspace-button-visible-hover-border-color: var(--medium-grey-color); /* Border for hovered visible workspace buttons */
+
+    /* Urgent state */
+    --urgent-bg-color: #FFD700;        /* Background for urgent state (e.g., notifications) */
+    --urgent-fg-color: #000;           /* Foreground for urgent state */
+    --urgent-hover-bg-color: #ffec80;  /* Lighter yellow for urgent state hover */
+    --urgent-hover-fg-color: var(--bg-color); /* Foreground for urgent state hover */
+
+    /* Module-specific text colors (override --fg-color where needed) */
+    --hyprland-window-text-color: #cba6f7; /* Text color for the Hyprland window title module */
+    --clock-text-color: #E6E6FA;           /* Text color for the clock module */
+    --pulseaudio-text-color: #fab387;      /* Text color for the PulseAudio module */
+    --network-text-color: #f9e2af;         /* Text color for the network module */
+    --cpu-text-color: #89b4fa;             /* Text color for the CPU module */
+    --memory-text-color: #cba6f7;          /* Text color for the memory module */
+
+    /* Module state-specific colors */
+    --pulseaudio-muted-bg-color: var(--module-hover-bg-color);     /* Background for PulseAudio module when muted */
+    --pulseaudio-muted-text-color: var(--medium-grey-color);       /* Text color for PulseAudio module when muted */
+    --network-disconnected-bg-color: #f38ba8;                     /* Background for network module when disconnected */
+    --network-disconnected-text-color: var(--bg-color);            /* Text color for network module when disconnected */
+
+    /* Sizing and spacing */
     --bar-border-height: 2px;
     --module-padding: 0px 10px;
     --module-margin: 4px 5px;
@@ -69,7 +85,7 @@ window#waybar {
     font-weight: normal;
     background-color: transparent;
     border: none;
-    padding-right: 15px;
+    padding: 0 15px 0 0; /* Explicitly set all paddings; right padding of 15px, others 0 */
 }
 #clock {
     color: var(--clock-text-color);
@@ -179,7 +195,7 @@ window#waybar {
 #tray {
     background-color: var(--module-alt-bg-color);
     padding: 0 6px;
-    margin-right: 5px;
+    /* margin-right: 5px; /* This is covered by var(--module-margin) from the general module style */
 }
 
 #custom-power {
