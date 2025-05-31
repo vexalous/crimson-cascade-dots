@@ -7,8 +7,10 @@ LOCK_STR="Lock Screen"
 LOGOUT_STR="Logout"
 
 display_menu() {
+    local script_dir
+    script_dir=$(dirname "$0")
     echo -e "$LOCK_STR\n$LOGOUT_STR\n$REBOOT_STR\n$SHUTDOWN_STR" | \
-        rofi -dmenu -p "Power" -i -mesg "System Actions"
+        rofi -dmenu -p "Power" -i -mesg "System Actions" -theme "$script_dir/../rofi/powermenu_theme.rasi"
 }
 
 execute_action() {
