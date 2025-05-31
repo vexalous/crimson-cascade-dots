@@ -39,9 +39,6 @@ bind = $mainMod, F, fullscreen, 0
 bind = $mainMod SHIFT, Space, togglefloating,
 
 bind = $mainMod, S, layoutmsg, togglesplit
-# For master layout, you might want:
-# bind = $mainMod, S, layoutmsg, swapwithmaster
-# bind = $mainMod, S, layoutmsg, orientationnext
 
 binde = $mainMod, R, submap, resize
 submap = resize
