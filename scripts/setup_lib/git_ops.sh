@@ -7,9 +7,46 @@ determine_source_dir() {
     if [ -d ".git" ] && [ -d "$(git rev-parse --show-toplevel 2>/dev/null)/hypr" ]; then
         echo "Running from Git repository. Attempting to update..." >&2
         local_dotfiles_source_dir="$(git rev-parse --show-toplevel)"
-        git -C "$local_dotfiles_source_dir" pull origin main
+
+        current_branch=$(git -C "$local_dotfiles_source_dir" symbolic-ref --short HEAD 2>/dev/null || echo "")
+
+        echo "Fetching updates from origin..." >&2
+        git -C "$local_dotfiles_source_dir" fetch origin
         if [ $? -ne 0 ]; then
-            echo "ERROR: 'git pull' failed." >&2
+            echo "WARNING: 'git fetch origin' failed. Proceeding with caution." >&2
+        fi
+
+        if [ "$current_branch" != "main" ]; then
+            echo "Current branch is '$current_branch', attempting to switch to 'main' branch..." >&2
+            if git -C "$local_dotfiles_source_dir" rev-parse --verify main >/dev/null 2>&1; then
+                git -C "$local_dotfiles_source_dir" checkout main
+                if [ $? -ne 0 ]; then
+                    echo "ERROR: Failed to checkout 'main' branch. Please resolve manually." >&2
+                    exit 1
+                fi
+            elif git -C "$local_dotfiles_source_dir" rev-parse --verify origin/main >/dev/null 2>&1; then
+                git -C "$local_dotfiles_source_dir" checkout -b main --track origin/main
+                 if [ $? -ne 0 ]; then
+                    echo "ERROR: Failed to create and checkout 'main' branch tracking 'origin/main'. Please resolve manually." >&2
+                    exit 1
+                fi
+            else
+                echo "ERROR: Neither local 'main' nor 'origin/main' found. Cannot proceed with update." >&2
+                exit 1
+            fi
+            current_branch="main"
+        fi
+
+        echo "Ensuring local 'main' branch tracks 'origin/main'..." >&2
+        git -C "$local_dotfiles_source_dir" branch --set-upstream-to=origin/main main
+        if [ $? -ne 0 ]; then
+            echo "WARNING: Failed to set 'main' to track 'origin/main'. Pull might behave unexpectedly." >&2
+        fi
+
+        echo "Pulling changes for 'main' branch..." >&2
+        git -C "$local_dotfiles_source_dir" pull
+        if [ $? -ne 0 ]; then
+            echo "ERROR: 'git pull' failed. Please resolve conflicts or issues manually." >&2
             exit 1
         fi
         echo "Repository updated from $local_dotfiles_source_dir." >&2
@@ -17,6 +54,10 @@ determine_source_dir() {
     else
         echo "Not in a recognized local dotfiles Git repository. Cloning fresh..." >&2
         local_temp_clone_dir=$(mktemp -d -t "${REPO_NAME}_XXXXXX")
+        if [ -z "${REPO_NAME:-}" ]; then
+            echo "ERROR: REPO_NAME variable is not set. Cannot clone." >&2
+            exit 1
+        fi
         git clone --depth 1 "$GIT_REPO_URL" "$local_temp_clone_dir"
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed to clone $GIT_REPO_URL." >&2
