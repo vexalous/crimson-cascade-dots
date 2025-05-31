@@ -1,0 +1,123 @@
+configuration {
+    modi: "drun,run,window,ssh"; /* Standard modi, dmenu will override for this script */
+    font: "JetBrainsMono Nerd Font 11";
+    show-icons: false;
+    dmenu {
+        entry-height: 0; /* Let Rofi calculate */
+    }
+    display-drun: "Apps";
+    display-run: "Run";
+    display-window: "Windows";
+    display-ssh: "SSH";
+}
+
+* {
+    background-color: #0a0a0a; /* Main background */
+    text-color: #e0e0e0;       /* Main text color */
+    border-color: #FF244C;     /* Primary Accent for borders */
+    separatorcolor: #505050;   /* Subtle gray for separators */
+
+    /* Unselected text color, if different from main text-color */
+    /* normal-foreground: @text-color; */
+    /* normal-background: transparent; */ /* Or specific color for list items */
+
+    /* Selected text color and background */
+    selected-normal-foreground: #f0f0f0; /* Bright text for selected */
+    selected-normal-background: #FF244C; /* Primary Accent for selection bg */
+
+    /* Active (being typed/hovered but not selected) */
+    /* active-foreground: @text-color; */
+    /* active-background: transparent; */
+
+    /* Urgent (less common in dmenu) */
+    /* urgent-foreground: @text-color; */
+    /* urgent-background: #your-urgent-color; */
+}
+
+window {
+    background-color: #141414; /* Slightly lighter window background */
+    border: 2px;
+    border-radius: 10px;       /* Consistent with Hyprland decorations */
+    padding: 16px;
+    width: 400px;              /* Adjust as needed */
+}
+
+mainbox {
+    border: 0;
+    padding: 0;
+}
+
+message {
+    border: 1px solid @border-color;
+    border-radius: 6px;
+    padding: 8px;
+    background-color: #1a1a1a; /* Darker than window, similar to waybar module */
+}
+
+textbox {
+    text-color: @text-color;
+}
+
+listview {
+    fixed-height: 0;
+    border: 1px solid @separatorcolor;
+    border-radius: 6px;
+    padding: 8px;
+    columns: 1;
+    lines: 4; /* Number of visible lines for the power menu options */
+    spacing: 5px;
+    cycle: true;
+    dynamic: true;
+    layout: vertical;
+}
+
+element {
+    border: 0;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+    highlight: inherit;
+    vertical-align: 0.5;
+}
+
+element selected {
+    background-color: @selected-normal-background;
+    text-color: @selected-normal-foreground;
+}
+
+inputbar {
+    spacing: 0;
+    text-color: @text-color;
+    padding: 8px;
+    children: [prompt, textbox-prompt-colon, entry, case-indicator];
+    border: 1px solid @separatorcolor;
+    border-radius: 6px;
+    margin-bottom: 10px; /* Space between input bar and list */
+}
+
+prompt {
+    spacing: 0;
+    text-color: @selected-normal-background; /* Use accent for prompt */
+}
+
+textbox-prompt-colon {
+    expand: false;
+    str: ":";
+    margin: 0 0.3em 0 0;
+    text-color: @text-color;
+}
+
+entry {
+    text-color: @text-color;
+    placeholder: "Select an action";
+    placeholder-color: #777777; /* Dimmed placeholder */
+}
+
+case-indicator {
+    spacing: 0;
+    text-color: @text-color;
+}
