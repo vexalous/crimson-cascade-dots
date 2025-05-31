@@ -31,22 +31,33 @@ copy_component() {
     fi
 
     echo "Processing $component_name_for_msg..."
-    mkdir -p "$target_dir"
-
-    if [ -d "$full_source_path" ]; then
-        mkdir -p "$full_target_path"
-        cp -rT "$full_source_path/" "$full_target_path/"
-    else
-        cp "$full_source_path" "$full_target_path"
+    if ! mkdir -p "$target_dir"; then
+        echo "ERROR: Failed to create target directory $target_dir for $component_name_for_msg." >&2
+        exit 1
     fi
 
-    if [ $? -eq 0 ]; then
-        echo "$component_name_for_msg files copied to $full_target_path."
-        if [ "$component_name_for_msg" == "Hyprland" ] && [ -d "$full_target_path/scripts" ]; then
-            chmod +x "$full_target_path/scripts/"*.sh
+    if [ -d "$full_source_path" ]; then
+        if ! mkdir -p "$full_target_path"; then # Ensure target component dir exists if source is a dir
+             echo "ERROR: Failed to create target directory $full_target_path for $component_name_for_msg." >&2
+             exit 1
         fi
-    else
-        echo "ERROR: Failed to copy $component_name_for_msg from $full_source_path."
+        if ! cp -rT "$full_source_path/" "$full_target_path/"; then
+            echo "ERROR: Failed to copy directory $component_name_for_msg from $full_source_path to $full_target_path." >&2
+            exit 1
+        fi
+    else # It's a file
+        if ! cp "$full_source_path" "$full_target_path"; then
+            echo "ERROR: Failed to copy file $component_name_for_msg from $full_source_path to $full_target_path." >&2
+            exit 1
+        fi
+    fi
+
+    echo "$component_name_for_msg files copied to $full_target_path."
+    if [ "$component_name_for_msg" == "Hyprland" ] && [ -d "$full_target_path/scripts" ]; then
+        if ! chmod +x "$full_target_path/scripts/"*.sh; then
+            echo "WARNING: Failed to make Hyprland scripts executable in $full_target_path/scripts/." >&2
+            # Decide if this should be a fatal error - for now, a warning.
+        fi
     fi
     echo ""
 }
@@ -65,15 +76,17 @@ copy_single_file() {
 
     if [ -f "$full_source_path" ]; then
         echo "Copying $component_name_for_msg file..."
-        mkdir -p "$target_dir"
-        cp "$full_source_path" "$full_target_path"
-        if [ $? -eq 0 ]; then
-            echo "$component_name_for_msg file copied."
-        else
-            echo "ERROR: Failed to copy $component_name_for_msg file."
+        if ! mkdir -p "$target_dir"; then
+            echo "ERROR: Failed to create target directory $target_dir for $component_name_for_msg file." >&2
+            exit 1
         fi
+        if ! cp "$full_source_path" "$full_target_path"; then
+            echo "ERROR: Failed to copy $component_name_for_msg file from $full_source_path to $full_target_path." >&2
+            exit 1
+        fi
+        echo "$component_name_for_msg file copied."
     else
-        echo "WARNING: Source '$full_source_path' not found. $component_name_for_msg config not copied."
+        echo "WARNING: Source '$full_source_path' not found. $component_name_for_msg config not copied." # This part is fine
     fi
     echo ""
 }

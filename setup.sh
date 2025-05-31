@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This setup script installs dotfiles by copying pre-defined configuration files
+# directly from this repository into the appropriate ~/.config subdirectories.
+#
+# The scripts located in the 'scripts/config/' directory are primarily intended
+# for developer use. They serve as generators or templates to help create/update
+# the static configuration files stored within the repository (e.g., in 'hypr/', 'waybar/', 'alacritty/').
+# These generator scripts are NOT executed during the user-facing setup process
+# handled by this setup.sh script.
+
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DIR_BASE="$HOME/config_backups_crimson_cascade"
 GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
@@ -10,7 +19,6 @@ DOTFILES_SOURCE_DIR=""
 TEMP_CLONE_DIR=""
 
 source "$(dirname "$0")/scripts/setup_lib/ui.sh"
-source "$(dirname "$0")/scripts/setup_lib/dependencies.sh"
 source "$(dirname "$0")/scripts/setup_lib/backup.sh"
 source "$(dirname "$0")/scripts/setup_lib/fs_ops.sh"
 source "$(dirname "$0")/scripts/setup_lib/git_ops.sh"
@@ -19,9 +27,6 @@ print_header
 
 read -r DOTFILES_SOURCE_DIR TEMP_CLONE_DIR < <(determine_source_dir)
 
-if [ -n "$TEMP_CLONE_DIR" ]; then
-    verify_core_dependencies
-fi
 
 declare -a components_to_backup=("hypr" "waybar" "alacritty" "rofi")
 handle_backup_process "${components_to_backup[@]}"
