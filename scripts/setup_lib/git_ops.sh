@@ -11,7 +11,7 @@ determine_source_dir() {
         current_branch=$(git -C "$local_dotfiles_source_dir" symbolic-ref --short HEAD 2>/dev/null || echo "")
 
         echo "Fetching updates from origin..." >&2
-        git -C "$local_dotfiles_source_dir" fetch origin
+        git -C "$local_dotfiles_source_dir" fetch origin >&2
         if [ $? -ne 0 ]; then
             echo "WARNING: 'git fetch origin' failed. Proceeding with caution." >&2
         fi
@@ -19,13 +19,13 @@ determine_source_dir() {
         if [ "$current_branch" != "main" ]; then
             echo "Current branch is '$current_branch', attempting to switch to 'main' branch..." >&2
             if git -C "$local_dotfiles_source_dir" rev-parse --verify main >/dev/null 2>&1; then
-                git -C "$local_dotfiles_source_dir" checkout main
+                git -C "$local_dotfiles_source_dir" checkout main >&2
                 if [ $? -ne 0 ]; then
                     echo "ERROR: Failed to checkout 'main' branch. Please resolve manually." >&2
                     exit 1
                 fi
             elif git -C "$local_dotfiles_source_dir" rev-parse --verify origin/main >/dev/null 2>&1; then
-                git -C "$local_dotfiles_source_dir" checkout -b main --track origin/main
+                git -C "$local_dotfiles_source_dir" checkout -b main --track origin/main >&2
                  if [ $? -ne 0 ]; then
                     echo "ERROR: Failed to create and checkout 'main' branch tracking 'origin/main'. Please resolve manually." >&2
                     exit 1
@@ -38,13 +38,13 @@ determine_source_dir() {
         fi
 
         echo "Ensuring local 'main' branch tracks 'origin/main'..." >&2
-        git -C "$local_dotfiles_source_dir" branch --set-upstream-to=origin/main main
+        git -C "$local_dotfiles_source_dir" branch --set-upstream-to=origin/main main >&2
         if [ $? -ne 0 ]; then
             echo "WARNING: Failed to set 'main' to track 'origin/main'. Pull might behave unexpectedly." >&2
         fi
 
         echo "Pulling changes for 'main' branch..." >&2
-        git -C "$local_dotfiles_source_dir" pull
+        git -C "$local_dotfiles_source_dir" pull >&2
         if [ $? -ne 0 ]; then
             echo "ERROR: 'git pull' failed. Please resolve conflicts or issues manually." >&2
             exit 1
