@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 source "$(dirname "$0")/../config_lib/common.sh"
 
 export LC_ALL=C
-set -euo pipefail
 
 readonly SCRIPT_BASENAME="${0##*/}"
 readonly WINDOWRULES_CONFIG_FILENAME="windowrules.conf"

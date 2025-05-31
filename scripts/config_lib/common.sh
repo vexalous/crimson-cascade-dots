@@ -25,7 +25,7 @@ finish_script_generation_dir() {
     local target_dir="$1"
     local description="$2"
     echo "$description generated in $target_dir."
-    if [ -n "$(ls -A "$target_dir"/*.sh 2>/dev/null)" ]; then
+    if find "$target_dir" -maxdepth 1 -name '*.sh' -print -quit 2>/dev/null | grep -q .; then
         chmod +x "$target_dir"/*.sh
         echo "Made scripts in $target_dir executable."
     fi
