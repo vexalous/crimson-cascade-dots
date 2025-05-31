@@ -17,19 +17,16 @@ window#waybar {
     --module-alt-bg-color: #141414;
     --module-border-color: #2c2c2c;
     --module-hover-bg-color: #3d3d3d;
-
     --text-hover-color: #f0f0f0;
-    --text-bright-color: #ffffff;
-
-    --workspace-button-fg-dimmed: #777777;
+    --text-bright-color: #fff;
+    --workspace-button-fg-dimmed: #777;
     --workspace-button-fg-persistent: #606060;
     --workspace-button-bg-visible: var(--module-border-color);
     --workspace-button-hover-border-color: var(--workspace-button-fg-dimmed);
     --workspace-button-visible-hover-bg-color: #4a4a4a;
     --workspace-button-visible-hover-border-color: #6c7086;
-
     --urgent-bg-color: #FFD700;
-    --urgent-fg-color: #000000;
+    --urgent-fg-color: #000;
     --urgent-hover-bg-color: #ffec80; /* Lighter yellow for hover */
     --urgent-hover-fg-color: var(--bg-color);
 
@@ -44,7 +41,6 @@ window#waybar {
     --network-disconnected-text-color: var(--bg-color);
     --cpu-text-color: #89b4fa; /* Kept: Pastel blue */
     --memory-text-color: #cba6f7; /* Kept: Pastel purple */
-
     --bar-border-height: 2px;
     --module-padding: 0px 10px;
     --module-margin: 4px 5px;
@@ -68,12 +64,33 @@ window#waybar {
 }
 
 /* Override specific module text colors if needed, but default to --fg-color */
-#hyprland-window { color: var(--hyprland-window-text-color); font-weight: normal; background-color: transparent; border: none; padding-right: 15px; }
-#clock { color: var(--clock-text-color); font-weight: bold; }
-#pulseaudio { background-color: var(--module-border-color); color: var(--pulseaudio-text-color); }
-#network { background-color: var(--module-border-color); color: var(--network-text-color); }
-#cpu { background-color: var(--module-border-color); color: var(--cpu-text-color); }
-#memory { background-color: var(--module-border-color); color: var(--memory-text-color); }
+#hyprland-window {
+    color: var(--hyprland-window-text-color);
+    font-weight: normal;
+    background-color: transparent;
+    border: none;
+    padding-right: 15px;
+}
+#clock {
+    color: var(--clock-text-color);
+    font-weight: bold;
+}
+#pulseaudio {
+    background-color: var(--module-border-color);
+    color: var(--pulseaudio-text-color);
+}
+#network {
+    background-color: var(--module-border-color);
+    color: var(--network-text-color);
+}
+#cpu {
+    background-color: var(--module-border-color);
+    color: var(--cpu-text-color);
+}
+#memory {
+    background-color: var(--module-border-color);
+    color: var(--memory-text-color);
+}
 
 
 #workspaces {
@@ -171,6 +188,7 @@ window#waybar {
     font-size: 16px;
     padding: 0 12px;
 }
+
 #custom-power:hover {
     background-color: var(--accent-dark-color);
     color: var(--text-hover-color);
@@ -183,6 +201,7 @@ tooltip {
     color: var(--fg-color);
     padding: var(--tooltip-padding);
 }
+
 tooltip label {
     color: var(--fg-color);
 }
