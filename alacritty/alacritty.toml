@@ -18,40 +18,40 @@ size = 11.0
 
 [colors.primary]
 background = "#0a0a0a"
-foreground = "#cccccc"
+foreground = "#e0e0e0"
 
 [colors.cursor]
 text = "#0a0a0a"
-cursor = "#DC143C"
+cursor = "#FF244C"
 
 [colors.selection]
 text = "#f0f0f0"
-background = "#8B0000"
+background = "#B81D3A"
 
 [colors.normal]
 black =   "#1a1a1a"
-red =     "#DC143C"
-green =   "#a0102c"
-yellow =  "#8B0000"
-blue =    "#505050"
-magenta = "#DC143C"
-cyan =    "#a0102c"
-white =   "#cccccc"
+red =     "#FF244C"
+green =   "#50C878"
+yellow =  "#FFD700"
+blue =    "#61AFEF"
+magenta = "#FF244C"
+cyan =    "#56B6C2"
+white =   "#e0e0e0"
 
 [colors.bright]
 black =   "#3d3d3d"
-red =     "#FF0000"
-green =   "#DC143C"
-yellow =  "#a0102c"
-blue =    "#606060"
-magenta = "#FF0000"
-cyan =    "#DC143C"
+red =     "#FF244C"
+green =   "#62E091"
+yellow =  "#FFEE58"
+blue =    "#7EC8F8"
+magenta = "#FF244C"
+cyan =    "#70CAD1"
 white =   "#f0f0f0"
 
 [bell]
 animation = "EaseOutExpo"
 duration = 100
-color = "#DC143C"
+color = "#FF244C"
 
 [[keyboard.bindings]]
 key = "V"
