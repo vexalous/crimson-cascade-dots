@@ -25,5 +25,5 @@ verify_core_dependencies() {
     else
         echo "All core command-line tool dependencies verified." >&2
     fi
-    echo "" >&2 # Keep a blank line for readability in setup script output
+    echo "" >&2
 }

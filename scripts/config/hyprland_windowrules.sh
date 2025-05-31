@@ -76,8 +76,11 @@ if ! chmod 0700 -- "${_CANONICAL_TARGET_CONFIG_DIR}"; then
     _exit_with_error "Failed to set permissions (0700) on directory: '${_CANONICAL_TARGET_CONFIG_DIR}'. Verify ownership and existing permissions."
 fi
 
-_TEMP_CONFIG_FILE_PATH="$(mktemp "${_CANONICAL_TARGET_CONFIG_DIR}/${WINDOWRULES_CONFIG_FILENAME}.tmp.XXXXXX")" ||
+_TEMP_CONFIG_FILE_PATH="$(mktemp "${_CANONICAL_TARGET_CONFIG_DIR}/${WINDOWRULES_CONFIG_FILENAME}.tmp.XXXXXX")"
+if [[ $? -ne 0 ]]; then
     _exit_with_error "Failed to create temporary configuration file in '${_CANONICAL_TARGET_CONFIG_DIR}'."
+fi
+
 
 if ! chmod 0600 -- "${_TEMP_CONFIG_FILE_PATH}"; then
     _exit_with_error "Failed to set permissions (0600) on temporary file: '${_TEMP_CONFIG_FILE_PATH}'."

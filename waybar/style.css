@@ -10,9 +10,9 @@
 
 window#waybar {
     --bg-color: #0a0a0a;
-    --fg-color: #cccccc;
-    --accent-color: #DC143C;
-    --accent-dark-color: #a0102c;
+    --fg-color: #e0e0e0;
+    --accent-color: #FF244C;
+    --accent-dark-color: #B81D3A;
     --module-bg-color: #1a1a1a;
     --module-alt-bg-color: #141414;
     --module-border-color: #2c2c2c;
@@ -21,8 +21,8 @@ window#waybar {
     --text-hover-color: #f0f0f0;
     --text-bright-color: #ffffff;
 
-    --workspace-button-fg-dimmed: #555555;
-    --workspace-button-fg-persistent: #404040;
+    --workspace-button-fg-dimmed: #777777;
+    --workspace-button-fg-persistent: #606060;
     --workspace-button-bg-visible: var(--module-border-color);
     --workspace-button-hover-border-color: var(--workspace-button-fg-dimmed);
     --workspace-button-visible-hover-bg-color: #4a4a4a;
@@ -30,23 +30,24 @@ window#waybar {
 
     --urgent-bg-color: #FFD700;
     --urgent-fg-color: #000000;
-    --urgent-hover-bg-color: #ffec80;
+    --urgent-hover-bg-color: #ffec80; /* Lighter yellow for hover */
     --urgent-hover-fg-color: var(--bg-color);
 
-    --hyprland-window-text-color: #b4befe;
-    --clock-text-color: #E6E6FA;
-    --pulseaudio-text-color: #fab387;
+    /* Module specific colors - kept some existing ones that are not directly bg/fg/accent */
+    --hyprland-window-text-color: #cba6f7; /* Kept: Pastel purple */
+    --clock-text-color: #E6E6FA; /* Kept: Lavender */
+    --pulseaudio-text-color: #fab387; /* Kept: Peach */
     --pulseaudio-muted-bg-color: var(--module-hover-bg-color);
     --pulseaudio-muted-text-color: #6c7086;
-    --network-text-color: #f9e2af;
-    --network-disconnected-bg-color: #f38ba8;
+    --network-text-color: #f9e2af; /* Kept: Pastel yellow */
+    --network-disconnected-bg-color: #f38ba8; /* Kept: Mauve/pink for disconnected */
     --network-disconnected-text-color: var(--bg-color);
-    --cpu-text-color: #89b4fa;
-    --memory-text-color: #cba6f7;
+    --cpu-text-color: #89b4fa; /* Kept: Pastel blue */
+    --memory-text-color: #cba6f7; /* Kept: Pastel purple */
 
     --bar-border-height: 2px;
     --module-padding: 0px 10px;
-    --module-margin: 3px 4px;
+    --module-margin: 4px 5px;
     --module-radius: 8px;
     --button-radius: 6px;
     --tooltip-radius: 6px;
@@ -60,11 +61,20 @@ window#waybar {
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window {
     padding: var(--module-padding);
     margin: var(--module-margin);
-    color: var(--fg-color);
+    color: var(--fg-color); /* Use main foreground for module text unless overridden */
     background-color: var(--module-bg-color);
     border-radius: var(--module-radius);
     border: 1px solid var(--module-border-color);
 }
+
+/* Override specific module text colors if needed, but default to --fg-color */
+#hyprland-window { color: var(--hyprland-window-text-color); font-weight: normal; background-color: transparent; border: none; padding-right: 15px; }
+#clock { color: var(--clock-text-color); font-weight: bold; }
+#pulseaudio { background-color: var(--module-border-color); color: var(--pulseaudio-text-color); }
+#network { background-color: var(--module-border-color); color: var(--network-text-color); }
+#cpu { background-color: var(--module-border-color); color: var(--cpu-text-color); }
+#memory { background-color: var(--module-border-color); color: var(--memory-text-color); }
+
 
 #workspaces {
     background-color: var(--module-alt-bg-color);
@@ -75,8 +85,8 @@ window#waybar {
 }
 
 #workspaces button {
-    padding: 2px 8px; 
-    margin: 2px 1px;   
+    padding: 3px 8px;
+    margin: 3px 2px;
     color: var(--workspace-button-fg-dimmed);
     background-color: var(--module-alt-bg-color);
     border-radius: var(--button-radius);
@@ -135,47 +145,18 @@ window#waybar {
     padding: 0 12px;
 }
 
-#hyprland-window {
-    color: var(--hyprland-window-text-color);
-    font-weight: normal;
-    background-color: transparent;
-    border: none;
-    padding-right: 15px;
-}
-
-#clock {
-    color: var(--clock-text-color);
-    font-weight: bold;
-}
-#clock:hover {
+#clock:hover { /* Specific hover for clock if desired, else remove if general module hover is enough */
     color: var(--accent-color);
 }
 
-#pulseaudio {
-    background-color: var(--module-border-color);
-    color: var(--pulseaudio-text-color);
-}
 #pulseaudio.muted {
     background-color: var(--pulseaudio-muted-bg-color);
     color: var(--pulseaudio-muted-text-color);
 }
 
-#network {
-    background-color: var(--module-border-color);
-    color: var(--network-text-color);
-}
 #network.disconnected {
     background-color: var(--network-disconnected-bg-color);
     color: var(--network-disconnected-text-color);
-}
-
-#cpu {
-    background-color: var(--module-border-color);
-    color: var(--cpu-text-color);
-}
-#memory {
-    background-color: var(--module-border-color);
-    color: var(--memory-text-color);
 }
 
 #tray {
