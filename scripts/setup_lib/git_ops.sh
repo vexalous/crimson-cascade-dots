@@ -11,9 +11,9 @@ determine_source_dir() {
         current_branch=$(git -C "$local_dotfiles_source_dir" symbolic-ref --short HEAD 2>/dev/null || echo "")
 
         echo "Fetching updates from origin..." >&2
-        git -C "$local_dotfiles_source_dir" fetch origin >&2
-        if [ $? -ne 0 ]; then
-            echo "WARNING: 'git fetch origin' failed. Proceeding with caution." >&2
+        if ! git -C "$local_dotfiles_source_dir" fetch origin >&2; then
+            echo "ERROR: 'git fetch origin' failed. Cannot ensure repository is up to date." >&2
+            exit 1
         fi
 
         if [ "$current_branch" != "main" ]; then
@@ -38,9 +38,9 @@ determine_source_dir() {
         fi
 
         echo "Ensuring local 'main' branch tracks 'origin/main'..." >&2
-        git -C "$local_dotfiles_source_dir" branch --set-upstream-to=origin/main main >&2
-        if [ $? -ne 0 ]; then
-            echo "WARNING: Failed to set 'main' to track 'origin/main'. Pull might behave unexpectedly." >&2
+        if ! git -C "$local_dotfiles_source_dir" branch --set-upstream-to=origin/main main >&2; then
+            echo "ERROR: Failed to set 'main' to track 'origin/main'. Cannot ensure correct pull behavior." >&2
+            exit 1
         fi
 
         echo "Pulling changes for 'main' branch..." >&2
