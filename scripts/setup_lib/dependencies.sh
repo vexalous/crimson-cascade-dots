@@ -2,7 +2,11 @@
 set -euo pipefail
 
 verify_core_dependencies() {
+<<<<<<< HEAD
     local essential_commands=("git" "brightnessctl" "notify-send" "pactl" "rofi" "hyprctl" "hyprlock" "waybar")
+=======
+    local essential_commands=("git" "brightnessctl" "notify-send" "pactl" "rofi" "hyprctl" "hyprlock")
+>>>>>>> main
     local missing_commands=()
     local command_found_status=0
 
