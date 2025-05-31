@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-# Source shared colors
-# shellcheck source=./colors.sh
 source "$(dirname "$0")/colors.sh"
 
 APP_NAME="Brightness"
@@ -18,7 +15,7 @@ get_brightness_percentage() {
         echo 0
         return
     fi
-    echo $((current_brightness * 100 / val_max_brightness))
+    echo "$((current_brightness * 100 / val_max_brightness))"
 }
 
 get_brightness_icon() {
@@ -33,17 +30,15 @@ get_brightness_icon() {
 }
 
 main() {
-    local brightness_p icon notify_message
+    local brightness_p icon
     brightness_p=$(get_brightness_percentage)
     icon=$(get_brightness_icon "$brightness_p")
 
-    notify_message="${brightness_p}%"
-
     "$(dirname "$0")/notify.sh" \
-        -a "$APP_NAME" \
         -t "Brightness" \
-        -m "$notify_message" \
+        -m "${brightness_p}%" \
         -i "$icon" \
+        -a "$APP_NAME" \
         -p "$brightness_p"
 }
 

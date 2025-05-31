@@ -10,7 +10,7 @@ DEFAULT_APP_NAME="System Notification"
 DEFAULT_ICON="dialog-information"
 DEFAULT_TITLE="Notification"
 DEFAULT_TEXT=""
-DEFAULT_PROGRESS_VALUE=-1
+DEFAULT_PROGRESS_VALUE=-1 # Use -1 or an empty string to indicate no progress bar
 
 usage() {
     echo "Usage: $0 -t <title> -m <message> [-a <app_name>] [-i <icon_path>] [-p <progress_value>]"
@@ -50,13 +50,13 @@ fi
 # Construct notify-send command
 declare -a notify_args=()
 
-notify_args+=("-u" "low")
+notify_args+=("-u" "low") # Urgency
 notify_args+=("-a" "$APP_NAME")
 notify_args+=("-i" "$ICON_PATH")
 notify_args+=("-h" "string:fgcolor:$LIGHT_GRAY")
 notify_args+=("-h" "string:bgcolor:$NEAR_BLACK")
 notify_args+=("-h" "string:hlcolor:$CRIMSON")
-notify_args+=("-h" "string:x-canonical-private-synchronous:hypr_notification")
+notify_args+=("-h" "string:x-canonical-private-synchronous:generic_notif") # Allows replacing by ID
 
 if [[ "$PROGRESS_VALUE" -ge 0 && "$PROGRESS_VALUE" -le 100 ]]; then
     notify_args+=("-h" "int:value:$PROGRESS_VALUE")

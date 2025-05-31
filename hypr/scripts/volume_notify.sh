@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# shellcheck source=./colors.sh
-source "$(dirname "$0")/colors.sh"
-
 if ! command -v pactl &> /dev/null; then
     echo "ERROR: 'pactl' command not found. This script requires 'pactl' to function." >&2
-    if command -v notify-send &> /dev/null; then # Basic fallback if notify.sh isn't even available
-        notify-send -u critical -a "Volume Script Error" "Error: 'pactl' command not found. Please install pulseaudio-utils or pipewire-pulse."
+
+    if command -v notify-send &> /dev/null; then
+        notify-send -u critical -a "Volume Script" "Error: 'pactl' command not found."
     fi
     exit 1
 fi
+source "$(dirname "$0")/colors.sh"
 
 ICON_MUTED="/usr/share/icons/Papirus-Dark/48x48/panel/audio-volume-muted.svg"
 ICON_LOW="/usr/share/icons/Papirus-Dark/48x48/panel/audio-volume-low.svg"
@@ -24,11 +23,9 @@ get_current_volume_percentage() {
     volume_output=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | grep -Po '[0-9]+(?=%)' | head -n 1)
     if [[ -z "$volume_output" ]] || ! [[ "$volume_output" =~ ^[0-9]+$ ]]; then
         echo "Error: Could not parse volume percentage from pactl." >&2
-        # Attempt to use notify.sh for error, with basic notify-send as ultimate fallback
-        if [ -x "$(dirname "$0")/notify.sh" ]; then
-             "$(dirname "$0")/notify.sh" -a "Volume Script Error" -t "Volume Error" -m "Could not parse volume from pactl." -i "dialog-error"
-        elif command -v notify-send &> /dev/null; then
-            notify-send -u normal -a "Volume Script Error" "Error: Could not parse volume from pactl." -i "dialog-error"
+
+        if command -v notify-send &> /dev/null; then
+            notify-send -u normal -a "Volume Script" "Error: Could not parse volume from pactl."
         fi
         echo "0"
     else
@@ -45,7 +42,7 @@ is_source_muted() {
 }
 
 process_mic_mute_status() {
-    local app_name="Microphone"
+    local notification_title="Microphone"
     local icon_path
     local display_text
     local percentage_value
@@ -59,16 +56,17 @@ process_mic_mute_status() {
         display_text="Mic On"
         percentage_value=100
     fi
+
     "$(dirname "$0")/notify.sh" \
-        -a "$app_name" \
-        -t "$app_name" \
+        -t "$notification_title" \
         -m "$display_text" \
         -i "$icon_path" \
+        -a "$notification_title" \
         -p "$percentage_value"
 }
 
 process_volume_status() {
-    local app_name="Volume"
+    local notification_title="Volume"
     local current_volume
     current_volume=$(get_current_volume_percentage)
     local icon_path
@@ -92,16 +90,17 @@ process_volume_status() {
         display_text="${current_volume}%"
         percentage_value="$current_volume"
     fi
+
     "$(dirname "$0")/notify.sh" \
-        -a "$app_name" \
-        -t "$app_name" \
+        -t "$notification_title" \
         -m "$display_text" \
         -i "$icon_path" \
+        -a "$notification_title" \
         -p "$percentage_value"
 }
 
 main() {
-    if [[ "${1-}" == "MUTE" ]]; then
+    if [[ "$1" == "MUTE" ]]; then
         process_mic_mute_status
     else
         process_volume_status
