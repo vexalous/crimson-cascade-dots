@@ -7,9 +7,9 @@ source "$(dirname "$0")/colors.sh"
 
 # Default values
 DEFAULT_APP_NAME="System Notification"
-DEFAULT_ICON="dialog-information"
+DEFAULT_ICON="dialog-information" # A very generic icon
 DEFAULT_TITLE="Notification"
-DEFAULT_TEXT=""
+DEFAULT_TEXT="" # Message body can be empty, though unusual
 DEFAULT_PROGRESS_VALUE=-1 # Use -1 or an empty string to indicate no progress bar
 
 usage() {
@@ -56,10 +56,15 @@ notify_args+=("-i" "$ICON_PATH")
 notify_args+=("-h" "string:fgcolor:$LIGHT_GRAY")
 notify_args+=("-h" "string:bgcolor:$NEAR_BLACK")
 notify_args+=("-h" "string:hlcolor:$CRIMSON")
-notify_args+=("-h" "string:x-canonical-private-synchronous:generic_notif") # Allows replacing by ID
+# Allows replacing notification by ID, useful for volume/brightness
+notify_args+=("-h" "string:x-canonical-private-synchronous:hypr_notification")
 
+# Progress bar handling (int:value: replaces content)
 if [[ "$PROGRESS_VALUE" -ge 0 && "$PROGRESS_VALUE" -le 100 ]]; then
     notify_args+=("-h" "int:value:$PROGRESS_VALUE")
+    # When using progress bar, the main message is often the percentage itself or empty if title is descriptive
+    # For this generic script, we'll pass the message as the summary if progress is also set.
+    # Specific callers can adjust.
 fi
 
 notify_args+=("$TITLE")
