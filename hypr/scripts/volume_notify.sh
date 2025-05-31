@@ -9,10 +9,8 @@ if ! command -v pactl &> /dev/null; then
     fi
     exit 1
 fi
+source "$(dirname "$0")/colors.sh"
 
-CRIMSON="#DC143C"
-LIGHT_GRAY="#cccccc"
-NEAR_BLACK="#0a0a0a"
 ICON_MUTED="/usr/share/icons/Papirus-Dark/48x48/panel/audio-volume-muted.svg"
 ICON_LOW="/usr/share/icons/Papirus-Dark/48x48/panel/audio-volume-low.svg"
 ICON_MEDIUM="/usr/share/icons/Papirus-Dark/48x48/panel/audio-volume-medium.svg"
@@ -43,21 +41,6 @@ is_source_muted() {
     pactl get-source-mute @DEFAULT_SOURCE@ | grep -q yes
 }
 
-send_notification() {
-    local notification_title="$1"
-    local percentage_value="$2"
-    local icon_path="$3"
-    local display_text="$4"
-
-    notify-send -h string:x-canonical-private-synchronous:vol_notif \
-                -h int:value:"$percentage_value" \
-                -u low \
-                -i "$icon_path" \
-                -a "$notification_title" \
-                "$display_text" \
-                --hint="string:fgcolor:$LIGHT_GRAY,string:bgcolor:$NEAR_BLACK,string:hlcolor:$CRIMSON"
-}
-
 process_mic_mute_status() {
     local notification_title="Microphone"
     local icon_path
@@ -73,7 +56,13 @@ process_mic_mute_status() {
         display_text="Mic On"
         percentage_value=100
     fi
-    send_notification "$notification_title" "$percentage_value" "$icon_path" "$display_text"
+
+    "$(dirname "$0")/notify.sh" \
+        -t "$notification_title" \
+        -m "$display_text" \
+        -i "$icon_path" \
+        -a "$notification_title" \
+        -p "$percentage_value"
 }
 
 process_volume_status() {
@@ -101,7 +90,13 @@ process_volume_status() {
         display_text="${current_volume}%"
         percentage_value="$current_volume"
     fi
-    send_notification "$notification_title" "$percentage_value" "$icon_path" "$display_text"
+
+    "$(dirname "$0")/notify.sh" \
+        -t "$notification_title" \
+        -m "$display_text" \
+        -i "$icon_path" \
+        -a "$notification_title" \
+        -p "$percentage_value"
 }
 
 main() {

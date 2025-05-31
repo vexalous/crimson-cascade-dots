@@ -11,6 +11,40 @@ fi
 declare -gr SCRIPT_NAME="$(basename "$0")"
 declare -gr SCRIPT_ABSOLUTE_PATH="$(readlink -m "${BASH_SOURCE[0]}")"
 
+# Developer Usage Notes for WALLPAPER_FILE:
+# This script (`hyprlock.sh`) is intended for developers to generate the
+# `hyprlock.conf` file that will be committed to the repository.
+#
+# The `WALLPAPER_FILE` environment variable is used directly in the generated
+# configuration file for the `background { path = ... }` directive.
+# It is also checked by this script for existence and readability *at the time
+# this script is run*.
+#
+# Therefore, when a developer runs this script:
+# 1. `WALLPAPER_FILE` must be set to the exact path string that `hyprlock`
+#    should use at runtime on the end-user's system.
+#    - If Hyprlock expands `~` or `$HOME`, you can use those. For example:
+#      `export WALLPAPER_FILE="\$HOME/.config/hypr/wallpaper/my_lockscreen.png"`
+#      (Note: `\$HOME` ensures it's a literal string if set via a script that might expand it).
+#    - If Hyprlock requires an absolute path, provide that.
+#
+# 2. For this script's validation checks (`[ -f "$WALLPAPER_FILE" ]`, etc.) to pass,
+#    the path specified by `WALLPAPER_FILE` must exist and be readable *during script execution*.
+#    - If `WALLPAPER_FILE` is set to a path like `\$HOME/...` (intended for runtime),
+#      the validation will likely fail unless that exact path (e.g., literally
+#      `$HOME/...` if HOME is not set, or the expanded path if HOME is set) exists.
+#    - To satisfy validation when using such runtime paths:
+#      a) Ensure the actual wallpaper file (e.g., `my_lockscreen.png`) is present in the
+#         repository (e.g., in `hypr/wallpaper/`).
+#      b) Temporarily create the runtime path or a symlink to it before running this script,
+#         OR modify this script to separate validation paths from output paths if needed.
+#         For example, you might `ln -s "$(pwd)/hypr/wallpaper/my_lockscreen.png" "$HOME/.config/hypr/wallpaper/my_lockscreen.png"`
+#         before running, assuming `WALLPAPER_FILE` is set to `$HOME/.config/hypr/wallpaper/my_lockscreen.png`.
+#
+# The `setup.sh` script is responsible for ensuring the actual wallpaper image
+# is copied to the location expected by the generated `hyprlock.conf` on the
+# end-user's system.
+
 declare -gr REQUIRED_VARS=(
     "HYPRLOCK_TARGET_FILE"
     "WALLPAPER_FILE"
