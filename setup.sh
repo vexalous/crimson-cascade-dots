@@ -6,18 +6,14 @@ set -o errexit -o nounset -o pipefail
 IFS=$'\n\t'
 
 # --- Script Identity & Constants ---
-readonly SCRIPT_NAME
-SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_DIR
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly LOCK_FILE # Lockfile to prevent concurrent runs
-LOCK_FILE="/tmp/${SCRIPT_NAME}.lock"
-readonly DEFAULT_SCRIPT_LOG_FILE
-DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
+readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly LOCK_FILE="/tmp/${SCRIPT_NAME}.lock" # Lockfile to prevent concurrent runs
+readonly DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
 
 # --- Configuration Constants ---
 # These constants might be used by sourced library scripts (e.g., backup.sh, git_ops.sh)
-# If not, they should be removed or their usage verified.
+# If not, they should be removed or their usage verified. (SC2034 - flagged if truly unused by *this* script and its direct dependencies)
 readonly BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
 readonly GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
 readonly REPO_NAME="crimson-cascade-dots"
@@ -35,7 +31,7 @@ TEMP_CLONE_DIR="" # Cleaned up by 'trap cleanup'
 DEBUG_MODE=false
 SKIP_BACKUPS=false
 SKIP_SERVICES=false
-SKIP_HYPR_ENV=false # Renamed from SKIP_HYPR_ENV_UPDATE
+SKIP_HYPR_ENV=false
 SCRIPT_LOG_FILE="${DEFAULT_SCRIPT_LOG_FILE}"
 OVERALL_SCRIPT_STATUS=0 # Global tracker: 0=all good, 1=non-critical issues occurred
 
@@ -93,24 +89,33 @@ release_lock() {
 source_libraries() {
     info_msg "Sourcing library scripts from '${SCRIPT_DIR}/scripts/setup_lib'..."
     local lib_dir="${SCRIPT_DIR}/scripts/setup_lib"
-    local libraries_to_source=( "ui.sh" "dependencies.sh" "backup.sh" "fs_ops.sh" "git_ops.sh" )
-    for lib_file in "${libraries_to_source[@]}"; do
-        local lib_path="${lib_dir}/${lib_file}"
-        if [[ ! -f "${lib_path}" ]]; then
-            critical_exit "Required library file not found: ${lib_path}"
-        fi
-        # ShellCheck directives to suppress SC1090 for dynamic sourcing.
-        # Adjust path for each specific library if it helps ShellCheck locate them for deeper analysis.
-        # For a generic loop, this specific comment form might not be fully effective per file,
-        # but shows intent. Best practice would be individual source lines with their own directives.
-        # shellcheck source=scripts/setup_lib/ui.sh
-        # shellcheck source=scripts/setup_lib/dependencies.sh
-        # shellcheck source=scripts/setup_lib/backup.sh
-        # shellcheck source=scripts/setup_lib/fs_ops.sh
-        # shellcheck source=scripts/setup_lib/git_ops.sh
-        source "${lib_path}" # Functions from these scripts are now available
-        debug_msg "Sourced library: ${lib_path}"
-    done
+
+    # Unrolled loop for individual shellcheck directives
+    local lib_path="${lib_dir}/ui.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/ui.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/dependencies.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/dependencies.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/backup.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/backup.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/fs_ops.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/fs_ops.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/git_ops.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/git_ops.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
     info_msg "All library scripts sourced successfully."
 }
 
@@ -173,7 +178,7 @@ copy_configurations() {
 }
 
 update_hyprland_env_config() {
-    if [[ "${SKIP_HYPR_ENV}" == "true" ]]; then # Updated flag name
+    if [[ "${SKIP_HYPR_ENV}" == "true" ]]; then
         info_msg "Skipping Hyprland env.conf update (user-specified --skip-hypr-env)."
         return 0
     fi
@@ -202,19 +207,19 @@ update_hyprland_env_config() {
 
     # Rebuild content: filter original content, excluding any lines matching our managed variables.
     if [[ -n "${original_content}" ]]; then
-        grep -Ev -- "${combined_filter_regex}" <<< "${original_content}" > "${temp_new_content_file}" || true # Allow no match
+        # Use process substitution for grep to avoid issues with `while read` loops and variable scope
+        grep -Ev -- "${combined_filter_regex}" <<< "${original_content}" > "${temp_new_content_file}" || true # Allow no match (empty output)
     else
-        # If original content is empty, temp file is also empty (or effectively by > redirect)
+        # If original content is empty, ensure temp file is also empty (or effectively by > redirect)
         >"${temp_new_content_file}"
     fi
-
 
     # Append desired lines, ensuring proper newline if needed
     if [[ -s "${temp_new_content_file}" ]]; then
         local last_char_of_temp_file
-        last_char_of_temp_file=$(<"${temp_new_content_file}")
+        last_char_of_temp_file=$(<"${temp_new_content_file}") # Read entire file to check last char
         if [[ "${last_char_of_temp_file: -1}" != $'\n' ]]; then
-            echo >> "${temp_new_content_file}"
+            echo "" >> "${temp_new_content_file}" # Explicitly echo "" for newline
         fi
     fi
     echo "${desired_scripts_line}" >> "${temp_new_content_file}"
@@ -350,15 +355,15 @@ cleanup() {
 
     # Final summary message reflecting the outcome
     if [[ "${script_exit_status}" -eq 0 && "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
-        info_msg "Script completed all operations successfully and exited cleanly."
+        info_msg "Script completed all operations successfully and exited cleanly (status 0)."
     elif [[ "${script_exit_status}" -eq 1 && "${OVERALL_SCRIPT_STATUS}" -ne 0 ]]; then
         # This case means script logic determined non-critical errors, and it's exiting with 1 (due to main logic)
-        warning_msg "Script finished, but non-critical operations reported issues (OVERALL_SCRIPT_STATUS=${OVERALL_SCRIPT_STATUS}). Exiting with status 1."
+        warning_msg "Script finished with non-critical operations reporting issues (OVERALL_SCRIPT_STATUS=${OVERALL_SCRIPT_STATUS}). Exiting with status 1."
     elif [[ "${script_exit_status}" -ne 0 ]]; then
         # This means errexit, critical_exit, or an external signal caused a non-zero exit before main could set its final exit code.
         error_msg "Script exited prematurely or with a critical error (captured exit status: ${script_exit_status}). OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}."
-    else # script_exit_status is 0, but OVERALL_SCRIPT_STATUS might be non-zero (e.g. if trap logic changes exit code)
-        warning_msg "Script exited with status 0, but internal OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}. Review logs if issues are suspected."
+    else # script_exit_status is 0, but OVERALL_SCRIPT_STATUS might be non-zero (should not happen if main exits based on OVERALL_SCRIPT_STATUS)
+        warning_msg "Script exiting with status 0, but internal OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}. This indicates an unexpected state. Review logs."
     fi
     info_msg "Cleanup finished. Full script execution log available at: ${SCRIPT_LOG_FILE}"
 }
@@ -385,8 +390,14 @@ EOF
 
 # --- Main Script Orchestration ---
 main() {
-    # Using long options primarily for clarity, retaining -h for help as it's common.
-    local short_opts="h"
+    # Argument Parsing with GNU getopt:
+    # This script uses GNU getopt for long options. For maximum portability to systems
+    # without GNU getopt (e.g., macOS by default, some minimal *BSDs), consider:
+    # 1. Sticking to POSIX getopts (short options only).
+    # 2. Implementing a check for GNU getopt and falling back to getopts or manual parsing.
+    # 3. Requiring GNU getopt as a dependency.
+    # For most Linux desktop environments, GNU getopt is standard.
+    local short_opts="h" # Only -h for short options, others are long
     local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help"
     local parsed_opts
     if ! parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME}" -- "$@"); then
@@ -400,7 +411,7 @@ main() {
         case "$1" in
             --skip-backups) SKIP_BACKUPS=true; shift ;;
             --skip-services) SKIP_SERVICES=true; shift ;;
-            --skip-hypr-env) SKIP_HYPR_ENV=true; shift ;; # Updated flag name
+            --skip-hypr-env) SKIP_HYPR_ENV=true; shift ;;
             --debug) DEBUG_MODE=true; shift ;;
             --log-file) SCRIPT_LOG_FILE="$2"; shift 2 ;;
             -h|--help) print_help; exit 0 ;;
