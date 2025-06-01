@@ -46,10 +46,6 @@ Before you begin, ensure you have the following installed on your system (prefer
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/yourdotfiles.git ~/.dotfiles
-    cd ~/.dotfiles
-    ```
-    *(Replace `yourusername/yourdotfiles.git` with the actual URL of this repository if you've forked it or are using a different remote.)*
 
 2.  **Run the setup script:**
     ```bash
