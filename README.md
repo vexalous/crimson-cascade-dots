@@ -30,11 +30,11 @@ Before you begin, ensure you have the following essential software installed:
 
 ### Required Fonts
 *   **JetBrainsMono Nerd Font** (for UI and terminal)
-    *   Download from [Nerd Fonts](https://www.nerdfonts.com/font-downloads) (JetBrainsMono is listed on this page).
-    *   Installation methods vary by OS (e.g., manual copy, Homebrew on macOS, AUR on Arch Linux). Refer to Nerd Fonts documentation or your OS's font installation guides.
+  * Download from [Nerd Fonts](https://www.nerdfonts.com/font-downloads) (JetBrainsMono is listed on this page).
+  * Installation methods vary by OS (e.g., manual copy, Homebrew on macOS, AUR on Arch Linux). Refer to Nerd Fonts documentation or your OS's font installation guides.
 *   **Font Awesome** (for icons)
-    *   Typically installed as a desktop font. Download and instructions can be found at [Font Awesome Desktop Setup](https://fontawesome.com/docs/desktop/setup/get-started).
-    *   Follow their instructions for downloading and installing the font files on your system.
+  * Typically installed as a desktop font. Download and instructions can be found at [Font Awesome Desktop Setup](https://fontawesome.com/docs/desktop/setup/get-started).
+  * Follow their instructions for downloading and installing the font files on your system.
 
 ### Essential Utilities & Tools
 *   `git` (for cloning this repository)
