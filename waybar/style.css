@@ -14,7 +14,10 @@
     font-family: sans-serif; font-size: 14px; font-weight: normal;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    &::before, &::after { box-sizing: inherit; }
+}
+*::before,
+*::after {
+    box-sizing: inherit;
 }
 
 /* --- WAYBAR MAIN STYLING & CSS VARIABLES --- */
@@ -63,7 +66,7 @@ window#waybar {
      */
 
     /* --- Minimalist Override Logic --- */
-    --_is-minimalist-style: var(--cfg-visual-style-profile) / 2; /* Becomes 1 if --cfg-visual-style-profile is 2, else 0 or 0.5 */
+    --_is-minimalist-style: calc(var(--cfg-visual-style-profile) / 2); /* Becomes 1 if --cfg-visual-style-profile is 2, else 0 or 0.5 */
     --_minimal-mode-active: max(var(--enable-force-minimalism), var(--_is-minimalist-style)); /* 1 if either is true */
 
     /* --- Effective Toggles (Minimalism can override these) --- */
@@ -77,19 +80,19 @@ window#waybar {
 
     /* --- Effects Detail Adjustments --- */
     /* Opacity/Intensity multipliers based on effects detail level */
-    --_effects-detail-multiplier-full: calc(1 - var(--cfg-effects-detail-level) / 2) * calc(1 - var(--cfg-effects-detail-level) / 1); /* 1 if level 0, 0 if level 2, 0.5 if level 1 approx */
-    --_effects-detail-multiplier-standard: calc(1 - abs(var(--cfg-effects-detail-level) - 1)); /* 1 if level 1, 0 if level 0 or 2 */
+    --_effects-detail-multiplier-full: calc((1 - var(--cfg-effects-detail-level) / 2) * (1 - var(--cfg-effects-detail-level) / 1)); /* 1 if level 0, 0 if level 2, 0.5 if level 1 approx */
+    --_effects-detail-multiplier-standard: calc(1 - max(var(--cfg-effects-detail-level) - 1, 1 - var(--cfg-effects-detail-level))); /* 1 if level 1, 0 if level 0 or 2 */
     --_effects-detail-multiplier-reduced: var(--_effects-detail-multiplier-full);
     --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25)); /* Animations slower on lower effect detail levels */
 
     /* --- Base Color Palette (HSL based on --cfg-base-theme-mode) --- */
-    --L-bg-primary: var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%;
-    --L-bg-secondary: var(--cfg-base-theme-mode) * 92% + (1 - var(--cfg-base-theme-mode)) * 8%;
-    --L-bg-tertiary: var(--cfg-base-theme-mode) * 88% + (1 - var(--cfg-base-theme-mode)) * 12%;
-    --L-fg-primary: var(--cfg-base-theme-mode) * 8% + (1 - var(--cfg-base-theme-mode)) * 92%;
-    --L-fg-secondary: var(--cfg-base-theme-mode) * 25% + (1 - var(--cfg-base-theme-mode)) * 75%;
-    --L-fg-tertiary: var(--cfg-base-theme-mode) * 45% + (1 - var(--cfg-base-theme-mode)) * 55%;
-    --L-border-default: var(--cfg-base-theme-mode) * 85% + (1 - var(--cfg-base-theme-mode)) * 18%;
+    --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
+    --L-bg-secondary: calc(var(--cfg-base-theme-mode) * 92% + (1 - var(--cfg-base-theme-mode)) * 8%);
+    --L-bg-tertiary: calc(var(--cfg-base-theme-mode) * 88% + (1 - var(--cfg-base-theme-mode)) * 12%);
+    --L-fg-primary: calc(var(--cfg-base-theme-mode) * 8% + (1 - var(--cfg-base-theme-mode)) * 92%);
+    --L-fg-secondary: calc(var(--cfg-base-theme-mode) * 25% + (1 - var(--cfg-base-theme-mode)) * 75%);
+    --L-fg-tertiary: calc(var(--cfg-base-theme-mode) * 45% + (1 - var(--cfg-base-theme-mode)) * 55%);
+    --L-border-default: calc(var(--cfg-base-theme-mode) * 85% + (1 - var(--cfg-base-theme-mode)) * 18%);
 
     --theme-bg-primary: hsl(0, 0%, var(--L-bg-primary));
     --theme-bg-secondary: hsl(0, 0%, var(--L-bg-secondary));
@@ -105,33 +108,33 @@ window#waybar {
     --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%; /* Cool Tones */
     --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%; /* Natural Tones */
 
-    --_is-palette-preset1: calc(1 - abs(var(--cfg-accent-palette-profile) - 1));
-    --_is-palette-preset2: calc(1 - abs(var(--cfg-accent-palette-profile) - 2));
-    --_is-palette-preset3: calc(1 - abs(var(--cfg-accent-palette-profile) - 3));
-    --_is-palette-monochrome: calc(1 - abs(var(--cfg-accent-palette-profile) - 4));
-    --_is-palette-custom: calc(1 - abs(var(--cfg-accent-palette-profile) - 0));
+    --_is-palette-preset1: calc(1 - max(var(--cfg-accent-palette-profile) - 1, 1 - var(--cfg-accent-palette-profile)));
+    --_is-palette-preset2: calc(1 - max(var(--cfg-accent-palette-profile) - 2, 2 - var(--cfg-accent-palette-profile)));
+    --_is-palette-preset3: calc(1 - max(var(--cfg-accent-palette-profile) - 3, 3 - var(--cfg-accent-palette-profile)));
+    --_is-palette-monochrome: calc(1 - max(var(--cfg-accent-palette-profile) - 4, 4 - var(--cfg-accent-palette-profile)));
+    --_is-palette-custom: calc(1 - max(var(--cfg-accent-palette-profile) - 0, 0 - var(--cfg-accent-palette-profile)));
 
     --accent-H-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-H) +
                               var(--_is-palette-preset1) * var(--palette-preset1-H) +
                               var(--_is-palette-preset2) * var(--palette-preset2-H) +
                               var(--_is-palette-preset3) * var(--palette-preset3-H) +
-                              var(--_is-palette-monochrome) * 0); /* Monochrome hue from bg, or fixed */
+                              var(--_is-palette-monochrome) * 0);
     --accent-S-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-S) +
                               var(--_is-palette-preset1) * var(--palette-preset1-S) +
                               var(--_is-palette-preset2) * var(--palette-preset2-S) +
                               var(--_is-palette-preset3) * var(--palette-preset3-S) +
-                              var(--_is-palette-monochrome) * 0%); /* Monochrome is 0% Sat */
+                              var(--_is-palette-monochrome) * 0%);
     --accent-L-base-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-L) +
                                   var(--_is-palette-preset1) * var(--palette-preset1-L) +
                                   var(--_is-palette-preset2) * var(--palette-preset2-L) +
                                   var(--_is-palette-preset3) * var(--palette-preset3-L) +
-                                  var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%)); /* Mono L for contrast */
+                                  var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%));
 
     /* --- Final Accent Colors (HSL) --- */
     --accent-H: var(--accent-H-resolved);
     --accent-S: var(--accent-S-resolved);
     --accent-L-base: var(--accent-L-base-resolved);
-    --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--_is-palette-monochrome)))); /* Less dark shift for mono */
+    --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--_is-palette-monochrome))));
     --accent-L-lighter: calc(var(--accent-L-base) + (12% * (1 - var(--_is-palette-monochrome))));
     --accent-L-highlight: calc(var(--accent-L-base) + (18% * (1 - var(--_is-palette-monochrome))));
 
@@ -148,11 +151,11 @@ window#waybar {
 
     /* --- Visual Style Adjustments --- */
     /* Style: 0=Standard, 1=Enhanced, 2=Minimalist (handled by --_minimal-mode-active) */
-    --_is-visual-profile-standard: calc(1 - abs(var(--cfg-visual-style-profile) - 0));
-    --_is-visual-profile-enhanced: calc(1 - abs(var(--cfg-visual-style-profile) - 1));
-    --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7)); /* Standard is faster, Minimal very fast/off */
+    --_is-visual-profile-standard: calc(1 - max(var(--cfg-visual-style-profile) - 0, 0 - var(--cfg-visual-style-profile)));
+    --_is-visual-profile-enhanced: calc(1 - max(var(--cfg-visual-style-profile) - 1, 1 - var(--cfg-visual-style-profile)));
+    --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
     --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
-    --_effective-border-style: var(--_minimal-mode-active) solid, var(--_is-visual-profile-standard) solid, var(--_is-visual-profile-enhanced) solid; /* Can add dashed/dotted for enhanced if desired */
+    --_effective-border-style: var(--_minimal-mode-active) solid, var(--_is-visual-profile-standard) solid, var(--_is-visual-profile-enhanced) solid;
     --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
 
 
@@ -189,13 +192,14 @@ window#waybar {
     --typography-font-family-monospace: var(--font-stack-mono);
     --typography-font-family-icons: var(--font-stack-icons);
     --typography-font-variant-numeric: tabular-nums;
-    --typography-font-feature-settings: "liga" 1, "clig" 1; /* Common ligatures */
-    --typography-font-size-default: calc(var(--theme-font-size-base, 14px) * var(--_density-scale-factor)); /* Added a fallback for --theme-font-size-base */
+    --typography-font-feature-settings: "liga" 1, "clig" 1;
+    --theme-font-size-base: 14px; /* Define fallback if not globally available */
+    --typography-font-size-default: calc(var(--theme-font-size-base) * var(--_density-scale-factor));
     --typography-font-size-small: calc(var(--typography-font-size-default) * 0.85);
     --typography-font-size-large: calc(var(--typography-font-size-default) * 1.15);
     --typography-font-weight-normal: 400;
     --typography-font-weight-medium: 500;
-    --typography-font-weight-bold: calc(600 + var(--_is-visual-profile-enhanced) * 100); /* Bolder for enhanced */
+    --typography-font-weight-bold: calc(600 + var(--_is-visual-profile-enhanced) * 100);
     --typography-letter-spacing-normal: normal;
     --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced)));
     --typography-text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, calc(0.15 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced)));
@@ -219,7 +223,7 @@ window#waybar {
     --transition-duration-fast: calc(var(--transition-duration-base) * 0.6);
     --transition-duration-normal: var(--transition-duration-base);
     --transition-duration-slow: calc(var(--transition-duration-base) * 1.5);
-    --transition-timing-function-ui: var(--_is-visual-profile-enhanced) cubic-bezier(0.34, 1.56, 0.64, 1), cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Overshoot for enhanced */
+    --transition-timing-function-ui: var(--_is-visual-profile-enhanced) cubic-bezier(0.34, 1.56, 0.64, 1), cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
     /* --- Interaction Feedback --- */
@@ -230,24 +234,22 @@ window#waybar {
 
     /* --- Effects: Shadows, Focus, Glow --- */
     --_shadow-opacity-base: calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
-    --_shadow-L-offset: var(--cfg-base-theme-mode) * 20% + (1 - var(--cfg-base-theme-mode)) * 0%;
-    --effects-shadow-color-ambient: hsla(0, 0%, var(--_shadow-L-offset), var(--_shadow-opacity-base) * 0.8);
-    --effects-shadow-color-direct: hsla(0, 0%, var(--_shadow-L-offset), var(--_shadow-opacity-base) * 1.2);
+    --_shadow-L-offset: calc(var(--cfg-base-theme-mode) * 20% + (1 - var(--cfg-base-theme-mode)) * 0%);
+    --effects-shadow-color-ambient: hsla(0, 0%, var(--_shadow-L-offset), calc(var(--_shadow-opacity-base) * 0.8));
+    --effects-shadow-color-direct: hsla(0, 0%, var(--_shadow-L-offset), calc(var(--_shadow-opacity-base) * 1.2));
     --effects-shadow-module-actual: 0 2px 5px -1px var(--effects-shadow-color-ambient), 0 4px 8px -2px var(--effects-shadow-color-direct);
     --effects-shadow-module-hover-actual: 0 5px 10px -2px var(--effects-shadow-color-ambient), 0 8px 16px -3px var(--effects-shadow-color-direct);
     --effects-shadow-tooltip-actual: 0 8px 24px -4px var(--effects-shadow-color-direct);
     --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), 0.2);
 
     --effects-focus-ring-color: var(--color-accent-highlight);
-    --effects-focus-ring-width: calc(2px * (1 + var(--enable-high-contrast-focus-outline))); /* Thicker if high-contrast flag */
+    --effects-focus-ring-width: calc(2px * (1 + var(--enable-high-contrast-focus-outline)));
     --effects-focus-ring-offset: 2px;
     --effects-focus-ring-style: var(--enable-high-contrast-focus-outline) dashed, solid;
-    /* --flag-enable-focus-ring-visual was not defined, assuming it should be 1 or linked to a master animation/feature toggle */
-    --_enable-focus-ring-visual-effect: 1; /* Placeholder: Link to an appropriate master toggle if needed */
+    --_enable-focus-ring-visual-effect: 1;
     --effects-focus-ring-shadow-actual: var(--_enable-focus-ring-visual-effect) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
                                         var(--_enable-focus-ring-visual-effect) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
     --outline-high-contrast-focus-actual: var(--enable-high-contrast-focus-outline) var(--effects-focus-ring-width) var(--effects-focus-ring-style) var(--effects-focus-ring-color);
-
 
     --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), calc(0.35 * var(--_effective-cosmetic-animations-enabled) * var(--_effects-detail-multiplier-reduced)));
     --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
@@ -257,10 +259,9 @@ window#waybar {
     --animation-duration-bar-border-sweep: calc(10s * var(--_animation-speed-multiplier));
     --animation-bar-border-actual: var(--_effective-animated-bar-border-enabled) var(--animation-name-bar-border-sweep) var(--animation-duration-bar-border-sweep) linear infinite;
 
-    /* --flag-enable-animation-urgent-pulse etc. were not defined, assuming 1 or link to master animation toggle */
-    --_enable-animation-urgent-pulse: 1; /* Placeholder */
-    --_enable-animation-focused-glow: 1; /* Placeholder */
-    --_enable-animation-state-feedback: 1; /* Placeholder */
+    --_enable-animation-urgent-pulse: 1;
+    --_enable-animation-focused-glow: 1;
+    --_enable-animation-state-feedback: 1;
 
     --animation-name-urgent-pulse: urgent-pulse-animation;
     --animation-duration-pulse: calc(1.4s * var(--_animation-speed-multiplier));
@@ -276,7 +277,9 @@ window#waybar {
 
     --animation-name-dynamic-border: dynamic-border-animation;
     --animation-duration-dynamic-border: calc(0.35s * var(--_animation-speed-multiplier));
-    --animation-dynamic-ws-border-actual: var(--_effective-dynamic-ws-accents-enabled);
+    --transition-timing-function-snap: ease-out; /* Define or use existing */
+    --animation-dynamic-ws-border-actual: var(--_effective-dynamic-ws-accents-enabled) var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
+
 
     /* --- Optional Noise Texture --- */
     --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nFT)'/%3E%3C/svg%3E");
@@ -284,7 +287,7 @@ window#waybar {
 
     /* --- Experimental: Glassmorphism --- */
     --glass-blur-radius-actual: calc(12px * var(--_effective-glassmorphism-enabled));
-    --glass-background-color-actual: hsla(0, 0%, var(--cfg-base-theme-mode) * 100% + (1 - var(--cfg-base-theme-mode)) * 20%, calc(0.15 * var(--_effective-glassmorphism-enabled)));
+    --glass-background-color-actual: hsla(0, 0%, calc(var(--cfg-base-theme-mode) * 100% + (1 - var(--cfg-base-theme-mode)) * 20%), calc(0.15 * var(--_effective-glassmorphism-enabled)));
 
     /* --- Bar Properties --- */
     font-family: var(--typography-font-family-main);
@@ -294,26 +297,28 @@ window#waybar {
     color: var(--color-text-bar-default);
     position: relative;
     border-bottom: none; /* Border handled by ::after */
-    &::after { /* Animated border */
-        content: ''; position: absolute; left: 0; right: 0; bottom: 0;
-        height: var(--dimension-bar-border-height);
-        background: linear-gradient(90deg,
-            var(--theme-accent-primary-grad-start), var(--theme-accent-highlight),
-            var(--theme-accent-primary-base), var(--theme-accent-highlight),
-            var(--theme-accent-primary-grad-end), var(--theme-accent-highlight),
-            var(--theme-accent-primary-base), var(--theme-accent-highlight),
-            var(--theme-accent-primary-grad-start));
-        background-size: 400% 100%;
-        animation: var(--animation-bar-border-actual);
-        z-index: 0; opacity: var(--_effective-animated-bar-border-enabled);
-        box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.3 * var(--_effective-animated-bar-border-enabled)); /* Glow beneath bar */
-    }
-    &::before { /* Noise Texture */
-        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        background-image: var(--noise-texture-svg);
-        opacity: var(--noise-texture-opacity);
-        pointer-events: none; z-index: -1;
-    }
+}
+/* Animated border for window#waybar */
+window#waybar::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+    height: var(--dimension-bar-border-height);
+    background: linear-gradient(90deg,
+        var(--theme-accent-primary-grad-start), var(--theme-accent-highlight),
+        var(--theme-accent-primary-base), var(--theme-accent-highlight),
+        var(--theme-accent-primary-grad-end), var(--theme-accent-highlight),
+        var(--theme-accent-primary-base), var(--theme-accent-highlight),
+        var(--theme-accent-primary-grad-start));
+    background-size: 400% 100%;
+    animation: var(--animation-bar-border-actual);
+    z-index: 0; opacity: var(--_effective-animated-bar-border-enabled);
+    box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), calc(0.3 * var(--_effective-animated-bar-border-enabled))); /* Glow beneath bar */
+}
+/* Noise Texture for window#waybar */
+window#waybar::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image: var(--noise-texture-svg);
+    opacity: var(--noise-texture-opacity);
+    pointer-events: none; z-index: -1;
 }
 
 /* --- Keyframe Animations --- */
@@ -356,11 +361,12 @@ window#waybar {
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
-    &::before { /* Noise Texture */
-        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
-        pointer-events: none; z-index: -1; border-radius: inherit;
-    }
+}
+/* Noise Texture for general modules */
+:where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window)::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
+    pointer-events: none; z-index: -1; border-radius: inherit;
 }
 
 /* --- GENERAL MODULE INTERACTION & STATES --- */
@@ -459,10 +465,9 @@ window#waybar {
     background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid));
     border-radius: var(--dimension-border-width-normal);
     transform-origin: center;
-    /* Assuming --transition-timing-function-snap needs definition or fallback */
-    animation: var(--animation-dynamic-ws-border-actual) var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
+    animation: var(--animation-dynamic-ws-border-actual); /* Already full shorthand via variable */
     animation-play-state: paused;
-    opacity: var(--animation-dynamic-ws-border-actual);
+    opacity: var(--_effective-dynamic-ws-accents-enabled); /* Use flag for opacity control */
 }
 #workspaces button:not(.focused):not(.urgent):hover::after {
     animation-play-state: running;
@@ -547,8 +552,7 @@ window#waybar {
 }
 
 #pulseaudio, #network, #cpu, #memory {
-    background: var(--color-border-module-default); /* This was likely a typo, should be background-color. Using alternate background. */
-    /* background: var(--color-background-module-alternate); */ /* A more common choice */
+    background-color: var(--color-background-module-alternate); /* Corrected from border to background color */
     font-family: var(--typography-font-family-monospace);
     font-variant-numeric: var(--typography-font-variant-numeric);
     color: var(--color-text-module-stats, var(--color-text-bar-default));
@@ -614,11 +618,12 @@ tooltip {
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
-    &::before { /* Noise Texture */
-        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
-        pointer-events: none; z-index: -1; border-radius: inherit;
-    }
+}
+/* Noise Texture for tooltips */
+tooltip::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
+    pointer-events: none; z-index: -1; border-radius: inherit;
 }
 tooltip label { color: inherit; }
 
@@ -648,7 +653,7 @@ tooltip label { color: inherit; }
 *:focus > .icon, *:focus > [class*="fa-"], *:focus > [class*="mdi-"], *:focus > [class*="nf-"],
 *:focus-within > .icon, *:focus-within > [class*="fa-"], *:focus-within > [class*="mdi-"], *:focus-within > [class*="nf-"] {
     color: var(--color-icon-hover, var(--color-accent-highlight));
-    transform: scale(1.18) translateY(-1.5px) rotate(var(--_is-visual-profile-enhanced) * -5deg);
+    transform: scale(1.18) translateY(-1.5px) rotate(calc(var(--_is-visual-profile-enhanced) * -5deg));
     text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), 0.4);
 }
 .active .icon, .active [class*="fa-"], .active [class*="mdi-"], .active [class*="nf-"] {
