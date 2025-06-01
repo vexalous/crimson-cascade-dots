@@ -51,34 +51,32 @@ window#waybar {
      * Other flags control specific features which may also be influenced by
      * the "Visual Style" and "Effects Detail" profiles.
      */
-    --enable-shadows-master: 1; /* Master switch for all shadows */
-    --enable-gradients-master: 1; /* Master switch for all gradients */
-    --enable-animations-master: 1; /* Master switch for most cosmetic animations */
+    --enable-shadows-master: 1;
+    --enable-gradients-master: 1;
+    --enable-animations-master: 1;
     --enable-animated-bar-border: 1;
     --enable-dynamic-workspace-accents: 1;
     --enable-subtle-noise-texture: 0;
     --enable-experimental-glassmorphism: 0;
-    --enable-high-contrast-focus-outline: 0; /* Forces high-contrast outline if 1 */
-    --enable-force-minimalism: 0; /* Overrides many flags for an ultra-minimal look if 1 */
+    --enable-high-contrast-focus-outline: 0;
+    --enable-force-minimalism: 0;
 
     /* --- Font Stack Configuration --- */
     --font-stack-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
     --font-stack-mono: "JetBrainsMono Nerd Font", "Fira Code", "Hack", monospace;
-    --font-stack-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font"; /* Icons */
+    --font-stack-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
 
     /*
      * ==========================================================================
      * --- DERIVED THEME PROPERTIES ---
      * ==========================================================================
-     * Translates configuration choices into foundational theme properties.
-     * Modify with caution; this is the core of the styling engine.
      */
 
     /* --- Minimalist Override Logic --- */
     --_is-minimalist-style: calc(var(--cfg-visual-style-profile) / 2);
     --_minimal-mode-active: max(var(--enable-force-minimalism), var(--_is-minimalist-style));
 
-    /* --- Effective Toggles (Minimalism can override these) --- */
+    /* --- Effective Toggles --- */
     --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
     --_effective-gradients-enabled: calc(var(--enable-gradients-master) * (1 - var(--_minimal-mode-active)));
     --_effective-cosmetic-animations-enabled: calc(var(--enable-animations-master) * (1 - var(--_minimal-mode-active)));
@@ -93,7 +91,7 @@ window#waybar {
     --_effects-detail-multiplier-reduced: var(--_effects-detail-multiplier-full);
     --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25));
 
-    /* --- Base Color Palette (HSL based on --cfg-base-theme-mode) --- */
+    /* --- Base Color Palette --- */
     --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
     --L-bg-secondary: calc(var(--cfg-base-theme-mode) * 92% + (1 - var(--cfg-base-theme-mode)) * 8%);
     --L-bg-tertiary: calc(var(--cfg-base-theme-mode) * 88% + (1 - var(--cfg-base-theme-mode)) * 12%);
@@ -125,7 +123,6 @@ window#waybar {
     --accent-S-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-S) + var(--_is-palette-preset1) * var(--palette-preset1-S) + var(--_is-palette-preset2) * var(--palette-preset2-S) + var(--_is-palette-preset3) * var(--palette-preset3-S) + var(--_is-palette-monochrome) * 0%);
     --accent-L-base-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-L) + var(--_is-palette-preset1) * var(--palette-preset1-L) + var(--_is-palette-preset2) * var(--palette-preset2-L) + var(--_is-palette-preset3) * var(--palette-preset3-L) + var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%));
 
-    /* --- Final Accent Colors (HSL) --- */
     --accent-H: var(--accent-H-resolved);
     --accent-S: var(--accent-S-resolved);
     --accent-L-base: var(--accent-L-base-resolved);
@@ -139,7 +136,7 @@ window#waybar {
     --theme-accent-secondary-base: hsl(var(--accent-H), calc(var(--accent-S) * 0.9), var(--accent-L-darker));
     --theme-accent-highlight: hsl(var(--accent-H), var(--accent-S), var(--accent-L-highlight));
 
-    /* --- Spacing & Sizing (Scaled) --- */
+    /* --- Spacing & Sizing --- */
     --_density-scale-factor: var(--cfg-density-scale);
     --spacing-unit: calc(4px * var(--_density-scale-factor));
     --radius-unit: calc(6px * var(--_density-scale-factor));
@@ -149,7 +146,7 @@ window#waybar {
     --_is-visual-profile-enhanced: calc(1 - max(var(--cfg-visual-style-profile) - 1, 1 - var(--cfg-visual-style-profile)));
     --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
     --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
-    --_effective-border-style: solid; /* Simplified: original logic consistently led to 'solid' via invalid constructs */
+    --_effective-border-style: solid;
     --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
 
     /*
@@ -162,7 +159,7 @@ window#waybar {
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
     --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
-    --color-accent-primary-actual: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--theme-accent-primary-base); /* Note: if --_effective-gradients-enabled is 1, "1 linear-gradient(...)" is invalid, causing fallback to base. This logic might be reversed from intent. */
+    --color-accent-primary-actual: var(--theme-accent-primary-base); /* Default solid color. Gradient var(--color-accent-primary-gradient) needs to be applied conditionally based on --_effective-gradients-enabled where this variable is used (e.g. via classes). */
     --color-accent-primary-solid: var(--theme-accent-primary-base);
     --color-accent-secondary: var(--theme-accent-secondary-base);
     --color-accent-highlight: var(--theme-accent-highlight);
@@ -219,15 +216,7 @@ window#waybar {
 
     --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* The following line implements the user's suggested structure.
-       If --_is-visual-profile-enhanced is 1, "1 var(--transition-timing-function-enhanced)" is typically invalid,
-       causing a fallback to var(--transition-timing-function-standard). This might be the reverse of the intended logic.
-       Standard CSS fallback is `var(--undefined-prop, fallback-val)`.
-       This pattern `var(flag-val) val1, val2` assigns the string "flag-val val1, val2" to the variable.
-       This string as a whole is likely invalid for `transition-timing-function`.
-       However, implementing as requested.
-    */
-    --transition-timing-function-ui: var(--_is-visual-profile-enhanced) var(--transition-timing-function-enhanced), var(--transition-timing-function-standard);
+    --transition-timing-function-ui: var(--transition-timing-function-standard); /* Default. Apply --transition-timing-function-enhanced conditionally where used (e.g. via classes based on --_is-visual-profile-enhanced) */
 
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
@@ -250,7 +239,13 @@ window#waybar {
     --effects-focus-ring-color: var(--color-accent-highlight);
     --effects-focus-ring-width: calc(2px * (1 + var(--enable-high-contrast-focus-outline)));
     --effects-focus-ring-offset: 2px;
-    --effects-focus-ring-style: var(--enable-high-contrast-focus-outline) dashed, solid;
+    /* The following value var(--enable-high-contrast-focus-outline) results in '0' or '1'.
+       '0 dashed solid' or '1 dashed solid' are not standard single border-style keywords.
+       'dashed solid' is a valid shorthand (top/bottom dashed, left/right solid).
+       This relies on Waybar's parser or var() evaluating to empty string for '0'.
+       A more robust CSS method would use distinct variables for 'dashed' and 'solid' and apply conditionally.
+       Applied literal change from user feedback. */
+    --effects-focus-ring-style: var(--enable-high-contrast-focus-outline) dashed solid;
     --_enable-focus-ring-visual-effect: 1;
     --effects-focus-ring-shadow-actual: var(--_enable-focus-ring-visual-effect) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
                                         var(--_enable-focus-ring-visual-effect) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
@@ -353,7 +348,6 @@ window#waybar::before { /* Noise Texture */
     padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
     margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
     color: var(--color-text-bar-default);
-    background: var(--color-background-module-default);
     border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
     border-radius: var(--dimension-radius-module);
     box-shadow: var(--effects-shadow-module-actual);
@@ -361,6 +355,7 @@ window#waybar::before { /* Noise Texture */
     position: relative; z-index: 1; overflow: hidden;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
+    background-color: var(--color-background-module-default); /* Fallback */
     background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
 }
 :where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window)::before { /* Noise Texture */
@@ -599,7 +594,6 @@ window#waybar::before { /* Noise Texture */
 tooltip {
     padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3.5);
     color: var(--color-text-bar-default);
-    background: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%);
     border: var(--dimension-border-width-thin) solid var(--color-accent-primary-solid);
     border-radius: var(--dimension-radius-tooltip);
     box-shadow: var(--effects-shadow-tooltip-actual);
@@ -608,6 +602,7 @@ tooltip {
     line-height: 1.6; max-width: 380px;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
+    background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Fallback - though color-mix is also new */
     background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
 }
 tooltip::before { /* Noise Texture */
