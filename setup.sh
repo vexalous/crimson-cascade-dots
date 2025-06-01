@@ -2,19 +2,27 @@
 
 # Strict mode: exit on error, unset variable, or pipe failure
 set -o errexit -o nounset -o pipefail
+# Set Internal Field Separator to only newline and tab, guarding against unintended word splitting.
+IFS=$'\n\t'
 
 # --- Script Identity & Constants ---
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly LOCK_FILE="/tmp/${SCRIPT_NAME}.lock" # Lockfile to prevent concurrent runs
-readonly DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
+readonly SCRIPT_NAME
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly SCRIPT_DIR
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly LOCK_FILE # Lockfile to prevent concurrent runs
+LOCK_FILE="/tmp/${SCRIPT_NAME}.lock"
+readonly DEFAULT_SCRIPT_LOG_FILE
+DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
 
 # --- Configuration Constants ---
-readonly CONFIG_TARGET_DIR="${HOME}/.config"
+# These constants might be used by sourced library scripts (e.g., backup.sh, git_ops.sh)
+# If not, they should be removed or their usage verified.
 readonly BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
 readonly GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
 readonly REPO_NAME="crimson-cascade-dots"
 
+readonly CONFIG_TARGET_DIR="${HOME}/.config"
 readonly DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png"
 readonly USER_HYPR_SCRIPTS_DIR="${CONFIG_TARGET_DIR}/hypr/scripts"
 readonly WALLPAPER_CONFIG_DIR="${CONFIG_TARGET_DIR}/hypr/wallpaper"
@@ -27,7 +35,7 @@ TEMP_CLONE_DIR="" # Cleaned up by 'trap cleanup'
 DEBUG_MODE=false
 SKIP_BACKUPS=false
 SKIP_SERVICES=false
-SKIP_HYPR_ENV_UPDATE=false
+SKIP_HYPR_ENV=false # Renamed from SKIP_HYPR_ENV_UPDATE
 SCRIPT_LOG_FILE="${DEFAULT_SCRIPT_LOG_FILE}"
 OVERALL_SCRIPT_STATUS=0 # Global tracker: 0=all good, 1=non-critical issues occurred
 
@@ -91,6 +99,15 @@ source_libraries() {
         if [[ ! -f "${lib_path}" ]]; then
             critical_exit "Required library file not found: ${lib_path}"
         fi
+        # ShellCheck directives to suppress SC1090 for dynamic sourcing.
+        # Adjust path for each specific library if it helps ShellCheck locate them for deeper analysis.
+        # For a generic loop, this specific comment form might not be fully effective per file,
+        # but shows intent. Best practice would be individual source lines with their own directives.
+        # shellcheck source=scripts/setup_lib/ui.sh
+        # shellcheck source=scripts/setup_lib/dependencies.sh
+        # shellcheck source=scripts/setup_lib/backup.sh
+        # shellcheck source=scripts/setup_lib/fs_ops.sh
+        # shellcheck source=scripts/setup_lib/git_ops.sh
         source "${lib_path}" # Functions from these scripts are now available
         debug_msg "Sourced library: ${lib_path}"
     done
@@ -133,8 +150,8 @@ setup_target_directories() {
 copy_configurations() {
     info_msg "Copying configuration files from ${DOTFILES_SOURCE_DIR}..."
     local all_copied_successfully=true
-    local wallpaper_dest_rel_path="${WALLPAPER_CONFIG_DIR#${CONFIG_TARGET_DIR}/}/${DEFAULT_WALLPAPER_FILE}"
-     [[ -z "${wallpaper_dest_rel_path%%/*}" ]] && wallpaper_dest_rel_path="hypr/wallpaper/${DEFAULT_WALLPAPER_FILE}"
+    # Simplified destination path for wallpaper
+    local wallpaper_dest_rel_path="hypr/wallpaper/${DEFAULT_WALLPAPER_FILE}"
 
     # Assumes copy_single_file & copy_component from fs_ops.sh return 0 on success, non-0 on failure
     copy_single_file "${DEFAULT_WALLPAPER_FILE}" "${wallpaper_dest_rel_path}" \
@@ -156,7 +173,7 @@ copy_configurations() {
 }
 
 update_hyprland_env_config() {
-    if [[ "${SKIP_HYPR_ENV_UPDATE}" == "true" ]]; then
+    if [[ "${SKIP_HYPR_ENV}" == "true" ]]; then # Updated flag name
         info_msg "Skipping Hyprland env.conf update (user-specified --skip-hypr-env)."
         return 0
     fi
@@ -178,18 +195,19 @@ update_hyprland_env_config() {
     local original_content=""
     [[ -s "${target_file}" ]] && original_content=$(<"${target_file}")
 
-    local line
+    # Regex to match managed env lines, whether active or commented, with flexible spacing
     local hypr_scripts_regex="^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*HYPR_SCRIPTS_DIR,"
     local config_target_regex="^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*CONFIG_TARGET_DIR,"
+    local combined_filter_regex="${hypr_scripts_regex}|${config_target_regex}"
 
-    # Rebuild content: copy lines from original, excluding any lines matching our managed variables
+    # Rebuild content: filter original content, excluding any lines matching our managed variables.
     if [[ -n "${original_content}" ]]; then
-        while IFS= read -r line; do
-            if [[ ! "${line}" =~ ${hypr_scripts_regex} && ! "${line}" =~ ${config_target_regex} ]]; then
-                echo "${line}" >> "${temp_new_content_file}"
-            fi
-        done <<< "${original_content}"
+        grep -Ev -- "${combined_filter_regex}" <<< "${original_content}" > "${temp_new_content_file}" || true # Allow no match
+    else
+        # If original content is empty, temp file is also empty (or effectively by > redirect)
+        >"${temp_new_content_file}"
     fi
+
 
     # Append desired lines, ensuring proper newline if needed
     if [[ -s "${temp_new_content_file}" ]]; then
@@ -212,7 +230,8 @@ update_hyprland_env_config() {
     fi
 
     info_msg "Updating ${target_file} as changes are required."
-    local backup_file="${target_file}.bak.$(date +%Y%m%d%H%M%S)"
+    local backup_file # SC2155
+    backup_file="${target_file}.bak.$(date +%Y%m%d%H%M%S)"
     cp "${target_file}" "${backup_file}"
     info_msg "Backup of original ${target_file} created at ${backup_file}"
 
@@ -331,13 +350,15 @@ cleanup() {
 
     # Final summary message reflecting the outcome
     if [[ "${script_exit_status}" -eq 0 && "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
-        info_msg "Script completed all operations successfully."
-    elif [[ "${script_exit_status}" -eq 0 && "${OVERALL_SCRIPT_STATUS}" -ne 0 ]]; then
-        # This case means script logic determined non-critical errors, and it's exiting with 1 (due to main)
+        info_msg "Script completed all operations successfully and exited cleanly."
+    elif [[ "${script_exit_status}" -eq 1 && "${OVERALL_SCRIPT_STATUS}" -ne 0 ]]; then
+        # This case means script logic determined non-critical errors, and it's exiting with 1 (due to main logic)
         warning_msg "Script finished, but non-critical operations reported issues (OVERALL_SCRIPT_STATUS=${OVERALL_SCRIPT_STATUS}). Exiting with status 1."
     elif [[ "${script_exit_status}" -ne 0 ]]; then
         # This means errexit, critical_exit, or an external signal caused a non-zero exit before main could set its final exit code.
         error_msg "Script exited prematurely or with a critical error (captured exit status: ${script_exit_status}). OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}."
+    else # script_exit_status is 0, but OVERALL_SCRIPT_STATUS might be non-zero (e.g. if trap logic changes exit code)
+        warning_msg "Script exited with status 0, but internal OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}. Review logs if issues are suspected."
     fi
     info_msg "Cleanup finished. Full script execution log available at: ${SCRIPT_LOG_FILE}"
 }
@@ -355,7 +376,7 @@ Options:
   --debug                Enable verbose debug messages for script execution.
   --log-file <path>      Specify a custom path for the script's log file.
                          (Default: ${DEFAULT_SCRIPT_LOG_FILE})
-  -h, --help             Display this help message and exit. (Short option retained for common convention)
+  -h, --help             Display this help message and exit.
 
 Example:
   ${SCRIPT_NAME} --skip-backups --debug
@@ -365,18 +386,21 @@ EOF
 # --- Main Script Orchestration ---
 main() {
     # Using long options primarily for clarity, retaining -h for help as it's common.
-    local short_opts="h" # Only -h for short options
+    local short_opts="h"
     local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help"
     local parsed_opts
-    parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME}" -- "$@")
-    if [[ $? -ne 0 ]]; then print_help >&2; exit 1; fi # getopt prints errors
+    if ! parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME}" -- "$@"); then
+        # getopt prints error messages on invalid options to stderr
+        print_help >&2
+        exit 1 # Exit with an error code
+    fi
     eval set -- "${parsed_opts}" # Reset positional parameters ($1, $2, etc.)
 
     while true; do
         case "$1" in
             --skip-backups) SKIP_BACKUPS=true; shift ;;
             --skip-services) SKIP_SERVICES=true; shift ;;
-            --skip-hypr-env) SKIP_HYPR_ENV_UPDATE=true; shift ;;
+            --skip-hypr-env) SKIP_HYPR_ENV=true; shift ;; # Updated flag name
             --debug) DEBUG_MODE=true; shift ;;
             --log-file) SCRIPT_LOG_FILE="$2"; shift 2 ;;
             -h|--help) print_help; exit 0 ;;
