@@ -30,14 +30,20 @@ CHOSEN_WALLPAPER_HYPRPAPER_PATH="$DEFAULT_WALLPAPER_HYPRPAPER_PATH"
 
 if [[ -f "$USER_WALLPAPER_CONFIG_FILE" ]]; then
     # Attempt to read the wallpaper_path from the user's config file.
-    # grep gets the line, sed extracts the value after '=', and xargs trims whitespace.
-    USER_SPECIFIED_PATH_RAW=$(grep -E '^\s*wallpaper_path\s*=' "$USER_WALLPAPER_CONFIG_FILE" | sed -E 's/^\s*wallpaper_path\s*=\s*//' | xargs)
+    # grep gets the line (or nothing if not found), sed extracts the value after '=', and xargs trims whitespace.
+    # The '|| true' after grep ensures the script doesn't exit if wallpaper_path is not found (due to set -e).
+    USER_SPECIFIED_PATH_RAW=$(
+        grep -E '^[[:space:]]*wallpaper_path[[:space:]]*=' "$USER_WALLPAPER_CONFIG_FILE" || true \
+        | sed -E 's/^[[:space:]]*wallpaper_path[[:space:]]*=[[:space:]]*//' \
+        | xargs
+    )
 
     if [[ -n "$USER_SPECIFIED_PATH_RAW" ]]; then
         # Expand tilde (e.g., convert ~/Pictures to /home/user/Pictures) safely.
-        if [[ "$USER_SPECIFIED_PATH_RAW" == "~/"* ]]; then
+        # Using unquoted variables with glob patterns on the right side of == in [[ ... ]]
+        if [[ $USER_SPECIFIED_PATH_RAW == ~/* ]]; then
             USER_SPECIFIED_PATH_EXPANDED="$HOME/${USER_SPECIFIED_PATH_RAW#"~/"}"
-        elif [[ "$USER_SPECIFIED_PATH_RAW" == "~" ]]; then
+        elif [[ $USER_SPECIFIED_PATH_RAW == ~ ]]; then
             USER_SPECIFIED_PATH_EXPANDED="$HOME"
         else
             USER_SPECIFIED_PATH_EXPANDED="$USER_SPECIFIED_PATH_RAW"
