@@ -50,23 +50,30 @@ echo "Installing hyprpaper.sh to user's Hyprland scripts directory..."
 copy_single_file "scripts/config/hyprpaper.sh" "hypr/scripts/hyprpaper.sh" \
     "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Hyprpaper script"
 
-echo "Ensuring HYPR_SCRIPTS_DIR is set in Hyprland environment configuration..."
+echo "Ensuring HYPR_SCRIPTS_DIR and CONFIG_TARGET_DIR are set in Hyprland environment configuration..."
 target_env_file="$CONFIG_TARGET_DIR/hypr/conf/env.conf"
 scripts_dir_value="$CONFIG_TARGET_DIR/hypr/scripts" # This will expand to /home/user/.config/hypr/scripts
+config_target_dir_value="$CONFIG_TARGET_DIR" # This will expand to /home/user/.config
 env_line_to_set="env = HYPR_SCRIPTS_DIR,$scripts_dir_value"
+config_env_line_to_set="env = CONFIG_TARGET_DIR,$config_target_dir_value"
 env_line_pattern_base="env = HYPR_SCRIPTS_DIR,"
+config_env_line_pattern_base="env = CONFIG_TARGET_DIR,"
 comment_env_line_pattern_base="# *env = HYPR_SCRIPTS_DIR,"
+comment_config_env_line_pattern_base="# *env = CONFIG_TARGET_DIR,"
 
 if [ -f "$target_env_file" ]; then
     # Remove existing definitions (commented or active)
-    sed -i "/^ *\$env_line_pattern_base/d" "$target_env_file"
-    sed -i "/^ *\$comment_env_line_pattern_base/d" "$target_env_file"
+    sed -i "/^ *${env_line_pattern_base}/d" "$target_env_file"
+    sed -i "/^ *${comment_env_line_pattern_base}/d" "$target_env_file"
+    sed -i "/^ *${config_env_line_pattern_base}/d" "$target_env_file"
+    sed -i "/^ *${comment_config_env_line_pattern_base}/d" "$target_env_file"
 
-    # Add the correct definition
+    # Add the correct definitions
     echo "$env_line_to_set" >> "$target_env_file"
-    echo "HYPR_SCRIPTS_DIR set in $target_env_file"
+    echo "$config_env_line_to_set" >> "$target_env_file"
+    echo "HYPR_SCRIPTS_DIR and CONFIG_TARGET_DIR set in $target_env_file"
 else
-    echo "Warning: $target_env_file not found. Cannot set HYPR_SCRIPTS_DIR."
+    echo "Warning: $target_env_file not found. Cannot set HYPR_SCRIPTS_DIR and CONFIG_TARGET_DIR."
 fi
 
 # Configure hyprpaper: Generate hyprpaper.conf.
@@ -78,45 +85,88 @@ local_hyprpaper_script="$USER_HYPR_SCRIPTS_DIR/hyprpaper.sh" # Path to the copie
 if [ -f "$local_hyprpaper_script" ]; then
     chmod +x "$local_hyprpaper_script"
     echo "Executing hyprpaper configuration script: $local_hyprpaper_script"
+    # Export CONFIG_TARGET_DIR so the hyprpaper script can access it
+    export CONFIG_TARGET_DIR
     "$local_hyprpaper_script"
 else
     echo "Warning: hyprpaper script not found at $local_hyprpaper_script. Wallpaper config may be incorrect."
 fi
 
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "waybar" "Waybar"
+
+echo "Managing waybar process..."
+if command -v waybar > /dev/null 2>&1; then
+    if pgrep -x waybar > /dev/null; then
+        echo "Attempting to stop existing waybar process..."
+        if killall waybar; then
+            echo "waybar process stopped."
+            sleep 1 # Give it a moment to fully terminate
+        else
+            echo "Warning: killall waybar command failed. Proceeding with caution."
+        fi
+    else
+        echo "No existing waybar process found."
+    fi
+
+    echo "Attempting to start waybar in background..."
+    if waybar &> /dev/null & then
+        # Process successfully launched into background
+        sleep 0.5 # Give it a moment to launch
+        if pgrep -x waybar > /dev/null; then
+            echo "waybar started successfully in background."
+        else
+            echo "Error: waybar was launched but seems to have exited or failed to start. Please check manually."
+        fi
+    else
+        echo "Error: Failed to execute 'waybar' command. waybar may not have started."
+    fi
+else
+    echo "Warning: waybar command not found. Please install waybar to use the status bar."
+fi
+
 copy_single_file "alacritty/alacritty.toml" "alacritty/alacritty.toml" "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Alacritty"
 
 cleanup_temp_dir "$TEMP_CLONE_DIR"
 
 echo "Managing hyprpaper daemon..."
-if pgrep -x hyprpaper > /dev/null; then
-    echo "Attempting to stop existing hyprpaper process..."
-    if killall hyprpaper; then
-        echo "hyprpaper process stopped."
-        sleep 1 # Give it a moment to fully terminate
-    else
-        echo "Warning: killall hyprpaper command failed. Proceeding with caution."
-        # Consider if further action is needed here, e.g. pkill or error
-    fi
-else
-    echo "No existing hyprpaper process found."
-fi
-
-echo "Attempting to start hyprpaper daemon in background..."
-if hyprpaper &> /dev/null & then # Corrected line: added trailing '&'
-    # Process successfully launched into background (shell command itself succeeded)
-    sleep 0.5 # Give it a moment to launch
+if command -v hyprpaper > /dev/null 2>&1; then
     if pgrep -x hyprpaper > /dev/null; then
-        echo "hyprpaper daemon started successfully in background."
+        echo "Attempting to stop existing hyprpaper process..."
+        if killall hyprpaper; then
+            echo "hyprpaper process stopped."
+            sleep 1 # Give it a moment to fully terminate
+        else
+            echo "Warning: killall hyprpaper command failed. Proceeding with caution."
+            # Consider if further action is needed here, e.g. pkill or error
+        fi
     else
-        echo "Error: hyprpaper daemon was launched but seems to have exited or failed to start. Please check manually."
+        echo "No existing hyprpaper process found."
+    fi
+
+    echo "Attempting to start hyprpaper daemon in background..."
+    if hyprpaper &> /dev/null & then # Corrected line: added trailing '&'
+        # Process successfully launched into background (shell command itself succeeded)
+        sleep 0.5 # Give it a moment to launch
+        if pgrep -x hyprpaper > /dev/null; then
+            echo "hyprpaper daemon started successfully in background."
+        else
+            echo "Error: hyprpaper daemon was launched but seems to have exited or failed to start. Please check manually."
+        fi
+    else
+        # This else block would typically be hit if the command 'hyprpaper' itself is not found or immediately fails before backgrounding.
+        echo "Error: Failed to execute 'hyprpaper' command. hyprpaper may not have started."
     fi
 else
-    # This else block would typically be hit if the command 'hyprpaper' itself is not found or immediately fails before backgrounding.
-    echo "Error: Failed to execute 'hyprpaper' command. hyprpaper may not have started."
+    echo "Warning: hyprpaper command not found. Please install hyprpaper to use wallpaper functionality."
 fi
 
 echo "--------------------------------------------------------------------"
 echo "Crimson Cascade Dotfiles setup process finished."
+echo ""
+echo "The following services have been started:"
+echo "  - hyprpaper (wallpaper daemon)"
+echo "  - waybar (status bar)"
+echo ""
+echo "If you're running this setup outside of a Hyprland session,"
 echo "LOG OUT and LOG BACK IN for all changes to take effect."
 echo "--------------------------------------------------------------------"
