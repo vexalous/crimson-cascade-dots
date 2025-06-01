@@ -7,9 +7,9 @@ BACKUP_DIR_BASE="$HOME/config_backups_crimson_cascade"
 GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
 REPO_NAME="crimson-cascade-dots"
 
-DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png"
-WALLPAPER_TARGET_DIR="$CONFIG_TARGET_DIR/hypr/wallpaper"
-USER_HYPR_SCRIPTS_DIR="$CONFIG_TARGET_DIR/hypr/scripts"
+readonly DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png"
+readonly WALLPAPER_TARGET_DIR="$CONFIG_TARGET_DIR/hypr/wallpaper"
+readonly USER_HYPR_SCRIPTS_DIR="$CONFIG_TARGET_DIR/hypr/scripts"
 
 DOTFILES_SOURCE_DIR=""
 TEMP_CLONE_DIR=""
@@ -40,25 +40,15 @@ declare -a target_dirs_to_ensure=(
 ensure_target_dirs "$CONFIG_TARGET_DIR" "${target_dirs_to_ensure[@]}"
 
 echo "Setting up default wallpaper..."
-mkdir -p "$WALLPAPER_TARGET_DIR"
-if [ -f "$DOTFILES_SOURCE_DIR/$DEFAULT_WALLPAPER_FILE" ]; then
-    cp "$DOTFILES_SOURCE_DIR/$DEFAULT_WALLPAPER_FILE" "$WALLPAPER_TARGET_DIR/"
-    echo "Default wallpaper '$DEFAULT_WALLPAPER_FILE' copied to $WALLPAPER_TARGET_DIR."
-else
-    echo "Warning: Default wallpaper file '$DEFAULT_WALLPAPER_FILE' not found in '$DOTFILES_SOURCE_DIR'."
-fi
+copy_single_file "$DEFAULT_WALLPAPER_FILE" "hypr/wallpaper/$DEFAULT_WALLPAPER_FILE" \
+    "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Default wallpaper"
 
 echo "Copying Configuration Files from $DOTFILES_SOURCE_DIR ..."
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "hypr" "Hyprland"
 
-echo "Copying hyprpaper.sh to user's Hyprland scripts directory..."
-mkdir -p "$USER_HYPR_SCRIPTS_DIR" # Ensure target directory exists
-if [ -f "$HYPRPAPER_SCRIPT_PATH" ]; then
-    cp "$HYPRPAPER_SCRIPT_PATH" "$USER_HYPR_SCRIPTS_DIR/hyprpaper.sh"
-    echo "hyprpaper.sh copied to $USER_HYPR_SCRIPTS_DIR."
-else
-    echo "Warning: Source hyprpaper.sh script not found at '$HYPRPAPER_SCRIPT_PATH'. Cannot copy to scripts directory."
-fi
+echo "Installing hyprpaper.sh to user's Hyprland scripts directory..."
+copy_single_file "scripts/config/hyprpaper.sh" "hypr/scripts/hyprpaper.sh" \
+    "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Hyprpaper script"
 
 echo "Ensuring HYPR_SCRIPTS_DIR is set in Hyprland environment configuration..."
 target_env_file="$CONFIG_TARGET_DIR/hypr/conf/env.conf"
@@ -82,13 +72,15 @@ fi
 # Configure hyprpaper: Generate hyprpaper.conf.
 # This script ensures the correct wallpaper path (default or user-defined) is set in hyprpaper.conf.
 # It needs to run before hyprpaper daemon is (re)started to apply the latest settings.
-echo "Configuring hyprpaper..."
-if [ -f "$HYPRPAPER_SCRIPT_PATH" ]; then
-    chmod +x "$HYPRPAPER_SCRIPT_PATH"
-    echo "Executing hyprpaper configuration script: $HYPRPAPER_SCRIPT_PATH"
-    "$HYPRPAPER_SCRIPT_PATH"
+echo "Configuring hyprpaper using the script in user's config directory..."
+local_hyprpaper_script="$USER_HYPR_SCRIPTS_DIR/hyprpaper.sh" # Path to the copied script
+
+if [ -f "$local_hyprpaper_script" ]; then
+    chmod +x "$local_hyprpaper_script"
+    echo "Executing hyprpaper configuration script: $local_hyprpaper_script"
+    "$local_hyprpaper_script"
 else
-    echo "Warning: hyprpaper configuration script not found at $HYPRPAPER_SCRIPT_PATH"
+    echo "Warning: hyprpaper script not found at $local_hyprpaper_script. Wallpaper config may be incorrect."
 fi
 
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "waybar" "Waybar"
@@ -111,20 +103,17 @@ else
 fi
 
 echo "Attempting to start hyprpaper daemon in background..."
-if hyprpaper &> /dev/null; then # Start in background, suppress output for cleaner logs unless error
-    # Check if hyprpaper started successfully
-    # We can't easily get the exit code of a background process directly in a simple way.
-    # A common approach is to check if the process exists shortly after starting.
+if hyprpaper &> /dev/null & then # Corrected line: added trailing '&'
+    # Process successfully launched into background (shell command itself succeeded)
     sleep 0.5 # Give it a moment to launch
     if pgrep -x hyprpaper > /dev/null; then
         echo "hyprpaper daemon started successfully in background."
     else
-        echo "Error: hyprpaper daemon may not have started correctly. Please check manually."
+        echo "Error: hyprpaper daemon was launched but seems to have exited or failed to start. Please check manually."
     fi
 else
-    # This 'else' block for 'if hyprpaper &' might not be hit if hyprpaper itself forks and exits immediately.
-    # The pgrep check above is more reliable for background processes.
-    echo "Error: Failed to execute 'hyprpaper &' command. hyprpaper may not have started."
+    # This else block would typically be hit if the command 'hyprpaper' itself is not found or immediately fails before backgrounding.
+    echo "Error: Failed to execute 'hyprpaper' command. hyprpaper may not have started."
 fi
 
 echo "--------------------------------------------------------------------"
