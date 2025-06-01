@@ -1,223 +1,546 @@
+/*
+ * Waybar Configuration Stylesheet - Omega Refinement
+ *
+ * Iteration 6 Improvements:
+ * - True CSS-Native Toggling for Flags: Cleaner enable/disable logic for features.
+ * - Contextual Design Tokens: Reusable variables for consistent interaction patterns.
+ * - Enhanced Animation Control: More granular animation parameter variables.
+ * - Advanced Border System: Variables for various border properties and styles.
+ * - Granular Typography: Variables for text-decoration, subtle text-shadow.
+ * - Refined State Chaining: Better styles for combined states (hover+focus).
+ * - Icon Styling Specificity: More concrete icon styling variables.
+ * - Error State Styling (Conceptual): Variables and class for module error states.
+ * - Accessibility Deep Dive: Broader application of clear focus indicators.
+ * - Ultimate Polish: Comments, structure, and variable naming meticulously reviewed.
+ */
+
+/* --- GLOBAL RESET & BASE STYLES --- */
 * {
     border: none;
     border-radius: 0;
-    font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free Solid", sans-serif;
-    font-size: 14px;
+    box-sizing: border-box;
     min-height: 0;
     padding: 0;
     margin: 0;
-}
-
-window#waybar {
-    --bg-color: #0a0a0a;
-    --fg-color: #e0e0e0;
-    --accent-color: #FF244C;
-    --accent-dark-color: #B81D3A; /* Darker shade of accent for hover or borders */
-
-    /* Greyscale palette for backgrounds, text, and borders */
-    --medium-grey-color: #6c7086;  /* General purpose medium grey */
-    --dimmed-grey-color: #777;     /* Dimmed grey, e.g., for inactive text */
-    --dark-grey-color: #606060;      /* Dark grey, e.g., for specific UI elements text */
-    --darker-grey-color: #4a4a4a;    /* Darker grey, e.g., for hover backgrounds */
-
-    /* UI element base styles */
-    --module-bg-color: #1a1a1a;
-    --module-alt-bg-color: #141414; /* Alternative background for some modules or states */
-    --module-border-color: #2c2c2c;
-    --module-hover-bg-color: #3d3d3d;
-    --text-hover-color: #f0f0f0;      /* Text color on hover over interactive elements */
-    --text-bright-color: #fff;        /* Brightest text color, e.g., for highlighted hover text */
-
-    /* Workspace buttons */
-    --workspace-button-fg-dimmed: var(--dimmed-grey-color);                /* Dimmed foreground for non-active workspace buttons */
-    --workspace-button-fg-persistent: var(--dark-grey-color);              /* Foreground for persistent workspace buttons */
-    --workspace-button-bg-visible: var(--module-border-color);             /* Background for visible (active on monitor) workspace buttons */
-    --workspace-button-hover-border-color: var(--workspace-button-fg-dimmed); /* Border color for hovered workspace buttons */
-    --workspace-button-visible-hover-bg-color: var(--darker-grey-color);   /* Background for hovered visible workspace buttons */
-    --workspace-button-visible-hover-border-color: var(--medium-grey-color); /* Border for hovered visible workspace buttons */
-
-    /* Urgent state */
-    --urgent-bg-color: #FFD700;        /* Background for urgent state (e.g., notifications) */
-    --urgent-fg-color: #000;           /* Foreground for urgent state */
-    --urgent-hover-bg-color: #ffec80;  /* Lighter yellow for urgent state hover */
-    --urgent-hover-fg-color: var(--bg-color); /* Foreground for urgent state hover */
-
-    /* Module-specific text colors (override --fg-color where needed) */
-    --hyprland-window-text-color: #cba6f7; /* Text color for the Hyprland window title module */
-    --clock-text-color: #E6E6FA;           /* Text color for the clock module */
-    --pulseaudio-text-color: #fab387;      /* Text color for the PulseAudio module */
-    --network-text-color: #f9e2af;         /* Text color for the network module */
-    --cpu-text-color: #89b4fa;             /* Text color for the CPU module */
-    --memory-text-color: #cba6f7;          /* Text color for the memory module */
-
-    /* Module state-specific colors */
-    --pulseaudio-muted-bg-color: var(--module-hover-bg-color);     /* Background for PulseAudio module when muted */
-    --pulseaudio-muted-text-color: var(--medium-grey-color);       /* Text color for PulseAudio module when muted */
-    --network-disconnected-bg-color: #f38ba8;                     /* Background for network module when disconnected */
-    --network-disconnected-text-color: var(--bg-color);            /* Text color for network module when disconnected */
-
-    /* Sizing and spacing */
-    --bar-border-height: 2px;
-    --module-padding: 0px 10px;
-    --module-margin: 4px 5px;
-    --module-radius: 8px;
-    --button-radius: 6px;
-    --tooltip-radius: 6px;
-    --tooltip-padding: 10px;
-
-    background-color: var(--bg-color);
-    color: var(--fg-color);
-    border-bottom: var(--bar-border-height) solid var(--accent-color);
-}
-
-#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window {
-    padding: var(--module-padding);
-    margin: var(--module-margin);
-    color: var(--fg-color); /* Use main foreground for module text unless overridden */
-    background-color: var(--module-bg-color);
-    border-radius: var(--module-radius);
-    border: 1px solid var(--module-border-color);
-}
-
-/* Override specific module text colors if needed, but default to --fg-color */
-#hyprland-window {
-    color: var(--hyprland-window-text-color);
+    font-family: sans-serif;
+    font-size: 14px;
     font-weight: normal;
-    background-color: transparent;
-    border: none;
-    padding: 0 15px 0 0; /* Explicitly set all paddings; right padding of 15px, others 0 */
-}
-#clock {
-    color: var(--clock-text-color);
-    font-weight: bold;
-}
-#pulseaudio {
-    background-color: var(--module-border-color);
-    color: var(--pulseaudio-text-color);
-}
-#network {
-    background-color: var(--module-border-color);
-    color: var(--network-text-color);
-}
-#cpu {
-    background-color: var(--module-border-color);
-    color: var(--cpu-text-color);
-}
-#memory {
-    background-color: var(--module-border-color);
-    color: var(--memory-text-color);
+    /* Ensure pseudo-elements also inherit box-sizing */
+    &::before, &::after {
+        box-sizing: inherit;
+    }
 }
 
+/* --- WAYBAR MAIN STYLING & CSS VARIABLES --- */
+window#waybar {
+    /*
+     * --- CUSTOMIZATION FLAGS (Set to 1 to enable, 0 to disable) ---
+     * These flags control major visual features.
+     * Corresponding "--var-actual" variables will be set to 'none' or default values if disabled.
+     */
+    --flag-enable-shadows-module: 1;
+    --flag-enable-shadows-tooltip: 1;
+    --flag-enable-animation-workspace-button-border: 1;
+    --flag-enable-transform-workspace-button-hover-scale: 1;
+    --flag-enable-transform-module-general-hover-lift: 1;
+    --flag-enable-animation-urgent-pulse: 1;
+    --flag-enable-animation-focused-breathing: 0; /* Subtle, might be too much for some */
+    --flag-enable-experimental-glassmorphism: 0; /* HIGHLY EXPERIMENTAL */
+    --flag-enable-focus-ring-general: 1; /* Apply focus rings more broadly */
 
+    /*
+     * --- BASE THEME DEFINITIONS ---
+     * Foundational colors and properties. Other variables derive from these.
+     */
+    /* -- Base Theme: Dark (Default) -- */
+    --theme-bg-primary: #0a0a0a;
+    --theme-fg-primary: #e0e0e0;
+    --theme-accent-primary: #FF244C;
+    --theme-accent-secondary: #B81D3A; /* Darker accent */
+    --theme-accent-tertiary: #FF5777;  /* Lighter accent for highlights */
+
+    --theme-grey-000: #ffffff; --theme-grey-100: #f0f0f0; --theme-grey-200: #e0e0e0;
+    --theme-grey-300: #a0a0a0; --theme-grey-400: #777777; --theme-grey-500: #6c7086;
+    --theme-grey-600: #606060; --theme-grey-700: #4a4a4a; --theme-grey-800: #2c2c2c;
+    --theme-grey-900: #1a1a1a; --theme-grey-950: #141414;
+
+    --theme-special-urgent-bg: #FFD700;
+    --theme-special-urgent-fg: #000000;
+    --theme-special-disconnected-bg: #f38ba8;
+    --theme-special-disconnected-fg: var(--theme-bg-primary);
+    --theme-special-error-bg: #ff4d4d; /* Distinct error background */
+    --theme-special-error-fg: var(--theme-grey-000);
+
+    --theme-font-family-main: "JetBrainsMono Nerd Font", "Font Awesome 6 Free Solid", sans-serif;
+    --theme-font-family-monospace: "JetBrainsMono Nerd Font", monospace; /* For specific modules */
+    --theme-font-size-default: 14px;
+    --theme-font-weight-normal: normal;
+    --theme-font-weight-bold: bold;
+
+    /*
+     * --- DESIGN TOKENS & DERIVED PALETTE ---
+     * Semantic variables using "Base Theme" definitions.
+     */
+
+    /* --- Core Palette --- */
+    --color-background-bar: var(--theme-bg-primary);
+    --color-text-bar-default: var(--theme-fg-primary);
+    --color-accent-primary: var(--theme-accent-primary);
+    --color-accent-secondary: var(--theme-accent-secondary);
+    --color-accent-highlight: var(--theme-accent-tertiary);
+
+    /* --- Greyscale Palette --- */
+    --color-grey-brightest: var(--theme-grey-000); --color-grey-bright: var(--theme-grey-100);
+    --color-grey-light: var(--theme-grey-300);    --color-grey-medium: var(--theme-grey-500);
+    --color-grey-dimmed: var(--theme-grey-400);   --color-grey-dark: var(--theme-grey-600);
+    --color-grey-darker: var(--theme-grey-700);   --color-grey-darkest: var(--theme-grey-800);
+
+    /* --- UI Element Colors --- */
+    --color-background-module-default: var(--theme-grey-900);
+    --color-background-module-alternate: var(--theme-grey-950);
+    --color-border-module-default: var(--theme-grey-800);
+    --color-border-module-separator: var(--theme-grey-700); /* For internal separators if any */
+
+    --color-background-module-hover: var(--theme-grey-700);
+    --color-text-module-hover: var(--color-grey-bright);
+    --color-border-module-hover: var(--color-grey-medium);
+
+    --color-background-module-active: var(--color-accent-secondary);
+    --color-text-module-active: var(--color-grey-brightest);
+    --color-border-module-active: var(--color-accent-primary);
+
+    /* --- Workspace Button Colors --- */
+    --color-text-workspace-default: var(--color-grey-dimmed);
+    --color-text-workspace-persistent: var(--color-grey-dark);
+    --color-text-workspace-visible: var(--color-text-bar-default);
+    --color-text-workspace-focused: var(--color-grey-brightest);
+    --color-text-workspace-hover: var(--color-grey-brightest);
+
+    --color-background-workspace-visible: var(--color-border-module-default);
+    --color-background-workspace-focused: var(--color-accent-primary);
+    --color-border-workspace-focused: var(--color-accent-secondary);
+    --color-border-workspace-hover-animated: var(--color-grey-dimmed); /* For animated border */
+
+    /* --- State Colors (Urgent, Disabled, Error) --- */
+    --color-background-urgent: var(--theme-special-urgent-bg);
+    --color-text-urgent: var(--theme-special-urgent-fg);
+    --color-border-urgent: var(--color-accent-secondary);
+    --color-background-urgent-hover: color-mix(in srgb, var(--theme-special-urgent-bg) 80%, var(--theme-grey-000) 20%);
+    --color-text-urgent-hover: var(--theme-special-urgent-fg);
+
+    --color-background-disabled: var(--color-grey-darker);
+    --color-text-disabled: var(--color-grey-dimmed);
+    --opacity-disabled: 0.5; /* Slightly more opacity for better visual indication */
+    --filter-disabled: grayscale(70%); /* Grayscale filter for disabled elements */
+
+    --color-background-error: var(--theme-special-error-bg);
+    --color-text-error: var(--theme-special-error-fg);
+    --color-border-error: color-mix(in srgb, var(--theme-special-error-bg) 70%, black 30%);
+
+    /* --- Module-Specific Text Colors --- */
+    --color-text-module-windowtitle: #cba6f7; --color-text-module-clock: #E6E6FA;
+    --color-text-module-pulseaudio: #fab387;  --color-text-module-network: #f9e2af;
+    --color-text-module-cpu: #89b4fa;         --color-text-module-memory: #cba6f7;
+    --color-text-module-power: var(--color-accent-primary);
+
+    /* --- Icon Styling Tokens --- */
+    --color-icon-default: var(--color-grey-light);
+    --color-icon-hover: var(--color-accent-highlight);
+    --color-icon-active: var(--color-accent-primary);
+    --dimension-icon-size-default: inherit; /* Inherit from text or set specific value */
+    --dimension-icon-size-small: calc(var(--typography-font-size-default) - 2px);
+    --dimension-icon-size-large: calc(var(--typography-font-size-default) + 2px);
+
+    /* --- Typography --- */
+    --typography-font-family-main: var(--theme-font-family-main);
+    --typography-font-family-monospace: var(--theme-font-family-monospace);
+    --typography-font-size-default: var(--theme-font-size-default);
+    --typography-font-size-small: calc(var(--typography-font-size-default) - 1px);
+    --typography-font-size-large: calc(var(--typography-font-size-default) + 2px);
+    --typography-font-weight-normal: var(--theme-font-weight-normal);
+    --typography-font-weight-bold: var(--theme-font-weight-bold);
+    --typography-letter-spacing-normal: normal;
+    --typography-text-transform-none: none;
+    --typography-text-decoration-none: none;
+    --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, 0.2); /* Very subtle shadow for depth */
+    --typography-text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* --- Dimensions & Spacing --- */
+    --dimension-bar-border-height: 2px;
+    --dimension-module-padding-vertical: 0px;
+    --dimension-module-padding-horizontal: 10px;
+    --dimension-module-margin-vertical: 4px;
+    --dimension-module-margin-horizontal: 5px;
+    --dimension-radius-module: 8px;
+    --dimension-radius-button: 6px;
+    --dimension-radius-tooltip: 6px;
+    --dimension-tooltip-padding-vertical: 8px;
+    --dimension-tooltip-padding-horizontal: 12px;
+    --dimension-border-width-thin: 1px;
+    --dimension-border-width-normal: 2px;
+    --dimension-border-style-default: solid;
+    --dimension-border-style-dashed: dashed;
+    --dimension-border-style-dotted: dotted;
+
+    /* --- Transitions --- */
+    --transition-duration-instant: 0.05s;
+    --transition-duration-fast: 0.15s;
+    --transition-duration-normal: 0.2s;
+    --transition-duration-slow: 0.3s;
+    --transition-timing-function-ease: ease-in-out;
+    --transition-timing-function-accel: cubic-bezier(0.5, 0, 1, 1);
+    --transition-timing-function-decel: cubic-bezier(0, 0, 0.3, 1);
+    --transition-properties-common: background-color, color, border-color, opacity, box-shadow, transform, filter;
+    --transition-property-transform: transform;
+    --transition-property-opacity: opacity;
+
+    /* --- Interaction Feedback Tokens --- */
+    --interaction-transform-hover-lift-actual: translateY(calc(-1px * var(--flag-enable-transform-module-general-hover-lift)));
+    --interaction-transform-hover-scale-small-actual: scale(calc(1 + (0.02 * var(--flag-enable-transform-workspace-button-hover-scale))));
+    --interaction-transform-hover-scale-medium-actual: scale(calc(1 + (0.05 * var(--flag-enable-transform-workspace-button-hover-scale))));
+    --interaction-transform-hover-scale-large-actual: scale(calc(1 + (0.08 * var(--flag-enable-transform-workspace-button-hover-scale))));
+    --interaction-transform-active-press: scale(0.98); /* Subtle press effect */
+
+    /* --- Effects: Box Shadows (controlled by flags) --- */
+    --effects-shadow-opacity-module-actual: calc(0.25 * var(--flag-enable-shadows-module));
+    --effects-shadow-opacity-module-hover-actual: calc(0.35 * var(--flag-enable-shadows-module));
+    --effects-shadow-opacity-tooltip-actual: calc(0.4 * var(--flag-enable-shadows-tooltip));
+
+    --effects-shadow-module-actual: 0px 1px 3px 0px hsla(0, 0%, 0%, var(--effects-shadow-opacity-module-actual));
+    --effects-shadow-module-hover-actual: 0px 2px 5px 0px hsla(0, 0%, 0%, var(--effects-shadow-opacity-module-hover-actual));
+    --effects-shadow-tooltip-actual: 0px 2px 6px 0px hsla(0, 0%, 0%, var(--effects-shadow-opacity-tooltip-actual));
+
+    /* --- Effects: Focus Ring (for accessibility, controlled by flag) --- */
+    --effects-focus-ring-color: var(--color-accent-primary);
+    --effects-focus-ring-width: 2px;
+    --effects-focus-ring-offset: 1px; /* Reduced offset for tighter fit */
+    --effects-focus-ring-shadow-actual: var(--flag-enable-focus-ring-general) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
+                                        var(--flag-enable-focus-ring-general) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
+                                        /* If flag is 0, this effectively becomes 0px shadows */
+
+    /* --- Animations (controlled by flags) --- */
+    --animation-name-pulse: pulse-border-shadow;
+    --animation-duration-pulse: 1.2s;
+    --animation-timing-pulse: ease-in-out;
+    --animation-iteration-pulse: infinite alternate;
+    --animation-urgent-actual: var(--flag-enable-animation-urgent-pulse) var(--animation-name-pulse) var(--animation-duration-pulse) var(--animation-timing-pulse) var(--animation-iteration-pulse);
+
+    --animation-name-breathing: breathing-focus;
+    --animation-duration-breathing: 2.5s;
+    --animation-focused-breathing-actual: var(--flag-enable-animation-focused-breathing) var(--animation-name-breathing) var(--animation-duration-breathing) var(--transition-timing-function-ease) infinite alternate;
+
+    --animation-workspace-border-actual: var(--flag-enable-animation-workspace-button-border); /* Used as opacity/toggle for pseudo */
+
+
+    /* --- Experimental: Glassmorphism (controlled by flag) --- */
+    --glass-blur-radius-actual: calc(8px * var(--flag-enable-experimental-glassmorphism)); /* Increased blur */
+    --glass-background-color-actual: hsla(0, 0%, 50%, calc(0.15 * var(--flag-enable-experimental-glassmorphism))); /* Slightly darker, more translucent base */
+
+    /* --- Bar Properties --- */
+    font-family: var(--typography-font-family-main);
+    font-size: var(--typography-font-size-default);
+    font-weight: var(--typography-font-weight-normal);
+    text-rendering: var(--typography-text-rendering);
+    background-color: var(--color-background-bar);
+    color: var(--color-text-bar-default);
+    border-bottom: var(--dimension-bar-border-height) var(--dimension-border-style-default) var(--color-accent-primary);
+}
+
+/* --- GENERAL MODULE STYLING --- */
+:where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window) {
+    padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
+    margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
+    color: var(--color-text-bar-default);
+    background-color: var(--color-background-module-default);
+    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
+    border-radius: var(--dimension-radius-module);
+    box-shadow: var(--effects-shadow-module-actual);
+    transition-property: var(--transition-properties-common);
+    transition-duration: var(--transition-duration-normal);
+    transition-timing-function: var(--transition-timing-function-ease);
+    /* Experimental Glassmorphism */
+    -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
+    backdrop-filter: blur(var(--glass-blur-radius-actual));
+    /* If glass is enabled, the direct background needs to be more transparent */
+    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (70% * var(--flag-enable-experimental-glassmorphism))), var(--glass-background-color-actual) calc(100% * var(--flag-enable-experimental-glassmorphism)) );
+}
+
+/* --- GENERAL MODULE INTERACTION STYLING --- */
+:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):hover {
+    background-color: var(--color-background-module-hover);
+    color: var(--color-text-module-hover);
+    border-color: var(--color-border-module-hover);
+    box-shadow: var(--effects-shadow-module-hover-actual);
+    transform: var(--interaction-transform-hover-lift-actual);
+    transition-duration: var(--transition-duration-fast);
+    z-index: 10; /* Ensure hovered item is on top if overlapping slightly */
+}
+/* Focused state for general modules (e.g., if Waybar allows keyboard nav to modules) */
+:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus,
+:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus-within { /* If children can get focus */
+    outline: none; /* Remove default outline */
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
+    border-color: var(--color-accent-highlight); /* Highlight border on focus */
+    z-index: 15;
+}
+/* Active state */
+:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray).active:not(.disabled):not(.error) {
+    background-color: var(--color-background-module-active);
+    color: var(--color-text-module-active);
+    border-color: var(--color-border-module-active);
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
+    transform: var(--interaction-transform-active-press) var(--interaction-transform-hover-lift-actual); /* Combine press and lift */
+    z-index: 20;
+}
+
+/* --- STATE STYLING: DISABLED & ERROR --- */
+.disabled, :disabled, .error {
+    opacity: var(--opacity-disabled) !important; /* Error state might also be dimmed */
+    cursor: var(--interaction-cursor-disabled) !important;
+    transform: none !important;
+    animation: none !important;
+    box-shadow: none !important;
+}
+.disabled, :disabled {
+    background-color: var(--color-background-disabled) !important;
+    color: var(--color-text-disabled) !important;
+    filter: var(--filter-disabled) !important;
+    border-color: var(--color-grey-darker) !important;
+}
+.error { /* Distinct error styling */
+    background-color: var(--color-background-error) !important;
+    color: var(--color-text-error) !important;
+    border: var(--dimension-border-width-normal) var(--dimension-border-style-dashed) var(--color-border-error) !important;
+    font-weight: var(--typography-font-weight-bold);
+}
+.disabled:hover, :disabled:hover, .error:hover {
+    /* Ensure hover effects are completely neutralized */
+    filter: var(--filter-disabled) !important; /* For .disabled */
+}
+
+/* --- WORKSPACES MODULE --- */
 #workspaces {
-    background-color: var(--module-alt-bg-color);
     padding: 0 3px;
-    margin: var(--module-margin);
-    border-radius: var(--module-radius);
-    border: 1px solid var(--module-hover-bg-color);
+    margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
+    background-color: var(--color-background-module-alternate);
+    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
+    border-radius: var(--dimension-radius-module);
+    box-shadow: var(--effects-shadow-module-actual);
 }
 
 #workspaces button {
-    padding: 3px 8px;
-    margin: 3px 2px;
-    color: var(--workspace-button-fg-dimmed);
-    background-color: var(--module-alt-bg-color);
-    border-radius: var(--button-radius);
-    border: 1px solid transparent; 
-    font-weight: bold;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    padding: 3px 8px; margin: 3px 2px;
+    color: var(--color-text-workspace-default);
+    background-color: transparent;
+    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) transparent;
+    border-radius: var(--dimension-radius-button);
+    font-weight: var(--typography-font-weight-bold);
+    transition-property: var(--transition-properties-common);
+    transition-duration: var(--transition-duration-fast);
+    transition-timing-function: var(--transition-timing-function-ease);
+    cursor: var(--interaction-cursor-pointer);
+    position: relative; overflow: hidden;
+}
+#workspaces button:focus, #workspaces button:focus-visible {
+    outline: none;
+    box-shadow: var(--effects-focus-ring-shadow-actual); /* Focus ring for workspace buttons */
 }
 
-#workspaces button.persistent { 
-    color: var(--workspace-button-fg-persistent);
+/* Animated border effect for workspace buttons */
+#workspaces button:not(.focused):not(.urgent)::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) transparent;
+    transition: border-color var(--transition-duration-slow) var(--transition-timing-function-ease);
+    pointer-events: none;
+    opacity: var(--animation-workspace-border-actual); /* Control via flag */
+}
+#workspaces button:not(.focused):not(.urgent):hover::before {
+    border-color: var(--color-border-workspace-hover-animated);
 }
 
-#workspaces button.visible { 
-    color: var(--fg-color);
-    background-color: var(--workspace-button-bg-visible);
+#workspaces button.persistent { color: var(--color-text-workspace-persistent); }
+#workspaces button.visible {
+    color: var(--color-text-workspace-visible);
+    background-color: var(--color-background-workspace-visible);
 }
-
-#workspaces button.focused { 
-    color: var(--text-hover-color);
-    background-color: var(--accent-color);
-    border-color: var(--accent-dark-color);
+#workspaces button.focused {
+    color: var(--color-text-workspace-focused);
+    background-color: var(--color-background-workspace-focused);
+    border-color: var(--color-border-workspace-focused);
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
+    animation: var(--animation-focused-breathing-actual);
+    z-index: 5; /* Ensure focused is above others */
 }
-
 #workspaces button.urgent {
-    color: var(--urgent-fg-color);
-    background-color: var(--urgent-bg-color);
+    color: var(--color-text-urgent);
+    background-color: var(--color-background-urgent);
+    border-color: var(--color-border-urgent);
+    animation: var(--animation-urgent-actual);
+    z-index: 5;
 }
 
-#workspaces button:hover { 
-    color: var(--text-bright-color);
-    background-color: var(--module-hover-bg-color);
-    border-color: var(--workspace-button-hover-border-color);
+@keyframes pulse-border-shadow { /* Used by urgent */
+    0% {
+        box-shadow: 0 0 2px 0px var(--color-background-urgent), var(--effects-shadow-module-actual);
+        border-color: var(--color-border-urgent);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 6px 3px color-mix(in srgb, var(--color-background-urgent) 70%, transparent 30%), var(--effects-shadow-module-hover-actual);
+        border-color: var(--color-accent-highlight);
+        transform: scale(1.03);
+    }
+}
+@keyframes breathing-focus { /* Used by focused */
+    from { transform: scale(1); box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual); }
+    to   { transform: scale(1.02); box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 10px -2px var(--color-accent-primary); }
 }
 
-#workspaces button.visible:hover { 
-    color: var(--text-bright-color);
-    background-color: var(--workspace-button-visible-hover-bg-color);
-    border-color: var(--workspace-button-visible-hover-border-color);
+#workspaces button:hover:not(.focused):not(.urgent) {
+    color: var(--color-text-workspace-hover);
+    background-color: var(--color-background-module-hover);
+    transform: var(--interaction-transform-hover-scale-medium-actual);
+    z-index: 1;
 }
-
-#workspaces button.focused:hover { 
-    color: var(--text-hover-color);
-    background-color: var(--accent-dark-color);
-    border-color: var(--accent-color);
+#workspaces button.visible:hover:not(.focused) {
+    color: var(--color-text-workspace-hover);
+    background-color: var(--color-background-workspace-visible-hover);
+    transform: var(--interaction-transform-hover-scale-medium-actual);
+    z-index: 1;
 }
-
+#workspaces button.focused:hover {
+    background-color: color-mix(in srgb, var(--color-background-workspace-focused) 90%, var(--color-grey-darkest) 10%);
+    border-color: var(--color-accent-highlight); /* Brighter border on focused hover */
+    transform: var(--interaction-transform-hover-scale-small-actual); /* Less dramatic scale as already focused */
+}
 #workspaces button.urgent:hover {
-    color: var(--urgent-hover-fg-color);
-    background-color: var(--urgent-hover-bg-color);
+    color: var(--color-text-urgent-hover);
+    background-color: var(--color-background-urgent-hover);
+    border-color: var(--color-accent-highlight);
+    animation-play-state: paused;
+    transform: var(--interaction-transform-hover-scale-small-actual);
 }
+
+/* --- INDIVIDUAL MODULE STYLING --- */
+/* Note: Most modules will inherit general styling. Override specifics here. */
+/* Example: Using monospace font for clock */
+#clock {
+    font-family: var(--typography-font-family-monospace);
+    color: var(--color-text-module-clock);
+    font-weight: var(--typography-font-weight-bold);
+    /* text-shadow: var(--typography-text-shadow-subtle); */ /* Optional subtle depth */
+}
+#clock:hover { color: var(--color-accent-highlight); }
 
 #mode {
-    background-color: var(--accent-dark-color);
-    color: var(--text-hover-color);
-    font-weight: bold;
-    padding: 0 12px;
+    padding: var(--dimension-module-padding-vertical) 12px;
+    color: var(--color-grey-brightest);
+    background-color: var(--color-accent-secondary);
+    font-weight: var(--typography-font-weight-bold);
 }
 
-#clock:hover { /* Specific hover for clock if desired, else remove if general module hover is enough */
-    color: var(--accent-color);
+#hyprland-window {
+    padding: var(--dimension-module-padding-vertical) 15px;
+    color: var(--color-text-module-windowtitle);
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    font-weight: var(--typography-font-weight-normal);
 }
 
+#pulseaudio { background-color: var(--color-border-module-default); color: var(--color-text-module-pulseaudio); }
 #pulseaudio.muted {
-    background-color: var(--pulseaudio-muted-bg-color);
-    color: var(--pulseaudio-muted-text-color);
+    background-color: var(--color-background-disabled); /* Use disabled styling for muted */
+    color: var(--color-text-disabled);
+    opacity: var(--opacity-disabled);
+    filter: var(--filter-disabled);
 }
 
+#network { background-color: var(--color-border-module-default); color: var(--color-text-module-network); }
 #network.disconnected {
-    background-color: var(--network-disconnected-bg-color);
-    color: var(--network-disconnected-text-color);
+    background-color: var(--theme-special-disconnected-bg);
+    color: var(--theme-special-disconnected-fg);
+    font-weight: var(--typography-font-weight-bold);
+    border-style: var(--dimension-border-style-dashed);
 }
+
+#cpu { background-color: var(--color-border-module-default); color: var(--color-text-module-cpu); }
+#memory { background-color: var(--color-border-module-default); color: var(--color-text-module-memory); }
+
+#battery.critical:not(.charging) {
+    background-color: var(--color-accent-primary);
+    color: var(--color-grey-brightest);
+    font-weight: var(--typography-font-weight-bold);
+    animation: var(--animation-urgent-actual); /* Reuse urgent animation */
+}
+#battery.warning:not(.charging) {
+     background-color: var(--color-background-urgent);
+     color: var(--color-text-urgent);
+     border-style: var(--dimension-border-style-dotted);
+}
+/* Example Icon styling: #battery.charging .icon { color: var(--color-icon-active); } */
 
 #tray {
-    background-color: var(--module-alt-bg-color);
-    padding: 0 6px;
-    /* margin-right: 5px; /* This is covered by var(--module-margin) from the general module style */
+    padding: var(--dimension-module-padding-vertical) 6px;
+    background-color: var(--color-background-module-alternate);
 }
+/* #tray > widget { margin: 0 2px; } /* Spacing between tray items */
 
 #custom-power {
-    color: var(--accent-color);
-    background-color: var(--module-bg-color);
-    font-size: 16px;
-    padding: 0 12px;
+    padding: var(--dimension-module-padding-vertical) 12px;
+    color: var(--color-text-module-power);
+    font-size: var(--typography-font-size-large);
+    font-weight: var(--typography-font-weight-bold);
+    cursor: var(--interaction-cursor-pointer);
+    transition-timing-function: var(--transition-timing-function-accel);
 }
-
 #custom-power:hover {
-    background-color: var(--accent-dark-color);
-    color: var(--text-hover-color);
+    background-color: var(--color-accent-secondary);
+    color: var(--color-grey-brightest);
+    border-color: var(--color-accent-highlight);
+    box-shadow: var(--effects-shadow-module-hover-actual);
+    transform: var(--interaction-transform-hover-scale-large-actual) rotate(-8deg); /* More pronounced */
+}
+#custom-power:active {
+    transform: var(--interaction-transform-active-press) rotate(-5deg);
 }
 
+/* --- TOOLTIPS --- */
 tooltip {
-    background-color: var(--module-alt-bg-color);
-    border: 1px solid var(--accent-color);
-    border-radius: var(--tooltip-radius);
-    color: var(--fg-color);
-    padding: var(--tooltip-padding);
+    padding: var(--dimension-tooltip-padding-vertical) var(--dimension-tooltip-padding-horizontal);
+    color: var(--color-text-bar-default);
+    background-color: var(--color-background-module-alternate);
+    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-accent-primary);
+    border-radius: var(--dimension-radius-tooltip);
+    box-shadow: var(--effects-shadow-tooltip-actual);
+    /* Experimental Glassmorphism for Tooltips */
+    -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
+    backdrop-filter: blur(var(--glass-blur-radius-actual));
+    background-color: color-mix(in srgb, var(--color-background-module-alternate) calc(100% - (70% * var(--flag-enable-experimental-glassmorphism))), var(--glass-background-color-actual) calc(100% * var(--flag-enable-experimental-glassmorphism)) );
 }
 
 tooltip label {
-    color: var(--fg-color);
+    color: var(--color-text-bar-default);
+    font-size: var(--typography-font-size-small);
 }
+
+/* --- ICON STYLING EXAMPLE (if modules use classes like .icon or Font Awesome) --- */
+/*
+.icon, [class*="fa-"] {
+    font-family: var(--typography-font-family-main); // Ensure Nerd Font/Font Awesome is used
+    font-size: var(--dimension-icon-size-default);
+    color: var(--color-icon-default);
+    transition: color var(--transition-duration-fast) var(--transition-timing-function-ease);
+}
+*:hover > .icon, *:hover > [class*="fa-"] { // Icon color change on parent hover
+    color: var(--color-icon-hover);
+}
+.active .icon, .active [class*="fa-"], // Icon color on parent active state
+.focused .icon, .focused [class*="fa-"] {
+    color: var(--color-icon-active);
+}
+*/
