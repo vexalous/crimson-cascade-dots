@@ -19,12 +19,10 @@ The goal is to create a visually appealing, keyboard-driven, and efficient deskt
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed on your system (preferably Arch Linux or an Arch-based distribution, as some package names might differ):
 
 *   **Hyprland** and its dependencies.
 *   **Alacritty**
 *   **Waybar**
-*   **Rofi** (a Wayland-compatible version/fork)
 *   **Fonts:**
     *   JetBrainsMono Nerd Font (for general UI and terminal)
     *   Font Awesome (for icons)
@@ -33,7 +31,6 @@ Before you begin, ensure you have the following installed on your system (prefer
     *   `jq` (for JSON processing, used by some scripts)
     *   `yad` (for GUI dialogs in scripts)
     *   `brightnessctl` (for backlight/brightness control)
-    *   `pactl` (or `pamixer`, for volume control)
     *   `playerctl` (for media player control)
     *   `mako` (notification daemon)
     *   `hyprlock` (screen locker)
@@ -59,22 +56,6 @@ Before you begin, ensure you have the following installed on your system (prefer
 ## How it Works
 
 This repository is structured to provide ready-to-use configurations while also offering a way to understand and regenerate them.
-
-*   **User Setup (`setup.sh`):** When you run `setup.sh`, it copies the pre-generated configuration files from the directories within this repository (e.g., `hypr/`, `alacritty/`, `waybar/`) directly into your `~/.config/` directory. It also ensures that scripts used by Hyprland (located in `hypr/scripts/`) are correctly referenced by the Hyprland configuration.
-
-*   **Configuration Generation (`scripts/config/`):** The `scripts/config/` directory contains a set of shell scripts that are used to *generate* the actual configuration files found in this repository. For example, `scripts/config/hyprland_main.sh` generates `hypr/hyprland.conf`. These scripts often use templates or combine smaller configuration snippets.
-    *   This means that the files like `hypr/hyprland.conf` or `waybar/config` are the *output* of these generator scripts.
-    *   If you wish to make deep customizations or understand how the configurations are built from scratch, you can explore these generator scripts. Running them will overwrite the existing configurations in the repository.
-
-*   **Hyprland Scripts (`hypr/scripts/`):** This directory contains various helper scripts used by Hyprland for functionalities like brightness control, volume control, power menus, notifications, etc. The `setup.sh` script ensures Hyprland knows where to find these scripts.
-
-## Configured Applications
-
-### Alacritty (`alacritty/alacritty.toml`)
-
-*   Minimalist and fast terminal emulator.
-*   Configuration is largely based on default settings with theme and font adjustments.
-*   See `alacritty/README.md` for more (though it mostly points to official docs).
 
 ### Hyprland (`hypr/`)
 
@@ -136,7 +117,6 @@ There are two main ways to customize these dotfiles:
 │   ├── README.md
 │   ├── conf/               # Main Hyprland config snippets
 │   ├── hyprland.conf       # Main Hyprland configuration file (sources from conf/)
-│   ├── rofi/               # Rofi theme for powermenu
 │   └── scripts/            # Helper scripts for Hyprland
 ├── scripts/                # Setup and configuration generation scripts
 │   ├── README.md
@@ -146,8 +126,6 @@ There are two main ways to customize these dotfiles:
 │   └── setup.sh            # Main setup script for end-users
 ├── waybar/                 # Waybar configuration
 │   ├── README.md
-│   ├── config
-│   └── style.css
 └── crimson_black_wallpaper.png # Example wallpaper
 ```
 
@@ -158,5 +136,3 @@ Feel free to fork this repository, make improvements, and open pull requests. If
 When contributing, if you modify the configuration generation logic in `scripts/config/`, please ensure you regenerate the relevant configuration files and commit them as well.
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
