@@ -9,7 +9,7 @@ Key software configured:
 *   **Window Manager:** Hyprland (with various plugins and custom scripts)
 *   **Terminal Emulator:** [Alacritty](https://alacritty.org/)
 *   **Status Bar:** [Waybar](https://github.com/Alexays/Waybar)
-*   **Application Launcher/Powermenu:** [Rofi](https://github.com/davatorium/rofi) (Wayland fork)
+*   **Application Launcher/Powermenu:** [Rofi](https://github.com/Alexays/rofi) (Wayland fork)
 *   **Notification Daemon:** Mako
 *   **Screen Locker:** Hyprlock
 *   **Wallpaper Utility:** Hyprpaper
