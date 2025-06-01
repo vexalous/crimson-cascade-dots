@@ -34,9 +34,14 @@ if [[ -f "$USER_WALLPAPER_CONFIG_FILE" ]]; then
     USER_SPECIFIED_PATH_RAW=$(grep -E '^\s*wallpaper_path\s*=' "$USER_WALLPAPER_CONFIG_FILE" | sed -E 's/^\s*wallpaper_path\s*=\s*//' | xargs)
 
     if [[ -n "$USER_SPECIFIED_PATH_RAW" ]]; then
-        # Expand tilde (e.g., convert ~/Pictures to /home/user/Pictures).
-        # eval is used here for tilde expansion, a common pattern in shell scripts.
-        USER_SPECIFIED_PATH_EXPANDED=$(eval echo "$USER_SPECIFIED_PATH_RAW")
+        # Expand tilde (e.g., convert ~/Pictures to /home/user/Pictures) safely.
+        if [[ "$USER_SPECIFIED_PATH_RAW" == "~/"* ]]; then
+            USER_SPECIFIED_PATH_EXPANDED="$HOME/${USER_SPECIFIED_PATH_RAW#"~/"}"
+        elif [[ "$USER_SPECIFIED_PATH_RAW" == "~" ]]; then
+            USER_SPECIFIED_PATH_EXPANDED="$HOME"
+        else
+            USER_SPECIFIED_PATH_EXPANDED="$USER_SPECIFIED_PATH_RAW"
+        fi
 
         if [[ -f "$USER_SPECIFIED_PATH_EXPANDED" ]]; then
             # If the user-specified path points to an existing file, use it.
@@ -57,15 +62,13 @@ fi
 if [[ "$CHOSEN_WALLPAPER_HYPRPAPER_PATH" == "$DEFAULT_WALLPAPER_HYPRPAPER_PATH" ]]; then
     DEFAULT_WALLPAPER_FS_PATH="$DEFAULT_WALLPAPER_TARGET_DIR/$DEFAULT_WALLPAPER_NAME" # Actual path on filesystem
     if [[ ! -f "$DEFAULT_WALLPAPER_FS_PATH" ]]; then
-        echo "WARN: Default wallpaper '$DEFAULT_WALLPAPER_FS_PATH' not found! Please ensure it is correctly installed."
+        echo "WARN: Default wallpaper '$DEFAULT_WALLPAPER_FS_PATH' not found! Please ensure it is correctly placed or run any necessary setup scripts."
     else
         echo "INFO: Using default wallpaper: $DEFAULT_WALLPAPER_FS_PATH"
     fi
-elif [[ -f "$CHOSEN_WALLPAPER_HYPRPAPER_PATH" ]]; then
-    # This case is for when a user-specified wallpaper was successfully validated and chosen.
-    # The INFO message for this case was already printed when CHOSEN_WALLPAPER_HYPRPAPER_PATH was set.
-    # Adding another one here could be redundant, but we can confirm the final choice.
-    echo "INFO: Confirmed wallpaper selection: $CHOSEN_WALLPAPER_HYPRPAPER_PATH"
+# elif [[ -f "$CHOSEN_WALLPAPER_HYPRPAPER_PATH" ]]; then
+    # This block is removed as the INFO message for user-defined wallpaper is already printed earlier.
+    # No need for a redundant "Confirmed wallpaper selection" message.
 fi
 
 # Prepare and write the hyprpaper.conf file.
