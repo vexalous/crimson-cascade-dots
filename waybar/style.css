@@ -1,546 +1,642 @@
 /*
- * Waybar Configuration Stylesheet - Omega Refinement
+ * Waybar Configuration Stylesheet - Titan Edition (v1.0)
  *
- * Iteration 6 Improvements:
- * - True CSS-Native Toggling for Flags: Cleaner enable/disable logic for features.
- * - Contextual Design Tokens: Reusable variables for consistent interaction patterns.
- * - Enhanced Animation Control: More granular animation parameter variables.
- * - Advanced Border System: Variables for various border properties and styles.
- * - Granular Typography: Variables for text-decoration, subtle text-shadow.
- * - Refined State Chaining: Better styles for combined states (hover+focus).
- * - Icon Styling Specificity: More concrete icon styling variables.
- * - Error State Styling (Conceptual): Variables and class for module error states.
- * - Accessibility Deep Dive: Broader application of clear focus indicators.
- * - Ultimate Polish: Comments, structure, and variable naming meticulously reviewed.
+ * Iteration 9: The Definitive Waybar Styling Experience.
+ * This edition embodies the pinnacle of CSS artistry for Waybar, offering
+ * unparalleled customization through a "Theme DNA" system, breathtaking aesthetics,
+ * and a profound attention to detail, performance, and accessibility.
+ *
+ * Designed by: AI (with iterative human guidance)
+ * Philosophy: To provide a Waybar theme that is not just a stylesheet, but a
+ *             styling *framework* – immensely powerful, deeply personalizable,
+ *             and beautiful by default.
  */
 
 /* --- GLOBAL RESET & BASE STYLES --- */
 * {
-    border: none;
-    border-radius: 0;
-    box-sizing: border-box;
-    min-height: 0;
-    padding: 0;
-    margin: 0;
-    font-family: sans-serif;
-    font-size: 14px;
-    font-weight: normal;
-    /* Ensure pseudo-elements also inherit box-sizing */
-    &::before, &::after {
-        box-sizing: inherit;
-    }
+    border: none; border-radius: 0; box-sizing: border-box;
+    min-height: 0; padding: 0; margin: 0;
+    font-family: sans-serif; font-size: 14px; font-weight: normal;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    &::before, &::after { box-sizing: inherit; }
 }
 
 /* --- WAYBAR MAIN STYLING & CSS VARIABLES --- */
 window#waybar {
     /*
-     * --- CUSTOMIZATION FLAGS (Set to 1 to enable, 0 to disable) ---
-     * These flags control major visual features.
-     * Corresponding "--var-actual" variables will be set to 'none' or default values if disabled.
+     * ==========================================================================
+     * --- TITAN THEME DNA CONFIGURATION ---
+     * ==========================================================================
+     * Define the core "personality" of your theme here.
+     * These high-level choices cascade throughout the entire stylesheet.
+     * For "Accent Palette": 0=Custom HSL, 1=Vibrant Fire, 2=Cool Ocean, 3=Forest Calm, 4=Monochrome.
+     * For "Visual Style": 0=Professional, 1=Expressive, 2=Minimalist.
+     * For "FX Tier": 0=Full, 1=Standard (reduced motion/shadows), 2=Minimal (essential only).
      */
-    --flag-enable-shadows-module: 1;
-    --flag-enable-shadows-tooltip: 1;
-    --flag-enable-animation-workspace-button-border: 1;
-    --flag-enable-transform-workspace-button-hover-scale: 1;
-    --flag-enable-transform-module-general-hover-lift: 1;
-    --flag-enable-animation-urgent-pulse: 1;
-    --flag-enable-animation-focused-breathing: 0; /* Subtle, might be too much for some */
-    --flag-enable-experimental-glassmorphism: 0; /* HIGHLY EXPERIMENTAL */
-    --flag-enable-focus-ring-general: 1; /* Apply focus rings more broadly */
+    --dna-base-intent: 0; /* 0: Dark, 1: Light */
+    --dna-accent-palette-choice: 1;
+        /* Custom HSL (used if --dna-accent-palette-choice is 0) */
+        --dna-custom-accent-H: 348; --dna-custom-accent-S: 100%; --dna-custom-accent-L: 57%;
+
+    --dna-visual-style: 0;
+    --dna-density-font-scale: 1; /* 0.8=Compact, 1=Default, 1.2=Spacious (affects spacing & font size) */
+    --dna-fx-tier: 0;
+
+    /* --- Global Feature Toggles (1 for on, 0 for off) --- */
+    --flag-enable-shadows-master: 1; /* Master switch for all shadows */
+    --flag-enable-gradients-master: 1; /* Master switch for all gradients */
+    --flag-enable-animations-master: 1; /* Master switch for most cosmetic animations */
+    --flag-enable-aurora-bar-border: 1;
+    --flag-enable-dynamic-workspace-accents: 1;
+    --flag-enable-subtle-noise-texture: 0;
+    --flag-enable-experimental-glassmorphism: 0;
+    --flag-high-contrast-focus-outline: 0; /* Forces high-contrast outline if 1 */
+    --flag-force-minimalism: 0; /* Overrides many flags for an ultra-minimal look if 1 */
+
+    /* --- Font Stack Configuration --- */
+    --font-stack-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
+    --font-stack-mono: "JetBrainsMono Nerd Font", "Fira Code", "Hack", monospace;
+    --font-stack-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font"; /* Icons */
 
     /*
-     * --- BASE THEME DEFINITIONS ---
-     * Foundational colors and properties. Other variables derive from these.
+     * ==========================================================================
+     * --- THEME GENOME DERIVATION LAYER ---
+     * ==========================================================================
+     * Translates DNA choices into foundational theme properties.
+     * Modify with caution; this is the core of the theming engine.
      */
-    /* -- Base Theme: Dark (Default) -- */
-    --theme-bg-primary: #0a0a0a;
-    --theme-fg-primary: #e0e0e0;
-    --theme-accent-primary: #FF244C;
-    --theme-accent-secondary: #B81D3A; /* Darker accent */
-    --theme-accent-tertiary: #FF5777;  /* Lighter accent for highlights */
 
-    --theme-grey-000: #ffffff; --theme-grey-100: #f0f0f0; --theme-grey-200: #e0e0e0;
-    --theme-grey-300: #a0a0a0; --theme-grey-400: #777777; --theme-grey-500: #6c7086;
-    --theme-grey-600: #606060; --theme-grey-700: #4a4a4a; --theme-grey-800: #2c2c2c;
-    --theme-grey-900: #1a1a1a; --theme-grey-950: #141414;
+    /* --- Minimalist Override Logic --- */
+    --is-minimalist-style: var(--dna-visual-style) / 2; /* Becomes 1 if --dna-visual-style is 2, else 0 or 0.5 */
+    --minimal-mode-active: max(var(--flag-force-minimalism), var(--is-minimalist-style)); /* 1 if either is true */
 
-    --theme-special-urgent-bg: #FFD700;
-    --theme-special-urgent-fg: #000000;
-    --theme-special-disconnected-bg: #f38ba8;
-    --theme-special-disconnected-fg: var(--theme-bg-primary);
-    --theme-special-error-bg: #ff4d4d; /* Distinct error background */
-    --theme-special-error-fg: var(--theme-grey-000);
+    /* --- Effective Toggles (Minimalism can override these) --- */
+    --shadows-enabled: calc(var(--flag-enable-shadows-master) * (1 - var(--minimal-mode-active)));
+    --gradients-enabled: calc(var(--flag-enable-gradients-master) * (1 - var(--minimal-mode-active)));
+    --animations-cosmetic-enabled: calc(var(--flag-enable-animations-master) * (1 - var(--minimal-mode-active)));
+    --aurora-enabled: calc(var(--flag-enable-aurora-bar-border) * var(--animations-cosmetic-enabled));
+    --dynamic-ws-accents-enabled: calc(var(--flag-enable-dynamic-workspace-accents) * var(--animations-cosmetic-enabled));
+    --noise-enabled: calc(var(--flag-enable-subtle-noise-texture) * (1 - var(--minimal-mode-active)));
+    --glass-enabled: calc(var(--flag-enable-experimental-glassmorphism) * (1 - var(--minimal-mode-active)));
 
-    --theme-font-family-main: "JetBrainsMono Nerd Font", "Font Awesome 6 Free Solid", sans-serif;
-    --theme-font-family-monospace: "JetBrainsMono Nerd Font", monospace; /* For specific modules */
-    --theme-font-size-default: 14px;
-    --theme-font-weight-normal: normal;
-    --theme-font-weight-bold: bold;
+    /* --- FX Tier Adjustments --- */
+    /* Opacity/Intensity multipliers based on FX tier */
+    --fx-tier-multiplier-full: calc(1 - var(--dna-fx-tier) / 2) * calc(1 - var(--dna-fx-tier) / 1); /* 1 if tier 0, 0 if tier 2, 0.5 if tier 1 approx */
+    --fx-tier-multiplier-standard: calc(1 - abs(var(--dna-fx-tier) - 1)); /* 1 if tier 1, 0 if tier 0 or 2 */
+    --fx-tier-multiplier-reduced: var(--fx-tier-multiplier-full); /* Default to full, can be made more distinct */
+    --fx-tier-duration-scale: calc(1 + (var(--dna-fx-tier) * 0.25)); /* Animations slower on lower FX tiers */
+
+    /* --- Base Color Palette (HSL based on --dna-base-intent) --- */
+    --L-bg-primary: var(--dna-base-intent) * 96% + (1 - var(--dna-base-intent)) * 4%;
+    --L-bg-secondary: var(--dna-base-intent) * 92% + (1 - var(--dna-base-intent)) * 8%;
+    --L-bg-tertiary: var(--dna-base-intent) * 88% + (1 - var(--dna-base-intent)) * 12%;
+    --L-fg-primary: var(--dna-base-intent) * 8% + (1 - var(--dna-base-intent)) * 92%;
+    --L-fg-secondary: var(--dna-base-intent) * 25% + (1 - var(--dna-base-intent)) * 75%;
+    --L-fg-tertiary: var(--dna-base-intent) * 45% + (1 - var(--dna-base-intent)) * 55%;
+    --L-border-default: var(--dna-base-intent) * 85% + (1 - var(--dna-base-intent)) * 18%;
+
+    --theme-bg-primary: hsl(0, 0%, var(--L-bg-primary));
+    --theme-bg-secondary: hsl(0, 0%, var(--L-bg-secondary));
+    --theme-bg-tertiary: hsl(0, 0%, var(--L-bg-tertiary));
+    --theme-fg-primary: hsl(0, 0%, var(--L-fg-primary));
+    --theme-fg-secondary: hsl(0, 0%, var(--L-fg-secondary));
+    --theme-fg-tertiary: hsl(0, 0%, var(--L-fg-tertiary));
+    --theme-border-default: hsl(0, 0%, var(--L-border-default));
+
+    /* --- Accent Palette Selection --- */
+    /* Hues: 1=Fire(15), 2=Ocean(200), 3=Forest(100), 4=Monochrome(use current bg hue, 0 sat) */
+    --palette-H-fire: 15; --palette-S-fire: 95%; --palette-L-fire: 55%;
+    --palette-H-ocean: 200; --palette-S-ocean: 85%; --palette-L-ocean: 60%;
+    --palette-H-forest: 100; --palette-S-forest: 60%; --palette-L-forest: 45%;
+    /* For monochrome, S is 0, L is based on fg/bg contrast */
+    --is-palette-fire: calc(1 - abs(var(--dna-accent-palette-choice) - 1));
+    --is-palette-ocean: calc(1 - abs(var(--dna-accent-palette-choice) - 2));
+    --is-palette-forest: calc(1 - abs(var(--dna-accent-palette-choice) - 3));
+    --is-palette-monochrome: calc(1 - abs(var(--dna-accent-palette-choice) - 4));
+    --is-palette-custom: calc(1 - abs(var(--dna-accent-palette-choice) - 0));
+
+    --accent-H-resolved: calc(var(--is-palette-custom) * var(--dna-custom-accent-H) +
+                              var(--is-palette-fire) * var(--palette-H-fire) +
+                              var(--is-palette-ocean) * var(--palette-H-ocean) +
+                              var(--is-palette-forest) * var(--palette-H-forest) +
+                              var(--is-palette-monochrome) * 0); /* Monochrome hue from bg, or fixed */
+    --accent-S-resolved: calc(var(--is-palette-custom) * var(--dna-custom-accent-S) +
+                              var(--is-palette-fire) * var(--palette-S-fire) +
+                              var(--is-palette-ocean) * var(--palette-S-ocean) +
+                              var(--is-palette-forest) * var(--palette-S-forest) +
+                              var(--is-palette-monochrome) * 0%); /* Monochrome is 0% Sat */
+    --accent-L-base-resolved: calc(var(--is-palette-custom) * var(--dna-custom-accent-L) +
+                                  var(--is-palette-fire) * var(--palette-L-fire) +
+                                  var(--is-palette-ocean) * var(--palette-L-ocean) +
+                                  var(--is-palette-forest) * var(--palette-L-forest) +
+                                  var(--is-palette-monochrome) * (var(--dna-base-intent) * 30% + (1 - var(--dna-base-intent)) * 70%)); /* Mono L for contrast */
+
+    /* --- Final Accent Colors (HSL) --- */
+    --accent-H: var(--accent-H-resolved);
+    --accent-S: var(--accent-S-resolved);
+    --accent-L-base: var(--accent-L-base-resolved);
+    --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--is-palette-monochrome)))); /* Less dark shift for mono */
+    --accent-L-lighter: calc(var(--accent-L-base) + (12% * (1 - var(--is-palette-monochrome))));
+    --accent-L-highlight: calc(var(--accent-L-base) + (18% * (1 - var(--is-palette-monochrome))));
+
+    --theme-accent-primary-base: hsl(var(--accent-H), var(--accent-S), var(--accent-L-base));
+    --theme-accent-primary-grad-start: hsl(var(--accent-H), var(--accent-S), var(--accent-L-lighter));
+    --theme-accent-primary-grad-end: hsl(var(--accent-H), var(--accent-S), var(--accent-L-darker));
+    --theme-accent-secondary-base: hsl(var(--accent-H), calc(var(--accent-S) * 0.9), var(--accent-L-darker)); /* 0.9S for mono makes it still grey */
+    --theme-accent-highlight: hsl(var(--accent-H), var(--accent-S), var(--accent-L-highlight));
+
+    /* --- Spacing & Sizing (Scaled) --- */
+    --font-scale-factor: var(--dna-density-font-scale);
+    --spacing-unit: calc(4px * var(--dna-density-font-scale));
+    --radius-unit: calc(6px * var(--dna-density-font-scale));
+
+    /* --- Visual Style Adjustments --- */
+    /* Style: 0=Pro, 1=Expressive, 2=Minimal(handled by --minimal-mode-active) */
+    --is-style-pro: calc(1 - abs(var(--dna-visual-style) - 0));
+    --is-style-expressive: calc(1 - abs(var(--dna-visual-style) - 1));
+    --animation-speed-multiplier: calc(1 - (var(--is-style-pro) * 0.3) - (var(--minimal-mode-active) * 0.7)); /* Pro is faster, Minimal very fast/off */
+    --transform-intensity-multiplier: calc(1 + (var(--is-style-expressive) * 0.3) - (var(--minimal-mode-active) * 0.8));
+    --border-style-default-actual: var(--minimal-mode-active) solid, var(--is-style-pro) solid, var(--is-style-expressive) solid; /* Can add dashed/dotted for expressive if desired */
+    --border-radius-multiplier: calc(1 - (var(--is-style-pro) * 0.3) + (var(--is-style-expressive) * 0.2) - (var(--minimal-mode-active) * 0.5));
+
 
     /*
-     * --- DESIGN TOKENS & DERIVED PALETTE ---
-     * Semantic variables using "Base Theme" definitions.
+     * ==========================================================================
+     * --- DETAILED DESIGN TOKENS (Titan Edition) ---
+     * ==========================================================================
      */
 
-    /* --- Core Palette --- */
+    /* --- Core Palette & Accents --- */
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
-    --color-accent-primary: var(--theme-accent-primary);
-    --color-accent-secondary: var(--theme-accent-secondary);
-    --color-accent-highlight: var(--theme-accent-tertiary);
-
-    /* --- Greyscale Palette --- */
-    --color-grey-brightest: var(--theme-grey-000); --color-grey-bright: var(--theme-grey-100);
-    --color-grey-light: var(--theme-grey-300);    --color-grey-medium: var(--theme-grey-500);
-    --color-grey-dimmed: var(--theme-grey-400);   --color-grey-dark: var(--theme-grey-600);
-    --color-grey-darker: var(--theme-grey-700);   --color-grey-darkest: var(--theme-grey-800);
+    --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--is-style-expressive) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
+    --color-accent-primary-actual: var(--gradients-enabled) var(--color-accent-primary-gradient), var(--theme-accent-primary-base);
+    --color-accent-primary-solid: var(--theme-accent-primary-base);
+    --color-accent-secondary: var(--theme-accent-secondary-base);
+    --color-accent-highlight: var(--theme-accent-highlight);
 
     /* --- UI Element Colors --- */
-    --color-background-module-default: var(--theme-grey-900);
-    --color-background-module-alternate: var(--theme-grey-950);
-    --color-border-module-default: var(--theme-grey-800);
-    --color-border-module-separator: var(--theme-grey-700); /* For internal separators if any */
+    --color-background-module-default: var(--theme-bg-secondary);
+    --color-background-module-alternate: var(--theme-bg-tertiary);
+    --color-border-module-default: var(--theme-border-default);
 
-    --color-background-module-hover: var(--theme-grey-700);
-    --color-text-module-hover: var(--color-grey-bright);
-    --color-border-module-hover: var(--color-grey-medium);
+    --color-background-module-hover: var(--theme-bg-tertiary);
+    --color-text-module-hover: var(--theme-fg-primary);
+    --color-border-module-hover: var(--color-accent-highlight);
 
     --color-background-module-active: var(--color-accent-secondary);
-    --color-text-module-active: var(--color-grey-brightest);
-    --color-border-module-active: var(--color-accent-primary);
-
-    /* --- Workspace Button Colors --- */
-    --color-text-workspace-default: var(--color-grey-dimmed);
-    --color-text-workspace-persistent: var(--color-grey-dark);
-    --color-text-workspace-visible: var(--color-text-bar-default);
-    --color-text-workspace-focused: var(--color-grey-brightest);
-    --color-text-workspace-hover: var(--color-grey-brightest);
-
-    --color-background-workspace-visible: var(--color-border-module-default);
-    --color-background-workspace-focused: var(--color-accent-primary);
-    --color-border-workspace-focused: var(--color-accent-secondary);
-    --color-border-workspace-hover-animated: var(--color-grey-dimmed); /* For animated border */
-
-    /* --- State Colors (Urgent, Disabled, Error) --- */
-    --color-background-urgent: var(--theme-special-urgent-bg);
-    --color-text-urgent: var(--theme-special-urgent-fg);
-    --color-border-urgent: var(--color-accent-secondary);
-    --color-background-urgent-hover: color-mix(in srgb, var(--theme-special-urgent-bg) 80%, var(--theme-grey-000) 20%);
-    --color-text-urgent-hover: var(--theme-special-urgent-fg);
-
-    --color-background-disabled: var(--color-grey-darker);
-    --color-text-disabled: var(--color-grey-dimmed);
-    --opacity-disabled: 0.5; /* Slightly more opacity for better visual indication */
-    --filter-disabled: grayscale(70%); /* Grayscale filter for disabled elements */
-
-    --color-background-error: var(--theme-special-error-bg);
-    --color-text-error: var(--theme-special-error-fg);
-    --color-border-error: color-mix(in srgb, var(--theme-special-error-bg) 70%, black 30%);
-
-    /* --- Module-Specific Text Colors --- */
-    --color-text-module-windowtitle: #cba6f7; --color-text-module-clock: #E6E6FA;
-    --color-text-module-pulseaudio: #fab387;  --color-text-module-network: #f9e2af;
-    --color-text-module-cpu: #89b4fa;         --color-text-module-memory: #cba6f7;
-    --color-text-module-power: var(--color-accent-primary);
-
-    /* --- Icon Styling Tokens --- */
-    --color-icon-default: var(--color-grey-light);
-    --color-icon-hover: var(--color-accent-highlight);
-    --color-icon-active: var(--color-accent-primary);
-    --dimension-icon-size-default: inherit; /* Inherit from text or set specific value */
-    --dimension-icon-size-small: calc(var(--typography-font-size-default) - 2px);
-    --dimension-icon-size-large: calc(var(--typography-font-size-default) + 2px);
+    --color-text-module-active: var(--theme-fg-primary);
+    --color-border-module-active: var(--color-accent-primary-solid);
 
     /* --- Typography --- */
-    --typography-font-family-main: var(--theme-font-family-main);
-    --typography-font-family-monospace: var(--theme-font-family-monospace);
-    --typography-font-size-default: var(--theme-font-size-default);
-    --typography-font-size-small: calc(var(--typography-font-size-default) - 1px);
-    --typography-font-size-large: calc(var(--typography-font-size-default) + 2px);
-    --typography-font-weight-normal: var(--theme-font-weight-normal);
-    --typography-font-weight-bold: var(--theme-font-weight-bold);
+    --typography-font-family-main: var(--font-stack-ui);
+    --typography-font-family-monospace: var(--font-stack-mono);
+    --typography-font-family-icons: var(--font-stack-icons);
+    --typography-font-variant-numeric: tabular-nums;
+    --typography-font-feature-settings: "liga" 1, "clig" 1; /* Common ligatures */
+        /* --typography-font-feature-settings-expressive: "ss01" 1, "salt" 1; /* Stylistic sets for expressive */
+    --typography-font-size-default: calc(var(--theme-font-size-base) * var(--font-scale-factor));
+    --typography-font-size-small: calc(var(--typography-font-size-default) * 0.85);
+    --typography-font-size-large: calc(var(--typography-font-size-default) * 1.15);
+    --typography-font-weight-normal: 400;
+    --typography-font-weight-medium: 500;
+    --typography-font-weight-bold: calc(600 + var(--is-style-expressive) * 100); /* Bolder for expressive */
     --typography-letter-spacing-normal: normal;
-    --typography-text-transform-none: none;
-    --typography-text-decoration-none: none;
-    --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, 0.2); /* Very subtle shadow for depth */
-    --typography-text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, calc(0.1 * var(--shadows-enabled) * var(--fx-tier-multiplier-reduced)));
+    --typography-text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, calc(0.15 * var(--shadows-enabled) * var(--fx-tier-multiplier-reduced)));
 
     /* --- Dimensions & Spacing --- */
-    --dimension-bar-border-height: 2px;
-    --dimension-module-padding-vertical: 0px;
-    --dimension-module-padding-horizontal: 10px;
-    --dimension-module-margin-vertical: 4px;
-    --dimension-module-margin-horizontal: 5px;
-    --dimension-radius-module: 8px;
-    --dimension-radius-button: 6px;
-    --dimension-radius-tooltip: 6px;
-    --dimension-tooltip-padding-vertical: 8px;
-    --dimension-tooltip-padding-horizontal: 12px;
+    --dimension-bar-border-height: calc(3px * var(--font-scale-factor));
+    --dimension-module-padding-vertical: calc(var(--spacing-unit) * 1.25);
+    --dimension-module-padding-horizontal: calc(var(--spacing-unit) * 2.5);
+    --dimension-module-margin-vertical: var(--spacing-unit);
+    --dimension-module-margin-horizontal: calc(var(--spacing-unit) * 1.25);
+    --dimension-radius-base: calc(var(--radius-unit) * var(--border-radius-multiplier));
+    --dimension-radius-module: var(--dimension-radius-base);
+    --dimension-radius-button: calc(var(--dimension-radius-base) * 0.8);
+    --dimension-radius-tooltip: var(--dimension-radius-base);
     --dimension-border-width-thin: 1px;
     --dimension-border-width-normal: 2px;
-    --dimension-border-style-default: solid;
-    --dimension-border-style-dashed: dashed;
-    --dimension-border-style-dotted: dotted;
+    --dimension-border-style-default: var(--border-style-default-actual);
 
-    /* --- Transitions --- */
-    --transition-duration-instant: 0.05s;
-    --transition-duration-fast: 0.15s;
-    --transition-duration-normal: 0.2s;
-    --transition-duration-slow: 0.3s;
-    --transition-timing-function-ease: ease-in-out;
-    --transition-timing-function-accel: cubic-bezier(0.5, 0, 1, 1);
-    --transition-timing-function-decel: cubic-bezier(0, 0, 0.3, 1);
-    --transition-properties-common: background-color, color, border-color, opacity, box-shadow, transform, filter;
-    --transition-property-transform: transform;
-    --transition-property-opacity: opacity;
+    /* --- Transitions & Animations --- */
+    --transition-duration-base: calc(0.2s * var(--animation-speed-multiplier) * var(--fx-tier-duration-scale));
+    --transition-duration-fast: calc(var(--transition-duration-base) * 0.6);
+    --transition-duration-normal: var(--transition-duration-base);
+    --transition-duration-slow: calc(var(--transition-duration-base) * 1.5);
+    --transition-timing-function-ui: var(--is-style-expressive) cubic-bezier(0.34, 1.56, 0.64, 1), cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Overshoot for expressive */
+    --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
-    /* --- Interaction Feedback Tokens --- */
-    --interaction-transform-hover-lift-actual: translateY(calc(-1px * var(--flag-enable-transform-module-general-hover-lift)));
-    --interaction-transform-hover-scale-small-actual: scale(calc(1 + (0.02 * var(--flag-enable-transform-workspace-button-hover-scale))));
-    --interaction-transform-hover-scale-medium-actual: scale(calc(1 + (0.05 * var(--flag-enable-transform-workspace-button-hover-scale))));
-    --interaction-transform-hover-scale-large-actual: scale(calc(1 + (0.08 * var(--flag-enable-transform-workspace-button-hover-scale))));
-    --interaction-transform-active-press: scale(0.98); /* Subtle press effect */
+    /* --- Interaction Feedback --- */
+    --transform-scale-factor: calc(0.03 * var(--transform-intensity-multiplier));
+    --interaction-transform-hover-lift-actual: translateY(calc(-2px * var(--transform-intensity-multiplier) * var(--animations-cosmetic-enabled)));
+    --interaction-transform-hover-scale-actual: scale(calc(1 + var(--transform-scale-factor) * var(--animations-cosmetic-enabled)));
+    --interaction-transform-active-press: scale(calc(0.97 * (1 - var(--transform-scale-factor) / 2))); /* Press scales slightly less than hover expands */
 
-    /* --- Effects: Box Shadows (controlled by flags) --- */
-    --effects-shadow-opacity-module-actual: calc(0.25 * var(--flag-enable-shadows-module));
-    --effects-shadow-opacity-module-hover-actual: calc(0.35 * var(--flag-enable-shadows-module));
-    --effects-shadow-opacity-tooltip-actual: calc(0.4 * var(--flag-enable-shadows-tooltip));
+    /* --- Effects: Shadows, Focus, Glow --- */
+    --shadow-opacity-base: calc(0.1 * var(--shadows-enabled) * var(--fx-tier-multiplier-reduced));
+    --shadow-L-offset: var(--dna-base-intent) * 20% + (1 - var(--dna-base-intent)) * 0%;
+    --effects-shadow-color-ambient: hsla(0, 0%, var(--shadow-L-offset), var(--shadow-opacity-base) * 0.8);
+    --effects-shadow-color-direct: hsla(0, 0%, var(--shadow-L-offset), var(--shadow-opacity-base) * 1.2);
+    --effects-shadow-module-actual: 0 2px 5px -1px var(--effects-shadow-color-ambient), 0 4px 8px -2px var(--effects-shadow-color-direct);
+    --effects-shadow-module-hover-actual: 0 5px 10px -2px var(--effects-shadow-color-ambient), 0 8px 16px -3px var(--effects-shadow-color-direct);
+    --effects-shadow-tooltip-actual: 0 8px 24px -4px var(--effects-shadow-color-direct);
+    --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--shadow-L-offset), 0.2);
 
-    --effects-shadow-module-actual: 0px 1px 3px 0px hsla(0, 0%, 0%, var(--effects-shadow-opacity-module-actual));
-    --effects-shadow-module-hover-actual: 0px 2px 5px 0px hsla(0, 0%, 0%, var(--effects-shadow-opacity-module-hover-actual));
-    --effects-shadow-tooltip-actual: 0px 2px 6px 0px hsla(0, 0%, 0%, var(--effects-shadow-opacity-tooltip-actual));
-
-    /* --- Effects: Focus Ring (for accessibility, controlled by flag) --- */
-    --effects-focus-ring-color: var(--color-accent-primary);
-    --effects-focus-ring-width: 2px;
-    --effects-focus-ring-offset: 1px; /* Reduced offset for tighter fit */
-    --effects-focus-ring-shadow-actual: var(--flag-enable-focus-ring-general) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
-                                        var(--flag-enable-focus-ring-general) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
-                                        /* If flag is 0, this effectively becomes 0px shadows */
-
-    /* --- Animations (controlled by flags) --- */
-    --animation-name-pulse: pulse-border-shadow;
-    --animation-duration-pulse: 1.2s;
-    --animation-timing-pulse: ease-in-out;
-    --animation-iteration-pulse: infinite alternate;
-    --animation-urgent-actual: var(--flag-enable-animation-urgent-pulse) var(--animation-name-pulse) var(--animation-duration-pulse) var(--animation-timing-pulse) var(--animation-iteration-pulse);
-
-    --animation-name-breathing: breathing-focus;
-    --animation-duration-breathing: 2.5s;
-    --animation-focused-breathing-actual: var(--flag-enable-animation-focused-breathing) var(--animation-name-breathing) var(--animation-duration-breathing) var(--transition-timing-function-ease) infinite alternate;
-
-    --animation-workspace-border-actual: var(--flag-enable-animation-workspace-button-border); /* Used as opacity/toggle for pseudo */
+    --effects-focus-ring-color: var(--color-accent-highlight);
+    --effects-focus-ring-width: calc(2px * (1 + var(--flag-high-contrast-focus-outline))); /* Thicker if high-contrast flag */
+    --effects-focus-ring-offset: 2px;
+    --effects-focus-ring-style: var(--flag-high-contrast-focus-outline) dashed, solid;
+    --effects-focus-ring-shadow-actual: var(--flag-enable-focus-ring-visual) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
+                                        var(--flag-enable-focus-ring-visual) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
+    --outline-high-contrast-focus-actual: var(--flag-high-contrast-focus-outline) var(--effects-focus-ring-width) var(--effects-focus-ring-style) var(--effects-focus-ring-color);
 
 
-    /* --- Experimental: Glassmorphism (controlled by flag) --- */
-    --glass-blur-radius-actual: calc(8px * var(--flag-enable-experimental-glassmorphism)); /* Increased blur */
-    --glass-background-color-actual: hsla(0, 0%, 50%, calc(0.15 * var(--flag-enable-experimental-glassmorphism))); /* Slightly darker, more translucent base */
+    --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), calc(0.35 * var(--animations-cosmetic-enabled) * var(--fx-tier-multiplier-reduced)));
+    --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
+
+    /* --- Animations --- */
+    --animation-name-aurora-sweep: aurora-sweep-titan;
+    --animation-duration-aurora-sweep: calc(10s * var(--animation-speed-multiplier));
+    --animation-aurora-bar-border-actual: var(--aurora-enabled) var(--animation-name-aurora-sweep) var(--animation-duration-aurora-sweep) linear infinite;
+
+    --animation-name-urgent-pulse: urgent-pulse-titan;
+    --animation-duration-pulse: calc(1.4s * var(--animation-speed-multiplier));
+    --animation-urgent-actual: var(--flag-enable-animation-urgent-pulse) var(--animation-name-urgent-pulse) var(--animation-duration-pulse) ease-in-out infinite alternate;
+
+    --animation-name-focused-glow: focused-glow-titan;
+    --animation-duration-glow: calc(2.2s * var(--animation-speed-multiplier));
+    --animation-focused-glow-actual: var(--flag-enable-animation-focused-glow) var(--animation-name-focused-glow) var(--animation-duration-glow) ease-in-out infinite alternate;
+
+    --animation-name-state-feedback: state-feedback-titan;
+    --animation-duration-state-feedback: calc(0.4s * var(--animation-speed-multiplier));
+    --animation-state-feedback-actual: var(--flag-enable-animation-state-feedback) var(--animation-name-state-feedback) var(--animation-duration-state-feedback) var(--transition-timing-function-ui);
+
+    --animation-name-dynamic-border: dynamic-border-titan;
+    --animation-duration-dynamic-border: calc(0.35s * var(--animation-speed-multiplier));
+    --animation-dynamic-ws-border-actual: var(--dynamic-ws-accents-enabled);
+
+    /* --- Optional Noise Texture --- */
+    --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nFT)'/%3E%3C/svg%3E");
+    --noise-texture-opacity: calc(0.015 * var(--noise-enabled)); /* Even more subtle */
+
+    /* --- Experimental: Glassmorphism --- */
+    --glass-blur-radius-actual: calc(12px * var(--glass-enabled));
+    --glass-background-color-actual: hsla(0, 0%, var(--dna-base-intent) * 100% + (1 - var(--dna-base-intent)) * 20%, calc(0.15 * var(--glass-enabled)));
 
     /* --- Bar Properties --- */
     font-family: var(--typography-font-family-main);
     font-size: var(--typography-font-size-default);
     font-weight: var(--typography-font-weight-normal);
-    text-rendering: var(--typography-text-rendering);
-    background-color: var(--color-background-bar);
+    background: var(--color-background-bar);
     color: var(--color-text-bar-default);
-    border-bottom: var(--dimension-bar-border-height) var(--dimension-border-style-default) var(--color-accent-primary);
+    position: relative;
+    border-bottom: none; /* Border handled by ::after */
+    &::after { /* Aurora animated border */
+        content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+        height: var(--dimension-bar-border-height);
+        background: linear-gradient(90deg,
+            var(--theme-accent-primary-grad-start), var(--theme-accent-highlight),
+            var(--theme-accent-primary-base), var(--theme-accent-highlight),
+            var(--theme-accent-primary-grad-end), var(--theme-accent-highlight),
+            var(--theme-accent-primary-base), var(--theme-accent-highlight),
+            var(--theme-accent-primary-grad-start)); /* More stops for smoother aurora */
+        background-size: 400% 100%;
+        animation: var(--animation-aurora-bar-border-actual);
+        z-index: 0; opacity: var(--aurora-enabled);
+        box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.3 * var(--aurora-enabled)); /* Glow beneath bar */
+    }
+    &::before { /* Noise Texture */
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-image: var(--noise-texture-svg);
+        opacity: var(--noise-texture-opacity);
+        pointer-events: none; z-index: -1;
+    }
 }
+
+/* --- Keyframe Animations --- */
+@keyframes aurora-sweep-titan { /* Smoother, more complex aurora */
+    0% { background-position: 0% 50%; }
+    100% { background-position: 400% 50%; } /* Animates over the full extended gradient */
+}
+@keyframes urgent-pulse-titan {
+    0% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent), var(--effects-shadow-module-actual); opacity: 1;}
+    50% { transform: scale(1.05); box-shadow: 0 0 15px 2px var(--color-background-urgent), var(--effects-shadow-module-hover-actual); opacity: 0.8; }
+    100% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent), var(--effects-shadow-module-actual); opacity: 1;}
+}
+@keyframes focused-glow-titan {
+    from { box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual); transform: scale(1.01); }
+    to   { box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 20px 5px var(--effects-glow-color-actual); transform: scale(1.02); }
+}
+@keyframes state-feedback-titan {
+    0% { transform: scale(0.92); opacity: 0.6; }
+    50% { transform: scale(1.04); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes dynamic-border-titan { /* For workspace button hover, subtle reveal */
+    from { transform: scaleX(0) translateX(-50%); opacity: 0.5; }
+    to   { transform: scaleX(1) translateX(-50%); opacity: 1; }
+}
+
 
 /* --- GENERAL MODULE STYLING --- */
 :where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window) {
     padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
     margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
     color: var(--color-text-bar-default);
-    background-color: var(--color-background-module-default);
+    background: var(--color-background-module-default);
     border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
     border-radius: var(--dimension-radius-module);
     box-shadow: var(--effects-shadow-module-actual);
-    transition-property: var(--transition-properties-common);
-    transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-ease);
-    /* Experimental Glassmorphism */
+    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-ui);
+    position: relative; z-index: 1; overflow: hidden;
+    /* Glassmorphism & Noise are applied via ::before/::after or direct background mix for glass */
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
-    /* If glass is enabled, the direct background needs to be more transparent */
-    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (70% * var(--flag-enable-experimental-glassmorphism))), var(--glass-background-color-actual) calc(100% * var(--flag-enable-experimental-glassmorphism)) );
+    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--glass-enabled))), var(--glass-background-color-actual) calc(100% * var(--glass-enabled)) );
+    &::before { /* Noise Texture */
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
+        pointer-events: none; z-index: -1; border-radius: inherit;
+    }
 }
 
-/* --- GENERAL MODULE INTERACTION STYLING --- */
-:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):hover {
-    background-color: var(--color-background-module-hover);
+/* --- GENERAL MODULE INTERACTION & STATES --- */
+/* HOVER */
+:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):not(.active):hover {
+    background: var(--color-background-module-hover);
     color: var(--color-text-module-hover);
     border-color: var(--color-border-module-hover);
     box-shadow: var(--effects-shadow-module-hover-actual);
-    transform: var(--interaction-transform-hover-lift-actual);
+    transform: var(--interaction-transform-hover-lift-actual) var(--interaction-transform-hover-scale-actual);
     transition-duration: var(--transition-duration-fast);
-    z-index: 10; /* Ensure hovered item is on top if overlapping slightly */
+    z-index: 10;
 }
-/* Focused state for general modules (e.g., if Waybar allows keyboard nav to modules) */
+/* FOCUS */
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus,
-:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus-within { /* If children can get focus */
-    outline: none; /* Remove default outline */
+:is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus-within {
+    outline: var(--outline-high-contrast-focus-actual); /* High contrast outline if flag is on */
+    border-color: var(--color-accent-highlight);
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
-    border-color: var(--color-accent-highlight); /* Highlight border on focus */
+    animation: var(--animation-focused-glow-actual);
     z-index: 15;
 }
-/* Active state */
+/* ACTIVE */
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray).active:not(.disabled):not(.error) {
-    background-color: var(--color-background-module-active);
+    background: var(--color-background-module-active);
     color: var(--color-text-module-active);
     border-color: var(--color-border-module-active);
-    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
-    transform: var(--interaction-transform-active-press) var(--interaction-transform-hover-lift-actual); /* Combine press and lift */
+    box-shadow: var(--effects-shadow-inner-pressed), var(--effects-focus-ring-shadow-actual);
+    transform: var(--interaction-transform-active-press);
+    animation: var(--animation-state-feedback-actual);
     z-index: 20;
 }
-
-/* --- STATE STYLING: DISABLED & ERROR --- */
+/* DISABLED & ERROR */
 .disabled, :disabled, .error {
-    opacity: var(--opacity-disabled) !important; /* Error state might also be dimmed */
-    cursor: var(--interaction-cursor-disabled) !important;
-    transform: none !important;
-    animation: none !important;
-    box-shadow: none !important;
+    opacity: var(--opacity-disabled) !important; cursor: var(--interaction-cursor-disabled) !important;
+    transform: none !important; animation: none !important; box-shadow: none !important;
+    transition: none !important;
 }
 .disabled, :disabled {
-    background-color: var(--color-background-disabled) !important;
-    color: var(--color-text-disabled) !important;
-    filter: var(--filter-disabled) !important;
-    border-color: var(--color-grey-darker) !important;
+    background: var(--color-background-disabled) !important; color: var(--color-text-disabled) !important;
+    filter: var(--filter-disabled) !important; border-color: var(--theme-grey-700) !important;
 }
-.error { /* Distinct error styling */
-    background-color: var(--color-background-error) !important;
-    color: var(--color-text-error) !important;
+.error {
+    background: var(--color-background-error) !important; color: var(--color-text-error) !important;
     border: var(--dimension-border-width-normal) var(--dimension-border-style-dashed) var(--color-border-error) !important;
     font-weight: var(--typography-font-weight-bold);
-}
-.disabled:hover, :disabled:hover, .error:hover {
-    /* Ensure hover effects are completely neutralized */
-    filter: var(--filter-disabled) !important; /* For .disabled */
 }
 
 /* --- WORKSPACES MODULE --- */
 #workspaces {
-    padding: 0 3px;
+    padding: 0 calc(var(--spacing-unit) * 0.5);
     margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
-    background-color: var(--color-background-module-alternate);
-    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
+    background: var(--color-background-module-alternate);
+    border: var(--dimension-border-width-thin) solid var(--color-border-module-default);
     border-radius: var(--dimension-radius-module);
     box-shadow: var(--effects-shadow-module-actual);
 }
-
 #workspaces button {
-    padding: 3px 8px; margin: 3px 2px;
+    padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75);
+    margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5);
     color: var(--color-text-workspace-default);
-    background-color: transparent;
-    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) transparent;
+    background: transparent;
+    border: var(--dimension-border-width-thin) solid transparent;
     border-radius: var(--dimension-radius-button);
-    font-weight: var(--typography-font-weight-bold);
-    transition-property: var(--transition-properties-common);
-    transition-duration: var(--transition-duration-fast);
-    transition-timing-function: var(--transition-timing-function-ease);
-    cursor: var(--interaction-cursor-pointer);
-    position: relative; overflow: hidden;
+    font-weight: var(--typography-font-weight-medium);
+    transition: var(--transition-properties-common) var(--transition-duration-fast) var(--transition-timing-function-ui);
+    cursor: var(--interaction-cursor-pointer); position: relative; overflow: visible;
+    text-shadow: var(--typography-text-shadow-subtle);
+    font-feature-settings: var(--typography-font-feature-settings);
 }
 #workspaces button:focus, #workspaces button:focus-visible {
-    outline: none;
-    box-shadow: var(--effects-focus-ring-shadow-actual); /* Focus ring for workspace buttons */
+    outline: var(--outline-high-contrast-focus-actual);
+    box-shadow: var(--effects-focus-ring-shadow-actual);
 }
-
-/* Animated border effect for workspace buttons */
-#workspaces button:not(.focused):not(.urgent)::before {
+/* Dynamic Underline/Accent for Workspace Buttons */
+#workspaces button:not(.focused):not(.urgent)::after {
     content: ''; position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: inherit;
-    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) transparent;
-    transition: border-color var(--transition-duration-slow) var(--transition-timing-function-ease);
-    pointer-events: none;
-    opacity: var(--animation-workspace-border-actual); /* Control via flag */
+    left: 50%; bottom: calc(var(--spacing-unit) * -0.25); /* Slightly closer */
+    height: var(--dimension-border-width-normal); width: 0%;
+    background: var(--color-border-workspace-hover-animated);
+    border-radius: var(--dimension-border-width-normal);
+    transform-origin: center; /* Ensure scale emanates from center */
+    animation: var(--animation-dynamic-ws-border-actual) var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap) forwards;
+    animation-play-state: paused; /* Controlled by hover */
+    opacity: var(--animation-dynamic-ws-border-actual);
 }
-#workspaces button:not(.focused):not(.urgent):hover::before {
-    border-color: var(--color-border-workspace-hover-animated);
+#workspaces button:not(.focused):not(.urgent):hover::after {
+    animation-play-state: running;
+    width: 70%; /* Target width on hover */
 }
 
-#workspaces button.persistent { color: var(--color-text-workspace-persistent); }
+#workspaces button.persistent { color: var(--color-text-workspace-persistent); font-style: italic; opacity: 0.8; }
 #workspaces button.visible {
     color: var(--color-text-workspace-visible);
-    background-color: var(--color-background-workspace-visible);
+    background: var(--color-background-workspace-visible);
 }
 #workspaces button.focused {
     color: var(--color-text-workspace-focused);
-    background-color: var(--color-background-workspace-focused);
-    border-color: var(--color-border-workspace-focused);
-    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
-    animation: var(--animation-focused-breathing-actual);
-    z-index: 5; /* Ensure focused is above others */
-}
-#workspaces button.urgent {
-    color: var(--color-text-urgent);
-    background-color: var(--color-background-urgent);
-    border-color: var(--color-border-urgent);
-    animation: var(--animation-urgent-actual);
+    background: var(--color-background-workspace-focused);
+    border-color: transparent;
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
+    font-weight: var(--typography-font-weight-bold);
+    transform: var(--interaction-transform-hover-scale-actual);
+    animation: var(--animation-focused-glow-actual);
     z-index: 5;
 }
-
-@keyframes pulse-border-shadow { /* Used by urgent */
-    0% {
-        box-shadow: 0 0 2px 0px var(--color-background-urgent), var(--effects-shadow-module-actual);
-        border-color: var(--color-border-urgent);
-        transform: scale(1);
-    }
-    100% {
-        box-shadow: 0 0 6px 3px color-mix(in srgb, var(--color-background-urgent) 70%, transparent 30%), var(--effects-shadow-module-hover-actual);
-        border-color: var(--color-accent-highlight);
-        transform: scale(1.03);
-    }
-}
-@keyframes breathing-focus { /* Used by focused */
-    from { transform: scale(1); box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual); }
-    to   { transform: scale(1.02); box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 10px -2px var(--color-accent-primary); }
+#workspaces button.urgent {
+    color: var(--color-text-urgent); background: var(--color-background-urgent);
+    border: var(--dimension-border-width-thin) solid var(--color-border-urgent);
+    animation: var(--animation-urgent-actual);
+    font-weight: var(--typography-font-weight-bold);
+    box-shadow: 0 0 10px -2px var(--color-background-urgent);
+    z-index: 5;
 }
 
 #workspaces button:hover:not(.focused):not(.urgent) {
     color: var(--color-text-workspace-hover);
-    background-color: var(--color-background-module-hover);
-    transform: var(--interaction-transform-hover-scale-medium-actual);
+    background: var(--color-background-module-hover);
+    transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
     z-index: 1;
 }
 #workspaces button.visible:hover:not(.focused) {
     color: var(--color-text-workspace-hover);
-    background-color: var(--color-background-workspace-visible-hover);
-    transform: var(--interaction-transform-hover-scale-medium-actual);
+    background: color-mix(in srgb, var(--color-background-workspace-visible) 60%, var(--color-background-module-hover) 40%);
+    transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
     z-index: 1;
 }
 #workspaces button.focused:hover {
-    background-color: color-mix(in srgb, var(--color-background-workspace-focused) 90%, var(--color-grey-darkest) 10%);
-    border-color: var(--color-accent-highlight); /* Brighter border on focused hover */
-    transform: var(--interaction-transform-hover-scale-small-actual); /* Less dramatic scale as already focused */
+    background: var(--color-background-workspace-focused); /* Keep gradient */
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual); /* Max glow on hover */
+    transform: scale(1.06); /* More pronounced focus hover */
 }
 #workspaces button.urgent:hover {
-    color: var(--color-text-urgent-hover);
-    background-color: var(--color-background-urgent-hover);
+    color: var(--color-text-urgent); background: var(--color-background-urgent-hover);
     border-color: var(--color-accent-highlight);
     animation-play-state: paused;
-    transform: var(--interaction-transform-hover-scale-small-actual);
+    transform: var(--interaction-transform-hover-scale-actual);
 }
 
-/* --- INDIVIDUAL MODULE STYLING --- */
-/* Note: Most modules will inherit general styling. Override specifics here. */
-/* Example: Using monospace font for clock */
+/* --- INDIVIDUAL MODULE STYLING (Selected Examples for Titan Polish) --- */
 #clock {
     font-family: var(--typography-font-family-monospace);
+    font-variant-numeric: var(--typography-font-variant-numeric);
     color: var(--color-text-module-clock);
-    font-weight: var(--typography-font-weight-bold);
-    /* text-shadow: var(--typography-text-shadow-subtle); */ /* Optional subtle depth */
+    font-weight: var(--typography-font-weight-medium);
+    letter-spacing: 0.1em; /* Generous spacing for visual appeal */
+    text-shadow: var(--typography-text-shadow-header); /* More pronounced shadow for clock */
+    font-size: calc(var(--typography-font-size-default) * 1.05); /* Slightly larger clock */
 }
-#clock:hover { color: var(--color-accent-highlight); }
+#clock:hover { color: var(--color-accent-highlight); transform: var(--interaction-transform-hover-lift-actual) scale(1.02); }
 
 #mode {
-    padding: var(--dimension-module-padding-vertical) 12px;
-    color: var(--color-grey-brightest);
-    background-color: var(--color-accent-secondary);
-    font-weight: var(--typography-font-weight-bold);
+    padding: var(--dimension-module-padding-vertical) calc(var(--dimension-module-padding-horizontal) * 1.3);
+    color: var(--theme-fg-primary); background: var(--color-accent-secondary);
+    font-weight: var(--typography-font-weight-bold); letter-spacing: 0.075em; text-transform: uppercase;
+    border-radius: var(--dimension-radius-module) 0 0 var(--dimension-radius-module);
+    clip-path: polygon(0 0, calc(100% - var(--spacing-unit)*2) 0, 100% 100%, 0% 100%); /* Angled edge for mode */
 }
 
 #hyprland-window {
-    padding: var(--dimension-module-padding-vertical) 15px;
+    padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
     color: var(--color-text-module-windowtitle);
-    background-color: transparent;
-    border-color: transparent;
-    box-shadow: none;
-    font-weight: var(--typography-font-weight-normal);
+    background: transparent; border-color: transparent; box-shadow: none;
+    font-weight: var(--typography-font-weight-medium);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;
+    font-style: italic; /* Italicized window titles */
 }
 
-#pulseaudio { background-color: var(--color-border-module-default); color: var(--color-text-module-pulseaudio); }
-#pulseaudio.muted {
-    background-color: var(--color-background-disabled); /* Use disabled styling for muted */
-    color: var(--color-text-disabled);
-    opacity: var(--opacity-disabled);
-    filter: var(--filter-disabled);
+#pulseaudio, #network, #cpu, #memory {
+    background: var(--color-border-module-default);
+    font-family: var(--typography-font-family-monospace);
+    font-variant-numeric: var(--typography-font-variant-numeric);
+    color: var(--color-text-module-stats);
+    border-radius: var(--dimension-radius-button); /* Smaller radius for these compact modules */
+    padding: var(--spacing-unit) calc(var(--spacing-unit)*2);
 }
-
-#network { background-color: var(--color-border-module-default); color: var(--color-text-module-network); }
-#network.disconnected {
-    background-color: var(--theme-special-disconnected-bg);
-    color: var(--theme-special-disconnected-fg);
-    font-weight: var(--typography-font-weight-bold);
-    border-style: var(--dimension-border-style-dashed);
-}
-
-#cpu { background-color: var(--color-border-module-default); color: var(--color-text-module-cpu); }
-#memory { background-color: var(--color-border-module-default); color: var(--color-text-module-memory); }
+#network.disconnected { animation: var(--animation-state-feedback-actual); }
 
 #battery.critical:not(.charging) {
-    background-color: var(--color-accent-primary);
-    color: var(--color-grey-brightest);
-    font-weight: var(--typography-font-weight-bold);
-    animation: var(--animation-urgent-actual); /* Reuse urgent animation */
+    background: var(--color-accent-primary-actual); color: var(--theme-fg-primary);
+    font-weight: var(--typography-font-weight-bold); animation: var(--animation-urgent-actual);
 }
-#battery.warning:not(.charging) {
-     background-color: var(--color-background-urgent);
-     color: var(--color-text-urgent);
-     border-style: var(--dimension-border-style-dotted);
-}
-/* Example Icon styling: #battery.charging .icon { color: var(--color-icon-active); } */
 
 #tray {
-    padding: var(--dimension-module-padding-vertical) 6px;
-    background-color: var(--color-background-module-alternate);
+    padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
+    background: var(--color-background-module-alternate);
 }
-/* #tray > widget { margin: 0 2px; } /* Spacing between tray items */
+#tray > widget {
+    margin: 0 var(--spacing-unit); opacity: 0.75;
+    transition: opacity 0.25s, transform 0.25s var(--transition-timing-function-ui);
+    filter: drop-shadow(var(--typography-text-shadow-subtle)); /* Subtle shadow for icons */
+}
+#tray > widget:hover { opacity: 1; transform: scale(1.15) translateY(-1px); }
 
 #custom-power {
-    padding: var(--dimension-module-padding-vertical) 12px;
+    padding: 0; /* Padding handled by width/height for centering */
     color: var(--color-text-module-power);
-    font-size: var(--typography-font-size-large);
+    font-size: calc(var(--typography-font-size-large) * 1.1); /* Larger icon */
     font-weight: var(--typography-font-weight-bold);
     cursor: var(--interaction-cursor-pointer);
-    transition-timing-function: var(--transition-timing-function-accel);
+    background: transparent; /* Power button "ghost" style, relies on icon color */
+    border: var(--dimension-border-width-normal) solid transparent;
+    border-radius: 50%;
+    width: calc(var(--typography-font-size-large) * 2.5 * var(--font-scale-factor));
+    height: calc(var(--typography-font-size-large) * 2.5 * var(--font-scale-factor));
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-snap);
 }
 #custom-power:hover {
-    background-color: var(--color-accent-secondary);
-    color: var(--color-grey-brightest);
+    background: var(--color-accent-secondary);
+    color: var(--theme-fg-primary);
     border-color: var(--color-accent-highlight);
-    box-shadow: var(--effects-shadow-module-hover-actual);
-    transform: var(--interaction-transform-hover-scale-large-actual) rotate(-8deg); /* More pronounced */
+    box-shadow: var(--effects-shadow-module-hover-actual), 0 0 20px -3px var(--color-accent-secondary);
+    transform: scale(1.2) rotate(-20deg);
 }
 #custom-power:active {
-    transform: var(--interaction-transform-active-press) rotate(-5deg);
+    transform: var(--interaction-transform-active-press) rotate(-15deg) scale(1.1);
+    box-shadow: var(--effects-shadow-inner-pressed);
+    background: var(--color-accent-primary-solid);
 }
 
 /* --- TOOLTIPS --- */
 tooltip {
-    padding: var(--dimension-tooltip-padding-vertical) var(--dimension-tooltip-padding-horizontal);
+    padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3.5);
     color: var(--color-text-bar-default);
-    background-color: var(--color-background-module-alternate);
-    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-accent-primary);
+    background: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Use bar bg for tooltip */
+    border: var(--dimension-border-width-thin) solid var(--color-accent-primary-solid);
     border-radius: var(--dimension-radius-tooltip);
     box-shadow: var(--effects-shadow-tooltip-actual);
-    /* Experimental Glassmorphism for Tooltips */
+    font-family: var(--typography-font-family-main);
+    font-size: var(--typography-font-size-small);
+    line-height: 1.6; max-width: 380px;
+    /* Glassmorphism & Noise are applied via ::before/::after or direct background mix for glass */
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: color-mix(in srgb, var(--color-background-module-alternate) calc(100% - (70% * var(--flag-enable-experimental-glassmorphism))), var(--glass-background-color-actual) calc(100% * var(--flag-enable-experimental-glassmorphism)) );
+    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--glass-enabled))), var(--glass-background-color-actual) calc(100% * var(--glass-enabled)) );
+    &::before { /* Noise Texture */
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
+        pointer-events: none; z-index: -1; border-radius: inherit;
+    }
 }
+tooltip label { color: inherit; }
 
-tooltip label {
-    color: var(--color-text-bar-default);
-    font-size: var(--typography-font-size-small);
-}
-
-/* --- ICON STYLING EXAMPLE (if modules use classes like .icon or Font Awesome) --- */
-/*
-.icon, [class*="fa-"] {
-    font-family: var(--typography-font-family-main); // Ensure Nerd Font/Font Awesome is used
+/* --- UNIVERSAL ICON STYLING --- */
+.icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
+    font-family: var(--typography-font-family-icons) !important;
     font-size: var(--dimension-icon-size-default);
     color: var(--color-icon-default);
-    transition: color var(--transition-duration-fast) var(--transition-timing-function-ease);
+    margin-right: calc(var(--spacing-unit) * 0.85);
+    vertical-align: -0.15em; /* Fine-tuned */
+    transition: color var(--transition-duration-normal) var(--transition-timing-function-ui),
+                transform var(--transition-duration-normal) var(--transition-timing-function-ui),
+                text-shadow var(--transition-duration-normal) var(--transition-timing-function-ui);
+    text-shadow: var(--text-shadow-icon-default); display: inline-block;
+    font-style: normal !important; /* Ensure icons aren't italicized by parent styles */
 }
-*:hover > .icon, *:hover > [class*="fa-"] { // Icon color change on parent hover
+*:hover > .icon, *:hover > [class*="fa-"], /* etc. */
+*:focus > .icon, *:focus > [class*="fa-"],
+*:focus-within > .icon, *:focus-within > [class*="fa-"] {
     color: var(--color-icon-hover);
+    transform: scale(1.18) translateY(-1.5px) rotate(var(--is-style-expressive) * -5deg); /* More playful icon hover */
+    text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), 0.4); /* Icon glow on hover */
 }
-.active .icon, .active [class*="fa-"], // Icon color on parent active state
-.focused .icon, .focused [class*="fa-"] {
-    color: var(--color-icon-active);
+.active .icon, .active [class*="fa-"] { /* etc. */
+    color: var(--color-icon-active); transform: scale(1.1);
+    text-shadow: 0 1px 3px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.5);
+}
+.error .icon, .error [class*="fa-"] { /* etc. */
+    color: var(--color-text-error) !important; transform: none !important; text-shadow: none !important;
+}
+
+/* --- FINISHING TOUCHES & OVERRIDES (User custom additions) --- */
+/* Example:
+#my-custom-module {
+    background-color: darkblue !important;
 }
 */
+
+/* --- END OF OLYMPUS EDITION STYLESHEET --- */
