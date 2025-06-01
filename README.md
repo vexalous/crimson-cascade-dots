@@ -46,11 +46,6 @@ Before you begin, ensure you have the following installed on your system (prefer
 
 1.  **Clone the repository:**
     ```bash
-    # Clone the repository (replace with the appropriate URL)
-    git clone <URL_OF_THIS_REPOSITORY_OR_YOUR_FORK> ~/.dotfiles
-    cd ~/.dotfiles
-    ```
-    *(Ensure you replace `<URL_OF_THIS_REPOSITORY_OR_YOUR_FORK>` with the actual URL if you are cloning directly, or with your fork's URL.)*
 
 2.  **Run the setup script:**
     ```bash
