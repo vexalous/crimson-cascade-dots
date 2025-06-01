@@ -1,0 +1,10 @@
+# Example configuration for user-defined wallpaper in Hyprland (via hyprpaper.sh script)
+#
+# To use this, copy this file to 'user_wallpaper.conf' in the same directory
+# (e.g., ~/.config/hypr/user_wallpaper.conf) and uncomment the 'wallpaper_path' line.
+#
+# Replace the example path with the actual path to your desired wallpaper image.
+# You can use '~' for your home directory.
+
+# wallpaper_path = ~/Pictures/my_favorite_wallpaper.jpg
+# wallpaper_path = /usr/share/backgrounds/another_wallpaper.png
