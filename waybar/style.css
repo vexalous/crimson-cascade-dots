@@ -1,10 +1,5 @@
 /*
- * Waybar Configuration Stylesheet (v1.0)
- *
- * A comprehensive and customizable stylesheet for Waybar,
- * designed for flexibility, performance, and a clean aesthetic.
- * This stylesheet provides a robust set of configurable options
- * to personalize the Waybar appearance.
+
  */
 
 /* --- GLOBAL RESET & BASE STYLES --- */
@@ -33,31 +28,7 @@ window#waybar {
      * ==========================================================================
      * --- CORE THEME CONFIGURATION ---
      * ==========================================================================
-     * Define the foundational appearance settings.
-     * These high-level choices influence styles throughout the stylesheet.
-     * For "Accent Palette": 0=Custom HSL, 1=Preset 1 (Warm), 2=Preset 2 (Cool), 3=Preset 3 (Natural), 4=Monochrome.
-     * For "Visual Style": 0=Standard, 1=Enhanced, 2=Minimalist.
-     * For "Effects Detail": 0=Full, 1=Standard (reduced motion/shadows), 2=Minimal (essential only).
-     */
-    --cfg-base-theme-mode: 0; /* 0: Dark, 1: Light */
-    --cfg-accent-palette-profile: 1;
-        /* Custom HSL (used if --cfg-accent-palette-profile is 0) */
-        --cfg-custom-accent-H: 348; --cfg-custom-accent-S: 100%; --cfg-custom-accent-L: 57%;
 
-    --cfg-visual-style-profile: 0; /* 0=Standard, 1=Enhanced, 2=Minimalist */
-    --cfg-density-scale: 1; /* 0.8=Compact, 1=Default, 1.2=Spacious (affects spacing & font size) */
-    --cfg-effects-detail-level: 0; /* 0=Full, 1=Standard, 2=Minimal */
-
-    /*
-     * --- Global Feature Toggles (1 for on, 0 for off) ---
-     * These --enable-* flags control major visual features.
-     * --enable-force-minimalism: If set to 1, this toggle overrides several other
-     * feature flags (like shadows, gradients, animations) to enforce a
-     * very basic, performance-focused appearance, regardless of their
-     * individual settings. It acts as a master switch for an ultra-minimal look.
-     * Other flags control specific features which may also be influenced by
-     * the "Visual Style" and "Effects Detail" profiles.
-     */
     --enable-shadows-master: 1;
     --enable-gradients-master: 1;
     --enable-animations-master: 1;
@@ -66,7 +37,7 @@ window#waybar {
     --enable-subtle-noise-texture: 0;
     --enable-experimental-glassmorphism: 0;
     --enable-high-contrast-focus-outline: 0;
-    --enable-force-minimalism: 0;
+
 
     /* --- Font Stack Configuration --- */
     --font-stack-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
@@ -75,13 +46,12 @@ window#waybar {
 
     /*
      * ==========================================================================
-     * --- DERIVED THEME PROPERTIES ---
+
      * ==========================================================================
      */
 
     /* --- Minimalist Override Logic --- */
-    --_is-minimalist-style: calc(var(--cfg-visual-style-profile) / 2);
-    --_minimal-mode-active: max(var(--enable-force-minimalism), var(--_is-minimalist-style));
+
 
     /* --- Effective Toggles --- */
     --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
@@ -93,10 +63,7 @@ window#waybar {
     --_effective-glassmorphism-enabled: calc(var(--enable-experimental-glassmorphism) * (1 - var(--_minimal-mode-active)));
 
     /* --- Effects Detail Adjustments --- */
-    --_effects-detail-multiplier-full: calc((1 - var(--cfg-effects-detail-level) / 2) * (1 - var(--cfg-effects-detail-level) / 1));
-    --_effects-detail-multiplier-standard: calc(1 - max(var(--cfg-effects-detail-level) - 1, 1 - var(--cfg-effects-detail-level)));
-    --_effects-detail-multiplier-reduced: var(--_effects-detail-multiplier-full);
-    --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25));
+
 
     /* --- Base Color Palette --- */
     --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
@@ -115,24 +82,12 @@ window#waybar {
     --theme-fg-tertiary: hsl(0, 0%, var(--L-fg-tertiary));
     --theme-border-default: hsl(0, 0%, var(--L-border-default));
 
-    /* --- Accent Palette Selection --- */
-    --palette-preset1-H: 15; --palette-preset1-S: 95%; --palette-preset1-L: 55%;
-    --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%;
-    --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%;
 
-    --_is-palette-preset1: calc(1 - max(var(--cfg-accent-palette-profile) - 1, 1 - var(--cfg-accent-palette-profile)));
-    --_is-palette-preset2: calc(1 - max(var(--cfg-accent-palette-profile) - 2, 2 - var(--cfg-accent-palette-profile)));
-    --_is-palette-preset3: calc(1 - max(var(--cfg-accent-palette-profile) - 3, 3 - var(--cfg-accent-palette-profile)));
-    --_is-palette-monochrome: calc(1 - max(var(--cfg-accent-palette-profile) - 4, 4 - var(--cfg-accent-palette-profile)));
-    --_is-palette-custom: calc(1 - max(var(--cfg-accent-palette-profile) - 0, 0 - var(--cfg-accent-palette-profile)));
-
-    --accent-H-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-H) + var(--_is-palette-preset1) * var(--palette-preset1-H) + var(--_is-palette-preset2) * var(--palette-preset2-H) + var(--_is-palette-preset3) * var(--palette-preset3-H) + var(--_is-palette-monochrome) * 0);
-    --accent-S-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-S) + var(--_is-palette-preset1) * var(--palette-preset1-S) + var(--_is-palette-preset2) * var(--palette-preset2-S) + var(--_is-palette-preset3) * var(--palette-preset3-S) + var(--_is-palette-monochrome) * 0%);
-    --accent-L-base-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-L) + var(--_is-palette-preset1) * var(--palette-preset1-L) + var(--_is-palette-preset2) * var(--palette-preset2-L) + var(--_is-palette-preset3) * var(--palette-preset3-L) + var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%));
 
     --accent-H: var(--accent-H-resolved);
     --accent-S: var(--accent-S-resolved);
     --accent-L-base: var(--accent-L-base-resolved);
+
     --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--_is-palette-monochrome))));
     --accent-L-lighter: calc(var(--accent-L-base) + (12% * (1 - var(--_is-palette-monochrome))));
     --accent-L-highlight: calc(var(--accent-L-base) + (18% * (1 - var(--_is-palette-monochrome))));
@@ -148,25 +103,18 @@ window#waybar {
     --spacing-unit: calc(4px * var(--_density-scale-factor));
     --radius-unit: calc(6px * var(--_density-scale-factor));
 
-    /* --- Visual Style Adjustments --- */
-    --_is-visual-profile-standard: calc(1 - max(var(--cfg-visual-style-profile) - 0, 0 - var(--cfg-visual-style-profile)));
-    --_is-visual-profile-enhanced: calc(1 - max(var(--cfg-visual-style-profile) - 1, 1 - var(--cfg-visual-style-profile)));
+
     --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
     --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
     --_effective-border-style: solid;
     --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
 
-    /*
-     * ==========================================================================
-     * --- DETAILED DESIGN TOKENS ---
-     * ==========================================================================
-     */
 
     /* --- Core Palette & Accents --- */
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
     --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
-    --color-accent-primary-actual: var(--theme-accent-primary-base); /* Default solid color. Gradient var(--color-accent-primary-gradient) needs to be applied conditionally based on --_effective-gradients-enabled where this variable is used (e.g. via classes). */
+
     --color-accent-primary-solid: var(--theme-accent-primary-base);
     --color-accent-secondary: var(--theme-accent-secondary-base);
     --color-accent-highlight: var(--theme-accent-highlight);
@@ -223,7 +171,7 @@ window#waybar {
 
     --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-timing-function-ui: var(--transition-timing-function-standard); /* Default. Apply --transition-timing-function-enhanced conditionally where used (e.g. via classes based on --_is-visual-profile-enhanced) */
+
 
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
@@ -244,19 +192,7 @@ window#waybar {
     --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), 0.2);
 
     --effects-focus-ring-color: var(--color-accent-highlight);
-    --effects-focus-ring-width: calc(2px * (1 + var(--enable-high-contrast-focus-outline)));
-    --effects-focus-ring-offset: 2px;
-    /* The following value var(--enable-high-contrast-focus-outline) results in '0' or '1'.
-       '0 dashed solid' or '1 dashed solid' are not standard single border-style keywords.
-       'dashed solid' is a valid shorthand (top/bottom dashed, left/right solid).
-       This relies on Waybar's parser or var() evaluating to empty string for '0'.
-       A more robust CSS method would use distinct variables for 'dashed' and 'solid' and apply conditionally.
-       Applied literal change from user feedback. */
-    --effects-focus-ring-style: var(--enable-high-contrast-focus-outline) dashed solid;
-    --_enable-focus-ring-visual-effect: 1;
-    --effects-focus-ring-shadow-actual: var(--_enable-focus-ring-visual-effect) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
-                                        var(--_enable-focus-ring-visual-effect) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
-    --outline-high-contrast-focus-actual: var(--enable-high-contrast-focus-outline) var(--effects-focus-ring-width) var(--effects-focus-ring-style) var(--effects-focus-ring-color);
+
 
     --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), calc(0.35 * var(--_effective-cosmetic-animations-enabled) * var(--_effects-detail-multiplier-reduced)));
     --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
@@ -326,31 +262,7 @@ window#waybar::before { /* Noise Texture */
     pointer-events: none; z-index: -1;
 }
 
-/* --- Keyframe Animations --- */
-@keyframes bar-border-sweep-animation {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 400% 50%; }
-}
-@keyframes urgent-pulse-animation {
-    0% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
-    50% { transform: scale(1.05); box-shadow: 0 0 15px 2px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-hover-actual); opacity: 0.8; }
-    100% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
-}
-@keyframes focused-glow-animation {
-    from { box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual); transform: scale(1.01); }
-    to   { box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 20px 5px var(--effects-glow-color-actual); transform: scale(1.02); }
-}
-@keyframes state-feedback-animation {
-    0% { transform: scale(0.92); opacity: 0.6; }
-    50% { transform: scale(1.04); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
-}
-@keyframes dynamic-border-animation {
-    from { transform: scaleX(0) translateX(-50%); opacity: 0.5; }
-    to   { transform: scaleX(1) translateX(-50%); opacity: 1; }
-}
 
-/* --- GENERAL MODULE STYLING --- */
 :where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window) {
     padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
     margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
@@ -358,20 +270,23 @@ window#waybar::before { /* Noise Texture */
     border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
     border-radius: var(--dimension-radius-module);
     box-shadow: var(--effects-shadow-module-actual);
-    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-ui);
+    transition-property: var(--transition-properties-common);
+    transition-duration: var(--transition-duration-normal);
+    /* Conditional timing function via class */
+    transition-timing-function: var(--transition-timing-function-standard);
     position: relative; z-index: 1; overflow: hidden;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: var(--color-background-module-default); /* Fallback */
     background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
 }
-:where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window)::before { /* Noise Texture */
+
     content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
     pointer-events: none; z-index: -1; border-radius: inherit;
 }
 
-/* --- GENERAL MODULE INTERACTION & STATES --- */
+
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):not(.active):hover {
     background: var(--color-background-module-hover);
     color: var(--color-text-module-hover);
@@ -399,83 +314,6 @@ window#waybar::before { /* Noise Texture */
     z-index: 20;
 }
 
-:root {
-    --opacity-disabled: 0.5;
-    --interaction-cursor-disabled: not-allowed;
-    --interaction-cursor-pointer: pointer;
-    --color-background-disabled: hsl(0, 0%, 50%);
-    --color-text-disabled: hsl(0, 0%, 30%);
-    --filter-disabled: grayscale(50%);
-    --theme-grey-700: hsl(0, 0%, 40%);
-    --color-background-error: hsl(0, 70%, 50%);
-    --color-text-error: hsl(0, 0%, 100%);
-    --color-border-error: hsl(0, 80%, 60%);
-    --dimension-border-style-dashed: dashed;
-}
-.disabled, :disabled, .error {
-    opacity: var(--opacity-disabled, 0.6) !important; cursor: var(--interaction-cursor-disabled, default) !important;
-    transform: none !important; animation: none !important; box-shadow: none !important;
-    transition: none !important;
-}
-.disabled, :disabled {
-    background: var(--color-background-disabled, #ccc) !important; color: var(--color-text-disabled, #777) !important;
-    filter: var(--filter-disabled, none) !important; border-color: var(--theme-grey-700, #aaa) !important;
-}
-.error {
-    background: var(--color-background-error, red) !important; color: var(--color-text-error, white) !important;
-    border: var(--dimension-border-width-normal) var(--dimension-border-style-dashed, dashed) var(--color-border-error, darkred) !important;
-    font-weight: var(--typography-font-weight-bold);
-}
-
-/* --- WORKSPACES MODULE --- */
-#workspaces {
-    padding: 0 calc(var(--spacing-unit) * 0.5);
-    margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
-    background: var(--color-background-module-alternate);
-    border: var(--dimension-border-width-thin) solid var(--color-border-module-default);
-    border-radius: var(--dimension-radius-module);
-    box-shadow: var(--effects-shadow-module-actual);
-}
-#workspaces button {
-    padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75);
-    margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5);
-    color: var(--color-text-workspace-default, var(--color-text-bar-default));
-    background: transparent;
-    border: var(--dimension-border-width-thin) solid transparent;
-    border-radius: var(--dimension-radius-button);
-    font-weight: var(--typography-font-weight-medium);
-    transition: var(--transition-properties-common) var(--transition-duration-fast) var(--transition-timing-function-ui);
-    cursor: var(--interaction-cursor-pointer, pointer); position: relative; overflow: visible;
-    text-shadow: var(--typography-text-shadow-subtle);
-    font-feature-settings: var(--typography-font-feature-settings);
-}
-#workspaces button:focus, #workspaces button:focus-visible {
-    outline: var(--outline-high-contrast-focus-actual);
-    box-shadow: var(--effects-focus-ring-shadow-actual);
-}
-#workspaces button:not(.focused):not(.urgent)::after {
-    content: ''; position: absolute;
-    left: 50%; bottom: calc(var(--spacing-unit) * -0.25);
-    height: var(--dimension-border-width-normal); width: 0%;
-    background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid));
-    border-radius: var(--dimension-border-width-normal);
-    transform-origin: center;
-    animation: var(--animation-dynamic-ws-border-actual);
-    animation-play-state: paused;
-    opacity: var(--_effective-dynamic-ws-accents-enabled);
-}
-#workspaces button:not(.focused):not(.urgent):hover::after {
-    animation-play-state: running;
-    width: 70%;
-}
-#workspaces button.persistent { color: var(--color-text-workspace-persistent, var(--theme-fg-tertiary)); font-style: italic; opacity: 0.8; }
-#workspaces button.visible {
-    color: var(--color-text-workspace-visible, var(--theme-fg-primary));
-    background: var(--color-background-workspace-visible, var(--theme-bg-tertiary));
-}
-#workspaces button.focused {
-    color: var(--color-text-workspace-focused, var(--theme-fg-primary));
-    background: var(--color-background-workspace-focused, var(--color-accent-primary-actual));
     border-color: transparent;
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
     font-weight: var(--typography-font-weight-bold);
@@ -483,182 +321,32 @@ window#waybar::before { /* Noise Texture */
     animation: var(--animation-focused-glow-actual);
     z-index: 5;
 }
-#workspaces button.urgent {
-    color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent, var(--theme-accent-secondary-base));
-    border: var(--dimension-border-width-thin) solid var(--color-border-urgent, var(--theme-accent-highlight));
-    animation: var(--animation-urgent-actual);
-    font-weight: var(--typography-font-weight-bold);
-    box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base));
-    z-index: 5;
+
 }
-#workspaces button:hover:not(.focused):not(.urgent) {
-    color: var(--color-text-workspace-hover, var(--color-text-module-hover));
-    background: var(--color-background-module-hover);
-    transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
-    z-index: 1;
-}
-#workspaces button.visible:hover:not(.focused) {
-    color: var(--color-text-workspace-hover, var(--color-text-module-hover));
-    background: color-mix(in srgb, var(--color-background-workspace-visible, var(--theme-bg-tertiary)) 60%, var(--color-background-module-hover) 40%);
-    transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
-    z-index: 1;
-}
+#workspaces button.urgent { color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent, var(--theme-accent-secondary-base)); border: var(--dimension-border-width-thin) solid var(--color-border-urgent, var(--theme-accent-highlight)); animation: var(--animation-urgent-actual); font-weight: var(--typography-font-weight-bold); box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base)); z-index: 5; }
+#workspaces button:hover:not(.focused):not(.urgent) { color: var(--color-text-workspace-hover, var(--color-text-module-hover)); background: var(--color-background-module-hover); transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual); z-index: 1; }
+#workspaces button.visible:hover:not(.focused) { color: var(--color-text-workspace-hover, var(--color-text-module-hover)); background: color-mix(in srgb, var(--color-background-workspace-visible, var(--theme-bg-tertiary)) 60%, var(--color-background-module-hover) 40%); transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual); z-index: 1; }
 #workspaces button.focused:hover {
-    background: var(--color-background-workspace-focused, var(--color-accent-primary-actual));
-    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual);
-    transform: scale(1.06);
-}
-#workspaces button.urgent:hover {
-    color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent-hover, var(--color-accent-secondary));
-    border-color: var(--color-accent-highlight);
-    animation-play-state: paused;
-    transform: var(--interaction-transform-hover-scale-actual);
-}
 
-/* --- INDIVIDUAL MODULE STYLING --- */
-#clock {
-    font-family: var(--typography-font-family-monospace);
-    font-variant-numeric: var(--typography-font-variant-numeric);
-    color: var(--color-text-module-clock, var(--color-text-bar-default));
-    font-weight: var(--typography-font-weight-medium);
-    letter-spacing: 0.1em;
-    text-shadow: var(--typography-text-shadow-header);
-    font-size: calc(var(--typography-font-size-default) * 1.05);
 }
-#clock:hover { color: var(--color-accent-highlight); transform: var(--interaction-transform-hover-lift-actual) scale(1.02); }
+#workspaces button.urgent:hover { color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent-hover, var(--color-accent-secondary)); border-color: var(--color-accent-highlight); animation-play-state: paused; transform: var(--interaction-transform-hover-scale-actual); }
 
-#mode {
-    padding: var(--dimension-module-padding-vertical) calc(var(--dimension-module-padding-horizontal) * 1.3);
-    color: var(--theme-fg-primary); background: var(--color-accent-secondary);
-    font-weight: var(--typography-font-weight-bold); letter-spacing: 0.075em; text-transform: uppercase;
-    border-radius: var(--dimension-radius-module) 0 0 var(--dimension-radius-module);
-    clip-path: polygon(0 0, calc(100% - var(--spacing-unit)*2) 0, 100% 100%, 0% 100%);
-}
 
-#hyprland-window {
-    padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
-    color: var(--color-text-module-windowtitle, var(--color-text-bar-default));
-    background: transparent; border-color: transparent; box-shadow: none;
-    font-weight: var(--typography-font-weight-medium);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;
-    font-style: italic;
-}
-
-#pulseaudio, #network, #cpu, #memory {
-    background-color: var(--color-background-module-alternate);
-    font-family: var(--typography-font-family-monospace);
-    font-variant-numeric: var(--typography-font-variant-numeric);
-    color: var(--color-text-module-stats, var(--color-text-bar-default));
-    border-radius: var(--dimension-radius-button);
-    padding: var(--spacing-unit) calc(var(--spacing-unit)*2);
-}
 #network.disconnected { animation: var(--animation-state-feedback-actual); }
-
 #battery.critical:not(.charging) {
-    background: var(--color-accent-primary-actual); color: var(--theme-fg-primary);
+    background: var(--theme-accent-primary-solid); /* Default to solid */
+    color: var(--theme-fg-primary);
     font-weight: var(--typography-font-weight-bold); animation: var(--animation-urgent-actual);
 }
 
-#tray {
-    padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
-    background: var(--color-background-module-alternate);
 }
-#tray > widget {
-    margin: 0 var(--spacing-unit); opacity: 0.75;
-    transition: opacity 0.25s, transform 0.25s var(--transition-timing-function-ui);
-    filter: drop-shadow(var(--typography-text-shadow-subtle));
-}
+
+/* Tray */
+#tray { padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5); background: var(--color-background-module-alternate); }
+#tray > widget { margin: 0 var(--spacing-unit); opacity: 0.75; transition-property: opacity, transform; transition-duration: 0.25s; transition-timing-function: var(--transition-timing-function-standard); filter: drop-shadow(var(--typography-text-shadow-subtle)); }
+#tray > widget.visual-profile-enhanced { transition-timing-function: var(--transition-timing-function-enhanced); }
 #tray > widget:hover { opacity: 1; transform: scale(1.15) translateY(-1px); }
 
-#custom-power {
-    padding: 0;
-    color: var(--color-text-module-power, var(--color-text-bar-default));
-    font-size: calc(var(--typography-font-size-large) * 1.1);
-    font-weight: var(--typography-font-weight-bold);
-    cursor: var(--interaction-cursor-pointer, pointer);
-    background: transparent;
-    border: var(--dimension-border-width-normal) solid transparent;
-    border-radius: 50%;
-    width: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
-    height: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
-    display: flex; align-items: center; justify-content: center;
-    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-snap, ease-out);
-}
-#custom-power:hover {
-    background: var(--color-accent-secondary);
-    color: var(--theme-fg-primary);
-    border-color: var(--color-accent-highlight);
-    box-shadow: var(--effects-shadow-module-hover-actual), 0 0 20px -3px var(--color-accent-secondary);
-    transform: scale(1.2) rotate(-20deg);
-}
-#custom-power:active {
-    transform: var(--interaction-transform-active-press) rotate(-15deg) scale(1.1);
-    box-shadow: var(--effects-shadow-inner-pressed);
-    background: var(--color-accent-primary-solid);
-}
 
-/* --- TOOLTIPS --- */
-tooltip {
-    padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3.5);
-    color: var(--color-text-bar-default);
-    border: var(--dimension-border-width-thin) solid var(--color-accent-primary-solid);
-    border-radius: var(--dimension-radius-tooltip);
-    box-shadow: var(--effects-shadow-tooltip-actual);
-    font-family: var(--typography-font-family-main);
-    font-size: var(--typography-font-size-small);
-    line-height: 1.6; max-width: 380px;
-    -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
-    backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Fallback - though color-mix is also new */
-    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
-}
-tooltip::before { /* Noise Texture */
-    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
-    pointer-events: none; z-index: -1; border-radius: inherit;
-}
-tooltip label { color: inherit; }
-
-/* --- UNIVERSAL ICON STYLING --- */
-:root {
-    --dimension-icon-size-default: 1em;
-    --color-icon-default: inherit;
-    --text-shadow-icon-default: none;
-    --color-icon-hover: var(--theme-accent-highlight);
-    --color-icon-active: var(--theme-accent-primary-solid);
-}
-.icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
-    font-family: var(--typography-font-family-icons) !important;
-    font-size: var(--dimension-icon-size-default, 1em);
-    color: var(--color-icon-default, inherit);
-    margin-right: calc(var(--spacing-unit) * 0.85);
-    vertical-align: -0.15em;
-    transition: color var(--transition-duration-normal) var(--transition-timing-function-ui),
-                transform var(--transition-duration-normal) var(--transition-timing-function-ui),
-                text-shadow var(--transition-duration-normal) var(--transition-timing-function-ui);
-    text-shadow: var(--text-shadow-icon-default, none); display: inline-block;
-    font-style: normal !important;
-}
-*:hover > .icon, *:hover > [class*="fa-"], *:hover > [class*="mdi-"], *:hover > [class*="nf-"],
-*:focus > .icon, *:focus > [class*="fa-"], *:focus > [class*="mdi-"], *:focus > [class*="nf-"],
-*:focus-within > .icon, *:focus-within > [class*="fa-"], *:focus-within > [class*="mdi-"], *:focus-within > [class*="nf-"] {
-    color: var(--color-icon-hover, var(--color-accent-highlight));
-    transform: scale(1.18) translateY(-1.5px) rotate(calc(var(--_is-visual-profile-enhanced) * -5deg));
-    text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), 0.4);
-}
-.active .icon, .active [class*="fa-"], .active [class*="mdi-"], .active [class*="nf-"] {
-    color: var(--color-icon-active, var(--color-accent-primary-solid)); transform: scale(1.1);
-    text-shadow: 0 1px 3px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.5);
-}
-.error .icon, .error [class*="fa-"], .error [class*="mdi-"], .error [class*="nf-"] {
-    color: var(--color-text-error, red) !important; transform: none !important; text-shadow: none !important;
-}
-
-/* --- USER CUSTOM ADDITIONS / OVERRIDES --- */
-/* Example:
-#my-custom-module {
-    background-color: darkblue !important;
-}
-*/
 
 /* --- END OF STYLESHEET --- */
