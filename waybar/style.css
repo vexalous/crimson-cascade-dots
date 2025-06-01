@@ -1,5 +1,5 @@
 /*
- * Waybar Configuration Stylesheet (v1.2 - Parser Robustness & Formatting)
+ * Waybar Configuration Stylesheet (v1.3 - Maximum Parser Safety)
  */
 
 /* --- GLOBAL RESET & BASE STYLES --- */
@@ -15,7 +15,7 @@
     font-weight: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility; /* Restored */
+    text-rendering: optimizeLegibility;
 }
 *::before,
 *::after {
@@ -24,14 +24,33 @@
 
 /* --- WAYBAR MAIN STYLING & CSS VARIABLES --- */
 window#waybar {
-    /* --- CORE THEME CONFIGURATION --- */
+    /*
+     * ==========================================================================
+     * --- CORE THEME CONFIGURATION ---
+     * ==========================================================================
+     * YOU MUST MANUALLY SET THE DERIVED FLAGS (_is-*) BELOW
+     * BASED ON YOUR CHOICES HERE. THE AUTOMATIC DERIVATION
+     * HAS BEEN REMOVED FOR PARSER COMPATIBILITY.
+     */
     --cfg-base-theme-mode: 0; /* 0: Dark, 1: Light */
-    --cfg-accent-palette-profile: 1; /* 0=Custom, 1=P1, 2=P2, 3=P3, 4=Mono */
-        --cfg-custom-accent-H: 348; --cfg-custom-accent-S: 100%; --cfg-custom-accent-L: 57%;
 
-    --cfg-visual-style-profile: 0; /* 0=Standard, 1=Enhanced, 2=Minimalist */
+    /* Accent Palette Choice - User needs to set corresponding --_is-palette-* to 1 below */
+    /* Example: For Custom HSL, set --_is-palette-custom: 1; and others to 0 */
+    --cfg-custom-accent-H: 348;
+    --cfg-custom-accent-S: 100%;
+    --cfg-custom-accent-L: 57%;
+    /* Predefined palettes (H, S, L values) */
+    --palette-preset1-H: 15; --palette-preset1-S: 95%; --palette-preset1-L: 55%; /* Fire */
+    --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%; /* Ocean */
+    --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%; /* Forest */
+
+    /* Visual Style Choice - User needs to set corresponding --_is-visual-profile-* to 1 below */
+    /* Example: For Standard, set --_is-visual-profile-standard: 1; and others to 0 */
+
+    /* Effects Detail Choice - User needs to set corresponding --_fx_level_is_* to 1 below */
+    /* Example: For Full, set --_fx_level_is_0: 1; and others to 0 */
+
     --cfg-density-scale: 1;
-    --cfg-effects-detail-level: 0; /* 0=Full, 1=Standard, 2=Minimal */
 
     /* --- Global Feature Toggles --- */
     --enable-shadows-master: 1;
@@ -42,36 +61,45 @@ window#waybar {
     --enable-subtle-noise-texture: 0;
     --enable-experimental-glassmorphism: 0;
     --enable-high-contrast-focus-outline: 0;
-    --enable-force-minimalism: 0;
+    --enable-force-minimalism: 0; /* This still works with the simplified _minimal-mode-active */
 
     /* --- Font Stack Configuration --- */
     --font-stack-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
     --font-stack-mono: "JetBrainsMono Nerd Font", "Fira Code", "Hack", monospace;
     --font-stack-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
 
-    /* --- DERIVED THEME PROPERTIES (GTK Parser Friendly) --- */
+    /*
+     * ==========================================================================
+     * --- DERIVED THEME FLAGS (USER MUST SET THESE MANUALLY) ---
+     * ==========================================================================
+     * Set one of each group to 1 and others in that group to 0.
+     */
 
-    /* Exact equality checks for flags (0 or 1) */
-    /* For --cfg-visual-style-profile (0, 1, 2) */
-    --_profile-is-0: calc(1 - min(1, var(--cfg-visual-style-profile) * var(--cfg-visual-style-profile) + (var(--cfg-visual-style-profile) - 0) * (var(--cfg-visual-style-profile) - 0) ) ); /* 1 if 0 */
-    --_profile-is-1: calc(1 - min(1, (var(--cfg-visual-style-profile) - 1) * (var(--cfg-visual-style-profile) - 1) ) ); /* 1 if 1 */
-    --_profile-is-2: calc(1 - min(1, (var(--cfg-visual-style-profile) - 2) * (var(--cfg-visual-style-profile) - 2) ) ); /* 1 if 2 */
-    /* Note: The above min(1, X*X) is a trick to get 1 if X is 0, and close to 0 if X is non-zero (integer).
-       It's still relying on min(), which could be an issue.
-       A pure arithmetic way for "is X equal to Y" (for small integers) is complex.
-       Example for --_profile-is-0 (is profile 0?):
-       Assuming profile is 0, 1, or 2.
-       --_profile-is-0-test1: calc(1 - var(--cfg-visual-style-profile)); (1 if profile=0, 0 if profile=1, -1 if profile=2)
-       --_profile-is-0-test2: calc(1 - var(--cfg-visual-style-profile)/2); (1 if profile=0, 0.5 if profile=1, 0 if profile=2)
-       --_profile-is-0: calc(round(var(--_profile-is-0-test1) * var(--_profile-is-0-test2))); (Relies on round, also may not be supported)
-       If min/max are not supported, these flags may need to be set manually by user.
-       For now, retaining the min-based flags as they are more compact than full arithmetic unrolling.
-    */
+    /* Visual Style Profile Flags (Choose one, set to 1) */
+    --_is-visual-profile-standard: 1;
+    --_is-visual-profile-enhanced: 0;
+    --_is-visual-profile-minimalist: 0; /* This flag is for the "minimalist" style */
+
+    /* Accent Palette Flags (Choose one, set to 1) */
+    --_is-palette-custom: 1;
+    --_is-palette-fire: 0;
+    --_is-palette-ocean: 0;
+    --_is-palette-forest: 0;
+    --_is-palette-monochrome: 0;
+
+    /* Effects Detail Level Flags (Choose one, set to 1) */
+    --_fx_level_is_0: 1; /* Full */
+    --_fx_level_is_1: 0; /* Standard */
+    --_fx_level_is_2: 0; /* Minimal (effectively disables some multipliers) */
+
+    /*
+     * ==========================================================================
+     * --- DERIVED THEME PROPERTIES (Simplified, using manual flags) ---
+     * ==========================================================================
+     */
 
     /* --- Minimalist Override Logic --- */
-    --_is-minimalist-style: var(--_profile-is-2);
-    --_minimal-mode-active: calc(1 - (1 - var(--enable-force-minimalism)) * (1 - var(--_is-minimalist-style)));
-
+    --_minimal-mode-active: calc(1 - (1 - var(--enable-force-minimalism)) * (1 - var(--_is-visual-profile-minimalist)));
 
     /* --- Effective Toggles --- */
     --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
@@ -83,13 +111,11 @@ window#waybar {
     --_effective-glassmorphism-enabled: calc(var(--enable-experimental-glassmorphism) * (1 - var(--_minimal-mode-active)));
 
     /* --- Effects Detail Adjustments --- */
-    --_fx_level_is_0: calc(1 - min(1, var(--cfg-effects-detail-level) * var(--cfg-effects-detail-level) )); /* 1 if 0 */
-    --_fx_level_is_1: calc(1 - min(1, (var(--cfg-effects-detail-level) - 1) * (var(--cfg-effects-detail-level) - 1) )); /* 1 if 1 */
+    --_effects-detail-multiplier-full: var(--_fx_level_is_0); /* 1 if full, 0 otherwise */
+    --_effects-detail-multiplier-standard: var(--_fx_level_is_1); /* 1 if standard, 0 otherwise */
+    --_effects-detail-multiplier-reduced: var(--_fx_level_is_0); /* Simplified: full or off */
+    --_effects-duration-scale: calc(1 + (var(--_fx_level_is_1) * 0.25) + (var(--_fx_level_is_2) * 0.5) ); /* Example: 1, 1.25, 1.5 */
 
-    --_effects-detail-multiplier-full: var(--_fx_level_is_0);
-    --_effects-detail-multiplier-standard: var(--_fx_level_is_1);
-    --_effects-detail-multiplier-reduced: var(--_fx_level_is_0);
-    --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25));
 
     /* --- Base Color Palette --- */
     --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
@@ -108,17 +134,7 @@ window#waybar {
     --theme-fg-tertiary: hsl(0, 0%, var(--L-fg-tertiary));
     --theme-border-default: hsl(0, 0%, var(--L-border-default));
 
-    /* --- Accent Palette Selection --- */
-    --palette-preset1-H: 15; --palette-preset1-S: 95%; --palette-preset1-L: 55%;
-    --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%;
-    --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%;
-
-    --_is-palette-custom:     calc(1 - min(1, var(--cfg-accent-palette-profile) * var(--cfg-accent-palette-profile) ));
-    --_is-palette-fire:       calc(1 - min(1, (var(--cfg-accent-palette-profile) - 1) * (var(--cfg-accent-palette-profile) - 1) ));
-    --_is-palette-ocean:      calc(1 - min(1, (var(--cfg-accent-palette-profile) - 2) * (var(--cfg-accent-palette-profile) - 2) ));
-    --_is-palette-forest:     calc(1 - min(1, (var(--cfg-accent-palette-profile) - 3) * (var(--cfg-accent-palette-profile) - 3) ));
-    --_is-palette-monochrome: calc(1 - min(1, (var(--cfg-accent-palette-profile) - 4) * (var(--cfg-accent-palette-profile) - 4) ));
-
+    /* --- Accent Palette Selection (uses manual flags) --- */
     --accent-H-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-H)) + (var(--_is-palette-fire) * var(--palette-preset1-H)) + (var(--_is-palette-ocean) * var(--palette-preset2-H)) + (var(--_is-palette-forest) * var(--palette-preset3-H)) + (var(--_is-palette-monochrome) * 0) );
     --accent-S-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-S)) + (var(--_is-palette-fire) * var(--palette-preset1-S)) + (var(--_is-palette-ocean) * var(--palette-preset2-S)) + (var(--_is-palette-forest) * var(--palette-preset3-S)) + (var(--_is-palette-monochrome) * 0%) );
     --_temp-mono-L-calc: calc( (var(--cfg-base-theme-mode) * 30%) + ( (1 - var(--cfg-base-theme-mode)) * 70% ) );
@@ -143,14 +159,14 @@ window#waybar {
     --spacing-unit: calc(4px * var(--_density-scale-factor));
     --radius-unit: calc(6px * var(--_density-scale-factor));
 
-    /* --- Visual Style Adjustments --- */
-    --_is-visual-profile-standard: var(--_profile-is-0);
-    --_is-visual-profile-enhanced: var(--_profile-is-1);
-
+    /* --- Visual Style Adjustments (uses manual flags) --- */
     --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
     --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
     --_effective-border-style: solid;
     --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
+
+
+    /* === Detailed Design Tokens (Consume the simplified variables) === */
 
     /* --- Core Palette & Accents --- */
     --color-background-bar: var(--theme-bg-primary);
@@ -213,7 +229,7 @@ window#waybar {
 
     --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-timing-function-ui: var(--transition-timing-function-standard);
+    --transition-timing-function-ui: var(--transition-timing-function-standard); /* Default. Enhanced applied by class */
 
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
@@ -342,7 +358,8 @@ window#waybar::before { /* Noise Texture */
     box-shadow: var(--effects-shadow-module-actual);
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-ui);
+    /* Conditional timing function via class */
+    transition-timing-function: var(--transition-timing-function-standard);
     position: relative; z-index: 1; overflow: hidden;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
@@ -400,18 +417,38 @@ window#waybar::before { /* Noise Texture */
 
 /* Workspaces Module */
 #workspaces { padding: 0 calc(var(--spacing-unit) * 0.5); margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal); background: var(--color-background-module-alternate); border: var(--dimension-border-width-thin) solid var(--color-border-module-default); border-radius: var(--dimension-radius-module); box-shadow: var(--effects-shadow-module-actual); }
-#workspaces button { padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75); margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5); color: var(--color-text-workspace-default, var(--color-text-bar-default)); background: transparent; border: var(--dimension-border-width-thin) solid transparent; border-radius: var(--dimension-radius-button); font-weight: var(--typography-font-weight-medium); transition-property: var(--transition-properties-common); transition-duration: var(--transition-duration-fast); transition-timing-function: var(--transition-timing-function-ui); cursor: var(--interaction-cursor-pointer, pointer); position: relative; overflow: visible; text-shadow: var(--typography-text-shadow-subtle); font-feature-settings: var(--typography-font-feature-settings); }
+#workspaces button { padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75); margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5); color: var(--color-text-workspace-default, var(--color-text-bar-default)); background: transparent; border: var(--dimension-border-width-thin) solid transparent; border-radius: var(--dimension-radius-button); font-weight: var(--typography-font-weight-medium); transition-property: var(--transition-properties-common); transition-duration: var(--transition-duration-fast); transition-timing-function: var(--transition-timing-function-standard); cursor: var(--interaction-cursor-pointer, pointer); position: relative; overflow: visible; text-shadow: var(--typography-text-shadow-subtle); font-feature-settings: var(--typography-font-feature-settings); }
 #workspaces button.visual-profile-enhanced { transition-timing-function: var(--transition-timing-function-enhanced); }
 #workspaces button:focus, #workspaces button:focus-visible { outline: var(--outline-high-contrast-focus-actual); box-shadow: var(--effects-focus-ring-shadow-actual); }
 #workspaces button:not(.focused):not(.urgent)::after { content: ''; position: absolute; left: 50%; bottom: calc(var(--spacing-unit) * -0.25); height: var(--dimension-border-width-normal); width: 0%; background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid)); border-radius: var(--dimension-border-width-normal); transform-origin: center; animation: var(--animation-dynamic-ws-border-actual); animation-play-state: paused; opacity: var(--_effective-dynamic-ws-accents-enabled); }
 #workspaces button:not(.focused):not(.urgent):hover::after { animation-play-state: running; width: 70%; }
 #workspaces button.persistent { color: var(--color-text-workspace-persistent, var(--theme-fg-tertiary)); font-style: italic; opacity: 0.8; }
 #workspaces button.visible { color: var(--color-text-workspace-visible, var(--theme-fg-primary)); background: var(--color-background-workspace-visible, var(--theme-bg-tertiary)); }
-#workspaces button.focused { color: var(--color-text-workspace-focused, var(--theme-fg-primary)); background: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--color-accent-primary-solid); border-color: transparent; box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual); font-weight: var(--typography-font-weight-bold); transform: var(--interaction-transform-hover-scale-actual); animation: var(--animation-focused-glow-actual); z-index: 5; }
+#workspaces button.focused {
+    color: var(--color-text-workspace-focused, var(--theme-fg-primary));
+    background: var(--theme-accent-primary-solid); /* Default to solid */
+    border-color: transparent;
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
+    font-weight: var(--typography-font-weight-bold);
+    transform: var(--interaction-transform-hover-scale-actual);
+    animation: var(--animation-focused-glow-actual);
+    z-index: 5;
+}
+/* Apply gradient conditionally using a class if gradients are enabled */
+#workspaces button.focused.gradients-enabled {
+    background: var(--color-accent-primary-gradient);
+}
 #workspaces button.urgent { color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent, var(--theme-accent-secondary-base)); border: var(--dimension-border-width-thin) solid var(--color-border-urgent, var(--theme-accent-highlight)); animation: var(--animation-urgent-actual); font-weight: var(--typography-font-weight-bold); box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base)); z-index: 5; }
 #workspaces button:hover:not(.focused):not(.urgent) { color: var(--color-text-workspace-hover, var(--color-text-module-hover)); background: var(--color-background-module-hover); transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual); z-index: 1; }
 #workspaces button.visible:hover:not(.focused) { color: var(--color-text-workspace-hover, var(--color-text-module-hover)); background: color-mix(in srgb, var(--color-background-workspace-visible, var(--theme-bg-tertiary)) 60%, var(--color-background-module-hover) 40%); transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual); z-index: 1; }
-#workspaces button.focused:hover { background: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--color-accent-primary-solid); box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual); transform: scale(1.06); }
+#workspaces button.focused:hover {
+    background: var(--theme-accent-primary-solid); /* Default to solid */
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual);
+    transform: scale(1.06);
+}
+#workspaces button.focused.gradients-enabled:hover {
+    background: var(--color-accent-primary-gradient);
+}
 #workspaces button.urgent:hover { color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent-hover, var(--color-accent-secondary)); border-color: var(--color-accent-highlight); animation-play-state: paused; transform: var(--interaction-transform-hover-scale-actual); }
 
 /* Individual Module Styling */
@@ -421,11 +458,18 @@ window#waybar::before { /* Noise Texture */
 #hyprland-window { padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal); color: var(--color-text-module-windowtitle, var(--color-text-bar-default)); background: transparent; border-color: transparent; box-shadow: none; font-weight: var(--typography-font-weight-medium); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; font-style: italic; }
 #pulseaudio, #network, #cpu, #memory { background-color: var(--color-background-module-alternate); font-family: var(--typography-font-family-monospace); font-variant-numeric: var(--typography-font-variant-numeric); color: var(--color-text-module-stats, var(--color-text-bar-default)); border-radius: var(--dimension-radius-button); padding: var(--spacing-unit) calc(var(--spacing-unit)*2); }
 #network.disconnected { animation: var(--animation-state-feedback-actual); }
-#battery.critical:not(.charging) { background: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--color-accent-primary-solid); color: var(--theme-fg-primary); font-weight: var(--typography-font-weight-bold); animation: var(--animation-urgent-actual); }
+#battery.critical:not(.charging) {
+    background: var(--theme-accent-primary-solid); /* Default to solid */
+    color: var(--theme-fg-primary);
+    font-weight: var(--typography-font-weight-bold); animation: var(--animation-urgent-actual);
+}
+#battery.critical.gradients-enabled:not(.charging) {
+    background: var(--color-accent-primary-gradient);
+}
 
 /* Tray */
 #tray { padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5); background: var(--color-background-module-alternate); }
-#tray > widget { margin: 0 var(--spacing-unit); opacity: 0.75; transition-property: opacity, transform; transition-duration: 0.25s; transition-timing-function: var(--transition-timing-function-ui); filter: drop-shadow(var(--typography-text-shadow-subtle)); }
+#tray > widget { margin: 0 var(--spacing-unit); opacity: 0.75; transition-property: opacity, transform; transition-duration: 0.25s; transition-timing-function: var(--transition-timing-function-standard); filter: drop-shadow(var(--typography-text-shadow-subtle)); }
 #tray > widget.visual-profile-enhanced { transition-timing-function: var(--transition-timing-function-enhanced); }
 #tray > widget:hover { opacity: 1; transform: scale(1.15) translateY(-1px); }
 
@@ -442,7 +486,7 @@ tooltip label { color: inherit; }
 
 /* Universal Icon Styling */
 :root { --dimension-icon-size-default: 1em; --color-icon-default: inherit; --text-shadow-icon-default: none; --color-icon-hover: var(--theme-accent-highlight); --color-icon-active: var(--theme-accent-primary-solid); }
-.icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] { font-family: var(--typography-font-family-icons) !important; font-size: var(--dimension-icon-size-default, 1em); color: var(--color-icon-default, inherit); margin-right: calc(var(--spacing-unit) * 0.85); vertical-align: -0.15em; transition-property: color, transform, text-shadow; transition-duration: var(--transition-duration-normal); transition-timing-function: var(--transition-timing-function-ui); text-shadow: var(--text-shadow-icon-default, none); display: inline-block; font-style: normal !important; }
+.icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] { font-family: var(--typography-font-family-icons) !important; font-size: var(--dimension-icon-size-default, 1em); color: var(--color-icon-default, inherit); margin-right: calc(var(--spacing-unit) * 0.85); vertical-align: -0.15em; transition-property: color, transform, text-shadow; transition-duration: var(--transition-duration-normal); transition-timing-function: var(--transition-timing-function-standard); text-shadow: var(--text-shadow-icon-default, none); display: inline-block; font-style: normal !important; }
 .icon.visual-profile-enhanced, [class*="fa-"].visual-profile-enhanced, [class*="mdi-"].visual-profile-enhanced, [class*="nf-"].visual-profile-enhanced { transition-timing-function: var(--transition-timing-function-enhanced); }
 *:hover > .icon, *:hover > [class*="fa-"], *:hover > [class*="mdi-"], *:hover > [class*="nf-"],
 *:focus > .icon, *:focus > [class*="fa-"], *:focus > [class*="mdi-"], *:focus > [class*="nf-"],
