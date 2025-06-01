@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
+# This script generates several helper scripts for Hyprland and places them
+# in the target directory specified by the HYPR_SCRIPTS_TARGET_DIR environment variable.
+# These helper scripts provide functionalities like idle management, brightness/volume notifications,
+# and a power menu.
+# It uses helper functions from 'common.sh'.
 set -euo pipefail
 
+# Source common library functions for configuration file management.
 source "$(dirname "$0")/../config_lib/common.sh"
 
 SCRIPT_DIR_NAME="Hyprland Helper Scripts"
+
+# Prepare the target directory for the Hyprland helper scripts.
+# This function (from common.sh) likely ensures the directory exists.
+# HYPR_SCRIPTS_TARGET_DIR is an environment variable specifying where to write these scripts.
 prepare_script_generation_dir "$HYPR_SCRIPTS_TARGET_DIR" "$SCRIPT_DIR_NAME"
 
+# --- Generate idle_config.sh ---
+# This script configures 'hypridle' for screen locking, DPMS, and system suspend.
 cat << 'EOF' > "$HYPR_SCRIPTS_TARGET_DIR/idle_config.sh"
 #!/usr/bin/env bash
 set -euo pipefail
@@ -16,7 +28,10 @@ hypridle \
     timeout 600 'systemctl suspend' \
     before-sleep 'hyprlock && sleep 1' &
 EOF
+# Note: Detailed comments for idle_config.sh content are assumed to be in its source/template file.
 
+# --- Generate brightness_notify.sh ---
+# This script handles brightness adjustment notifications.
 cat << 'EOF' > "$HYPR_SCRIPTS_TARGET_DIR/brightness_notify.sh"
 #!/usr/bin/env bash
 set -euo pipefail
@@ -72,7 +87,10 @@ main() {
 
 main
 EOF
+# Note: Detailed comments for brightness_notify.sh content are assumed to be in its source/template file.
 
+# --- Generate rofi_powermenu.sh ---
+# This script displays a power menu using Rofi.
 cat << 'EOF' > "$HYPR_SCRIPTS_TARGET_DIR/rofi_powermenu.sh"
 #!/usr/bin/env bash
 set -euo pipefail
@@ -115,7 +133,10 @@ main() {
 
 main
 EOF
+# Note: Detailed comments for rofi_powermenu.sh content are assumed to be in its source/template file.
 
+# --- Generate volume_notify.sh ---
+# This script provides notifications for volume changes and microphone mute status.
 cat << 'EOF' > "$HYPR_SCRIPTS_TARGET_DIR/volume_notify.sh"
 #!/usr/bin/env bash
 set -euo pipefail
@@ -213,5 +234,7 @@ main() {
 
 main
 EOF
+# Note: Detailed comments for volume_notify.sh content are assumed to be in its source/template file.
 
+# Finalize the script generation process for this directory.
 finish_script_generation_dir "$HYPR_SCRIPTS_TARGET_DIR" "$SCRIPT_DIR_NAME"
