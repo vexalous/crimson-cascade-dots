@@ -16,13 +16,14 @@ LOCK_FILE="/tmp/${SCRIPT_NAME}.lock" # Lockfile to prevent concurrent runs
 readonly LOCK_FILE
 DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
 readonly DEFAULT_SCRIPT_LOG_FILE
+readonly SCRIPT_VERSION="1.0.0-dev" # Example version; populate as needed
 
 # --- Configuration Constants ---
 # These constants are intended for use by sourced library scripts (e.g., backup.sh, git_ops.sh).
-# Export them to make them available to those scripts.
-export readonly BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
-export readonly GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
-export readonly REPO_NAME="crimson-cascade-dots"
+# Use declare -xr to atomically declare, assign, make readonly, and export.
+declare -xr BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
+declare -xr GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
+declare -xr REPO_NAME="crimson-cascade-dots"
 
 readonly CONFIG_TARGET_DIR="${HOME}/.config"
 readonly DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png"
@@ -69,6 +70,10 @@ critical_exit() {
 
 # --- Lockfile Management ---
 acquire_lock() {
+    # Advanced consideration for very high-contention environments:
+    # Implement a retry loop with exponential backoff here if acquiring the lock
+    # after a stale lock removal frequently fails due to another instance immediately
+    # acquiring it. For typical dotfile script usage, this is usually not necessary.
     if (set -o noclobber; echo "$$" > "${LOCK_FILE}") 2>/dev/null; then
         debug_msg "Lock acquired: ${LOCK_FILE} (PID $$)"
         return 0
@@ -81,7 +86,6 @@ acquire_lock() {
         warning_msg "Removing stale lockfile: ${LOCK_FILE}"
         rm -f "${LOCK_FILE}"
         info_msg "Stale lockfile removed. Please try running the script again."
-        # Consider a brief retry here if concurrent stale removal is a concern on high-throughput systems.
     fi
     return 1 # Lock not acquired
 }
@@ -196,7 +200,11 @@ update_hyprland_env_config() {
     local desired_config_line="env = CONFIG_TARGET_DIR,${CONFIG_TARGET_DIR}"
 
     mkdir -p "$(dirname "${target_file}")"
+    # Create target_file if it doesn't exist.
+    # If it does exist, original_content will be read from it.
+    # If it doesn't, original_content remains empty.
     [[ ! -f "${target_file}" ]] && { info_msg "Creating empty ${target_file}."; touch "${target_file}"; }
+
 
     local temp_new_content_file
     temp_new_content_file=$(mktemp --tmpdir "${SCRIPT_NAME}_envconf.XXXXXX")
@@ -206,28 +214,32 @@ update_hyprland_env_config() {
     fi
 
     local original_content=""
-    [[ -s "${target_file}" ]] && original_content=$(<"${target_file}")
+    # Only read original_content if target_file exists and is not empty
+    # This handles the case where target_file was just created by `touch`.
+    if [[ -s "${target_file}" ]]; then
+        original_content=$(<"${target_file}")
+    fi
+
 
     # Regex to match managed env lines, whether active or commented, with flexible spacing
     local hypr_scripts_regex="^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*HYPR_SCRIPTS_DIR,"
     local config_target_regex="^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*CONFIG_TARGET_DIR,"
     local combined_filter_regex="${hypr_scripts_regex}|${config_target_regex}"
 
-    # Rebuild content: filter original content, excluding any lines matching our managed variables.
-    if [[ -n "${original_content}" ]]; then
-        # Use process substitution for grep to avoid issues with `while read` loops and variable scope
-        grep -Ev -- "${combined_filter_regex}" <<< "${original_content}" > "${temp_new_content_file}" || true # Allow no match (empty output)
+    # Rebuild content: filter original content from target_file directly, excluding managed lines.
+    if [[ -f "${target_file}" ]]; then # Check if target_file exists before grepping
+        grep -Ev -- "${combined_filter_regex}" "${target_file}" > "${temp_new_content_file}" || : # Allow no match / empty output
     else
-        # If original content is empty, ensure temp file is also empty using explicit no-op redirect.
-        : > "${temp_new_content_file}" # SC2188 fix
+        # If target_file somehow doesn't exist (e.g. race after touch, or touch failed silently before errexit)
+        # ensure temp_new_content_file is empty.
+        : > "${temp_new_content_file}"
     fi
+
 
     # Append desired lines, ensuring proper newline if needed
     if [[ -s "${temp_new_content_file}" ]]; then
         # Read only the last character to check for newline, more efficient than reading whole file
         local last_char_val=""
-        # Using a subshell for `tail` to ensure `read` gets the character correctly
-        # and `read` doesn't consume from a pipe that might close early.
         last_char_val=$(tail -c1 "${temp_new_content_file}")
         if [[ "${last_char_val}" != "" && "${last_char_val}" != $'\n' ]]; then
             echo "" >> "${temp_new_content_file}" # Explicitly echo "" for newline (SC2188 fix)
@@ -239,6 +251,8 @@ update_hyprland_env_config() {
     local new_content
     new_content=$(<"${temp_new_content_file}")
 
+    # Compare new content with original. Only write if different.
+    # Note: original_content might be empty if the file was just touched or was empty.
     if [[ "${original_content}" == "${new_content}" ]]; then
         info_msg "${target_file} is already correctly configured. No changes needed."
         rm -f "${temp_new_content_file}"
@@ -248,7 +262,7 @@ update_hyprland_env_config() {
     info_msg "Updating ${target_file} as changes are required."
     local backup_file # SC2155
     backup_file="${target_file}.bak.$(date +%Y%m%d%H%M%S)"
-    cp "${target_file}" "${backup_file}"
+    cp "${target_file}" "${backup_file}" # Backup existing file before overwrite
     info_msg "Backup of original ${target_file} created at ${backup_file}"
 
     if mv "${temp_new_content_file}" "${target_file}"; then
@@ -379,7 +393,7 @@ cleanup() {
         warning_msg "Script finished, but non-critical operations reported issues (OVERALL_SCRIPT_STATUS=${OVERALL_SCRIPT_STATUS}). Exiting with status 1."
     elif [[ "${script_exit_status}" -ne 0 ]]; then
         error_msg "Script exited prematurely or with a critical error (captured exit status: ${script_exit_status}). OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}."
-    else # script_exit_status is 0, but OVERALL_SCRIPT_STATUS might be non-zero (should not happen if main exits based on OVERALL_SCRIPT_STATUS)
+    else 
         warning_msg "Script exiting with status 0, but internal OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}. This indicates an unexpected state. Review logs."
     fi
     info_msg "Cleanup finished. Full script execution log available at: ${SCRIPT_LOG_FILE}"
@@ -388,7 +402,7 @@ cleanup() {
 # --- Help Message ---
 print_help() {
     cat << EOF
-Usage: ${SCRIPT_NAME} [OPTIONS]
+Usage: ${SCRIPT_NAME} [OPTIONS] (Version: ${SCRIPT_VERSION})
 Manages the setup of Crimson Cascade Dotfiles. This script attempts to be idempotent.
 
 Options:
@@ -398,12 +412,14 @@ Options:
   --debug                Enable verbose debug messages for script execution.
   --log-file <path>      Specify a custom path for the script's log file.
                          (Default: ${DEFAULT_SCRIPT_LOG_FILE})
+  --version              Display script version and exit.
   -h, --help             Display this help message and exit.
 
 Note: This script uses GNU getopt for argument parsing, which is standard on most Linux
       systems. For macOS or other systems without GNU getopt by default, you may need
       to install 'gnu-getopt' (e.g., via Homebrew) and ensure it's in your PATH,
       or modify the script to use POSIX getopts (short options only).
+      This script also requires Bash version 4.4+ for certain features (NUL-delimited mapfile).
 EOF
 }
 
@@ -416,13 +432,7 @@ main() {
 
     # Check for GNU getopt
     if ! command -v getopt >/dev/null || ! getopt -T >/dev/null 2>&1; then
-        # getopt -T exits 4 for GNU getopt, non-zero for others or if not found.
-        # We need to ensure it's the GNU version for long options.
-        # A simple `getopt --test` also works for GNU getopt, exits 4.
-        # `getopt -T` is a more direct test.
-        # If `getopt -T` output is empty or command fails, it's not GNU getopt or not found.
-        # A more robust check:
-        local getopt_output
+        local getopt_output # Check if it's GNU getopt specifically
         getopt_output=$(getopt -T 2>&1)
         if [[ -z "${getopt_output}" && $? -eq 4 ]]; then
              debug_msg "GNU getopt detected."
@@ -434,7 +444,7 @@ main() {
 
     # Argument Parsing with GNU getopt:
     local short_opts="h"
-    local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help"
+    local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help,version"
     local parsed_opts
     if ! parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME}" -- "$@"); then
         print_help >&2
@@ -449,6 +459,7 @@ main() {
             --skip-hypr-env) SKIP_HYPR_ENV=true; shift ;;
             --debug) DEBUG_MODE=true; shift ;;
             --log-file) SCRIPT_LOG_FILE="$2"; shift 2 ;;
+            --version) printf '%s version %s\n' "${SCRIPT_NAME}" "${SCRIPT_VERSION}"; exit 0 ;;
             -h|--help) print_help; exit 0 ;;
             --) shift; break ;;
             *) critical_exit "Internal error in argument parsing logic!" ;;
@@ -456,9 +467,11 @@ main() {
     done
 
     mkdir -p "$(dirname "${SCRIPT_LOG_FILE}")" || critical_exit "Cannot create log directory: $(dirname "${SCRIPT_LOG_FILE}")"
-    touch "${SCRIPT_LOG_FILE}" || critical_exit "Cannot create log file: ${SCRIPT_LOG_FILE}"
+    # Touch also creates if not exists, or updates timestamp if it does.
+    touch "${SCRIPT_LOG_FILE}" || critical_exit "Cannot create or update log file: ${SCRIPT_LOG_FILE}"
 
-    info_msg "--- ${SCRIPT_NAME} execution started ---"
+
+    info_msg "--- ${SCRIPT_NAME} execution started (Version: ${SCRIPT_VERSION}) ---"
     info_msg "Using script log file: ${SCRIPT_LOG_FILE}"
     [[ "${DEBUG_MODE}" == "true" ]] && info_msg "DEBUG mode has been enabled."
 
@@ -516,8 +529,6 @@ initialize_script() {
 
 
     if [[ -z "${DOTFILES_SOURCE_DIR}" ]]; then
-        # This check is important if determine_source_dir might correctly output an empty first path.
-        # However, for this script's purpose, an empty DOTFILES_SOURCE_DIR is likely an error.
         critical_exit "Dotfiles source directory was determined to be empty. Cannot proceed."
     fi
     info_msg "Dotfiles source directory identified as: ${DOTFILES_SOURCE_DIR}"
