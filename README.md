@@ -10,10 +10,10 @@ Key software configured:
 *   **Terminal Emulator:** [Alacritty](https://alacritty.org/)
 *   **Status Bar:** [Waybar](https://github.com/Alexays/Waybar)
 *   **Application Launcher/Powermenu:** [Rofi](https://github.com/Alexays/rofi) (Wayland fork)
-*   **Notification Daemon:** Mako
-*   **Screen Locker:** Hyprlock
-*   **Wallpaper Utility:** Hyprpaper
-*   **Clipboard Manager:** cliphist
+*   **Notification Daemon:** [Mako](https://github.com/emersion/mako)
+*   **Screen Locker:** [Hyprlock](https://github.com/hyprwm/hyprlock)
+*   **Wallpaper Utility:** [Hyprpaper](https://github.com/hyprwm/hyprpaper)
+*   **Clipboard Manager:** [cliphist](https://github.com/sentriz/cliphist)
 
 ## 2. Prerequisites
 
@@ -30,11 +30,11 @@ Before you begin, ensure you have the following essential software installed:
 
 ### Required Fonts
 *   **JetBrainsMono Nerd Font** (for UI and terminal)
-  * Download from [Nerd Fonts](https://www.nerdfonts.com/font-downloads) (JetBrainsMono is listed on this page).
-  * Installation methods vary by OS (e.g., manual copy, Homebrew on macOS, AUR on Arch Linux). Refer to Nerd Fonts documentation or your OS's font installation guides.
+    *   Download from [Nerd Fonts](https://www.nerdfonts.com/font-downloads) (JetBrainsMono is listed on this page).
+    *   Installation methods vary by OS (e.g., manual copy, Homebrew on macOS, AUR on Arch Linux). Refer to Nerd Fonts documentation or your OS's font installation guides.
 *   **Font Awesome** (for icons)
-  * Typically installed as a desktop font. Download and instructions can be found at [Font Awesome Desktop Setup](https://fontawesome.com/docs/desktop/setup/get-started).
-  * Follow their instructions for downloading and installing the font files on your system.
+    *   Typically installed as a desktop font. Download and instructions can be found at [Font Awesome Desktop Setup](https://fontawesome.com/docs/desktop/setup/get-started).
+    *   Follow their instructions for downloading and installing the font files on your system.
 
 ### Essential Utilities & Tools
 *   `git` (for cloning this repository)
@@ -49,8 +49,14 @@ Before you begin, ensure you have the following essential software installed:
 ## 3. Installation
 
 1.  **Clone the repository:**
+    Using HTTPS:
     ```bash
     git clone https://github.com/vexalous/crimson-cascade-dots.git
+    cd crimson-cascade-dots
+    ```
+    Alternatively, using SSH:
+    ```bash
+    git clone git@github.com:vexalous/crimson-cascade-dots.git
     cd crimson-cascade-dots
     ```
 
@@ -68,12 +74,12 @@ Before you begin, ensure you have the following essential software installed:
 
 *   **Using Configurations:** Once `setup.sh` completes, your new configurations are active in `~/.config/`. Applications like Hyprland, Alacritty, and Waybar will use these new settings automatically upon their next launch.
 *   **Reloading:**
-      * **Hyprland:** To apply changes to Hyprland without logging out, you can usually reload its configuration using a keybinding (often `Super + M` or `Super + Shift + R` - check `~/.config/hypr/conf/keybinds.conf` for the exact binding).
-      * **Waybar:** Waybar typically reloads automatically when its configuration file (`~/.config/waybar/config`) or stylesheet (`~/.config/waybar/style.css`) is saved. If not, you may need to kill and restart the Waybar process.
+    *   **Hyprland:** To apply changes to Hyprland without logging out, you can usually reload its configuration using a keybinding (often `Super + M` or `Super + Shift + R` - check `~/.config/hypr/conf/keybinds.conf` for the exact binding).
+    *   **Waybar:** Waybar typically reloads automatically when its configuration file (`~/.config/waybar/config`) or stylesheet (`~/.config/waybar/style.css`) is saved. If not, you may need to kill and restart the Waybar process.
 *   **Detailed Configuration:**
-      * For Alacritty details, see: `alacritty/README.md` (in this repository, corresponding to `~/.config/alacritty/`)
-      * For Hyprland details, see: `hypr/README.md` (in this repository, corresponding to `~/.config/hypr/`)
-      * For Waybar details, see: `waybar/README.md` (in this repository, corresponding to `~/.config/waybar/`)
+    *   For Alacritty details, see: `alacritty/README.md` (in this repository, corresponding to `~/.config/alacritty/`)
+    *   For Hyprland details, see: `hypr/README.md` (in this repository, corresponding to `~/.config/hypr/`)
+    *   For Waybar details, see: `waybar/README.md` (in this repository, corresponding to `~/.config/waybar/`)
 
 ## 5. Basic Customization
 
@@ -97,14 +103,14 @@ This repository also contains scripts that were used to *generate* the configura
 ## 7. Troubleshooting
 
 *   **Fonts not displaying correctly (especially icons):**
-      * Ensure JetBrainsMono Nerd Font and Font Awesome are installed and recognized.
-      * You might need to rebuild your font cache: `fc-cache -fv`.
+    *   Ensure JetBrainsMono Nerd Font and Font Awesome are installed and recognized.
+    *   You might need to rebuild your font cache: `fc-cache -fv`.
 *   **Scripts not executing:**
-      * The `setup.sh` script attempts to set execute permissions. If issues persist, ensure scripts in `~/.config/hypr/scripts/` (and other relevant locations) are executable: `chmod +x ~/.config/hypr/scripts/*.sh`.
+    *   The `setup.sh` script attempts to set execute permissions. If issues persist, ensure scripts in `~/.config/hypr/scripts/` (and other relevant locations) are executable: `chmod +x ~/.config/hypr/scripts/*.sh`.
 *   **Changes not applying:**
-      * **Hyprland:** Reload configuration (e.g., `Super + M`).
-      * **Waybar:** Should reload on config save. If not, restart Waybar (e.g., `killall waybar && waybar &`).
-      * **Alacritty:** New settings apply to newly opened terminal windows.
+    *   **Hyprland:** Reload configuration (e.g., `Super + M`).
+    *   **Waybar:** Should reload on config save. If not, restart Waybar (e.g., `killall waybar && waybar &`).
+    *   **Alacritty:** New settings apply to newly opened terminal windows.
 *   **Missing dependencies:** If applications fail to start or features are missing, double-check the "Prerequisites" section and ensure all listed software is installed.
 
 ## 8. Repository Structure
@@ -144,8 +150,8 @@ Contributions are welcome!
 *   Fork the repository.
 *   Create a new branch for your feature or bug fix.
 *   Make your changes.
-      * If modifying basic configurations (e.g., `hypr/hyprland.conf`), ensure your changes are well-tested.
-      * If modifying the generation scripts in `scripts/config/`, please also regenerate the relevant output configuration files and commit them. Ensure you've read `scripts/README.md`.
+    *   If modifying basic configurations (e.g., `hypr/hyprland.conf`), ensure your changes are well-tested.
+    *   If modifying the generation scripts in `scripts/config/`, please also regenerate the relevant output configuration files and commit them. Ensure you've read `scripts/README.md`.
 *   Open a pull request with a clear description of your changes.
 *   Please report any issues or suggest improvements by opening an issue on the GitHub repository.
 
