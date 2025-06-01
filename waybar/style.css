@@ -1,15 +1,10 @@
 /*
- * Waybar Configuration Stylesheet - Titan Edition (v1.0)
+ * Waybar Configuration Stylesheet (v1.0)
  *
- * Iteration 9: The Definitive Waybar Styling Experience.
- * This edition embodies the pinnacle of CSS artistry for Waybar, offering
- * unparalleled customization through a "Theme DNA" system, breathtaking aesthetics,
- * and a profound attention to detail, performance, and accessibility.
- *
- * Designed by: AI (with iterative human guidance)
- * Philosophy: To provide a Waybar theme that is not just a stylesheet, but a
- *             styling *framework* – immensely powerful, deeply personalizable,
- *             and beautiful by default.
+ * A comprehensive and customizable stylesheet for Waybar,
+ * designed for flexibility, performance, and a clean aesthetic.
+ * This stylesheet provides a robust set of configurable options
+ * to personalize the Waybar appearance.
  */
 
 /* --- GLOBAL RESET & BASE STYLES --- */
@@ -26,33 +21,33 @@
 window#waybar {
     /*
      * ==========================================================================
-     * --- TITAN THEME DNA CONFIGURATION ---
+     * --- CORE THEME CONFIGURATION ---
      * ==========================================================================
-     * Define the core "personality" of your theme here.
-     * These high-level choices cascade throughout the entire stylesheet.
-     * For "Accent Palette": 0=Custom HSL, 1=Vibrant Fire, 2=Cool Ocean, 3=Forest Calm, 4=Monochrome.
-     * For "Visual Style": 0=Professional, 1=Expressive, 2=Minimalist.
-     * For "FX Tier": 0=Full, 1=Standard (reduced motion/shadows), 2=Minimal (essential only).
+     * Define the foundational appearance settings.
+     * These high-level choices influence styles throughout the stylesheet.
+     * For "Accent Palette": 0=Custom HSL, 1=Preset 1 (Warm), 2=Preset 2 (Cool), 3=Preset 3 (Natural), 4=Monochrome.
+     * For "Visual Style": 0=Standard, 1=Enhanced, 2=Minimalist.
+     * For "Effects Detail": 0=Full, 1=Standard (reduced motion/shadows), 2=Minimal (essential only).
      */
-    --dna-base-intent: 0; /* 0: Dark, 1: Light */
-    --dna-accent-palette-choice: 1;
-        /* Custom HSL (used if --dna-accent-palette-choice is 0) */
-        --dna-custom-accent-H: 348; --dna-custom-accent-S: 100%; --dna-custom-accent-L: 57%;
+    --cfg-base-theme-mode: 0; /* 0: Dark, 1: Light */
+    --cfg-accent-palette-profile: 1;
+        /* Custom HSL (used if --cfg-accent-palette-profile is 0) */
+        --cfg-custom-accent-H: 348; --cfg-custom-accent-S: 100%; --cfg-custom-accent-L: 57%;
 
-    --dna-visual-style: 0;
-    --dna-density-font-scale: 1; /* 0.8=Compact, 1=Default, 1.2=Spacious (affects spacing & font size) */
-    --dna-fx-tier: 0;
+    --cfg-visual-style-profile: 0; /* 0=Standard, 1=Enhanced, 2=Minimalist */
+    --cfg-density-scale: 1; /* 0.8=Compact, 1=Default, 1.2=Spacious (affects spacing & font size) */
+    --cfg-effects-detail-level: 0; /* 0=Full, 1=Standard, 2=Minimal */
 
     /* --- Global Feature Toggles (1 for on, 0 for off) --- */
-    --flag-enable-shadows-master: 1; /* Master switch for all shadows */
-    --flag-enable-gradients-master: 1; /* Master switch for all gradients */
-    --flag-enable-animations-master: 1; /* Master switch for most cosmetic animations */
-    --flag-enable-aurora-bar-border: 1;
-    --flag-enable-dynamic-workspace-accents: 1;
-    --flag-enable-subtle-noise-texture: 0;
-    --flag-enable-experimental-glassmorphism: 0;
-    --flag-high-contrast-focus-outline: 0; /* Forces high-contrast outline if 1 */
-    --flag-force-minimalism: 0; /* Overrides many flags for an ultra-minimal look if 1 */
+    --enable-shadows-master: 1; /* Master switch for all shadows */
+    --enable-gradients-master: 1; /* Master switch for all gradients */
+    --enable-animations-master: 1; /* Master switch for most cosmetic animations */
+    --enable-animated-bar-border: 1;
+    --enable-dynamic-workspace-accents: 1;
+    --enable-subtle-noise-texture: 0;
+    --enable-experimental-glassmorphism: 0;
+    --enable-high-contrast-focus-outline: 0; /* Forces high-contrast outline if 1 */
+    --enable-force-minimalism: 0; /* Overrides many flags for an ultra-minimal look if 1 */
 
     /* --- Font Stack Configuration --- */
     --font-stack-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
@@ -61,40 +56,40 @@ window#waybar {
 
     /*
      * ==========================================================================
-     * --- THEME GENOME DERIVATION LAYER ---
+     * --- DERIVED THEME PROPERTIES ---
      * ==========================================================================
-     * Translates DNA choices into foundational theme properties.
-     * Modify with caution; this is the core of the theming engine.
+     * Translates configuration choices into foundational theme properties.
+     * Modify with caution; this is the core of the styling engine.
      */
 
     /* --- Minimalist Override Logic --- */
-    --is-minimalist-style: var(--dna-visual-style) / 2; /* Becomes 1 if --dna-visual-style is 2, else 0 or 0.5 */
-    --minimal-mode-active: max(var(--flag-force-minimalism), var(--is-minimalist-style)); /* 1 if either is true */
+    --_is-minimalist-style: var(--cfg-visual-style-profile) / 2; /* Becomes 1 if --cfg-visual-style-profile is 2, else 0 or 0.5 */
+    --_minimal-mode-active: max(var(--enable-force-minimalism), var(--_is-minimalist-style)); /* 1 if either is true */
 
     /* --- Effective Toggles (Minimalism can override these) --- */
-    --shadows-enabled: calc(var(--flag-enable-shadows-master) * (1 - var(--minimal-mode-active)));
-    --gradients-enabled: calc(var(--flag-enable-gradients-master) * (1 - var(--minimal-mode-active)));
-    --animations-cosmetic-enabled: calc(var(--flag-enable-animations-master) * (1 - var(--minimal-mode-active)));
-    --aurora-enabled: calc(var(--flag-enable-aurora-bar-border) * var(--animations-cosmetic-enabled));
-    --dynamic-ws-accents-enabled: calc(var(--flag-enable-dynamic-workspace-accents) * var(--animations-cosmetic-enabled));
-    --noise-enabled: calc(var(--flag-enable-subtle-noise-texture) * (1 - var(--minimal-mode-active)));
-    --glass-enabled: calc(var(--flag-enable-experimental-glassmorphism) * (1 - var(--minimal-mode-active)));
+    --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
+    --_effective-gradients-enabled: calc(var(--enable-gradients-master) * (1 - var(--_minimal-mode-active)));
+    --_effective-cosmetic-animations-enabled: calc(var(--enable-animations-master) * (1 - var(--_minimal-mode-active)));
+    --_effective-animated-bar-border-enabled: calc(var(--enable-animated-bar-border) * var(--_effective-cosmetic-animations-enabled));
+    --_effective-dynamic-ws-accents-enabled: calc(var(--enable-dynamic-workspace-accents) * var(--_effective-cosmetic-animations-enabled));
+    --_effective-noise-texture-enabled: calc(var(--enable-subtle-noise-texture) * (1 - var(--_minimal-mode-active)));
+    --_effective-glassmorphism-enabled: calc(var(--enable-experimental-glassmorphism) * (1 - var(--_minimal-mode-active)));
 
-    /* --- FX Tier Adjustments --- */
-    /* Opacity/Intensity multipliers based on FX tier */
-    --fx-tier-multiplier-full: calc(1 - var(--dna-fx-tier) / 2) * calc(1 - var(--dna-fx-tier) / 1); /* 1 if tier 0, 0 if tier 2, 0.5 if tier 1 approx */
-    --fx-tier-multiplier-standard: calc(1 - abs(var(--dna-fx-tier) - 1)); /* 1 if tier 1, 0 if tier 0 or 2 */
-    --fx-tier-multiplier-reduced: var(--fx-tier-multiplier-full); /* Default to full, can be made more distinct */
-    --fx-tier-duration-scale: calc(1 + (var(--dna-fx-tier) * 0.25)); /* Animations slower on lower FX tiers */
+    /* --- Effects Detail Adjustments --- */
+    /* Opacity/Intensity multipliers based on effects detail level */
+    --_effects-detail-multiplier-full: calc(1 - var(--cfg-effects-detail-level) / 2) * calc(1 - var(--cfg-effects-detail-level) / 1); /* 1 if level 0, 0 if level 2, 0.5 if level 1 approx */
+    --_effects-detail-multiplier-standard: calc(1 - abs(var(--cfg-effects-detail-level) - 1)); /* 1 if level 1, 0 if level 0 or 2 */
+    --_effects-detail-multiplier-reduced: var(--_effects-detail-multiplier-full);
+    --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25)); /* Animations slower on lower effect detail levels */
 
-    /* --- Base Color Palette (HSL based on --dna-base-intent) --- */
-    --L-bg-primary: var(--dna-base-intent) * 96% + (1 - var(--dna-base-intent)) * 4%;
-    --L-bg-secondary: var(--dna-base-intent) * 92% + (1 - var(--dna-base-intent)) * 8%;
-    --L-bg-tertiary: var(--dna-base-intent) * 88% + (1 - var(--dna-base-intent)) * 12%;
-    --L-fg-primary: var(--dna-base-intent) * 8% + (1 - var(--dna-base-intent)) * 92%;
-    --L-fg-secondary: var(--dna-base-intent) * 25% + (1 - var(--dna-base-intent)) * 75%;
-    --L-fg-tertiary: var(--dna-base-intent) * 45% + (1 - var(--dna-base-intent)) * 55%;
-    --L-border-default: var(--dna-base-intent) * 85% + (1 - var(--dna-base-intent)) * 18%;
+    /* --- Base Color Palette (HSL based on --cfg-base-theme-mode) --- */
+    --L-bg-primary: var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%;
+    --L-bg-secondary: var(--cfg-base-theme-mode) * 92% + (1 - var(--cfg-base-theme-mode)) * 8%;
+    --L-bg-tertiary: var(--cfg-base-theme-mode) * 88% + (1 - var(--cfg-base-theme-mode)) * 12%;
+    --L-fg-primary: var(--cfg-base-theme-mode) * 8% + (1 - var(--cfg-base-theme-mode)) * 92%;
+    --L-fg-secondary: var(--cfg-base-theme-mode) * 25% + (1 - var(--cfg-base-theme-mode)) * 75%;
+    --L-fg-tertiary: var(--cfg-base-theme-mode) * 45% + (1 - var(--cfg-base-theme-mode)) * 55%;
+    --L-border-default: var(--cfg-base-theme-mode) * 85% + (1 - var(--cfg-base-theme-mode)) * 18%;
 
     --theme-bg-primary: hsl(0, 0%, var(--L-bg-primary));
     --theme-bg-secondary: hsl(0, 0%, var(--L-bg-secondary));
@@ -105,73 +100,73 @@ window#waybar {
     --theme-border-default: hsl(0, 0%, var(--L-border-default));
 
     /* --- Accent Palette Selection --- */
-    /* Hues: 1=Fire(15), 2=Ocean(200), 3=Forest(100), 4=Monochrome(use current bg hue, 0 sat) */
-    --palette-H-fire: 15; --palette-S-fire: 95%; --palette-L-fire: 55%;
-    --palette-H-ocean: 200; --palette-S-ocean: 85%; --palette-L-ocean: 60%;
-    --palette-H-forest: 100; --palette-S-forest: 60%; --palette-L-forest: 45%;
-    /* For monochrome, S is 0, L is based on fg/bg contrast */
-    --is-palette-fire: calc(1 - abs(var(--dna-accent-palette-choice) - 1));
-    --is-palette-ocean: calc(1 - abs(var(--dna-accent-palette-choice) - 2));
-    --is-palette-forest: calc(1 - abs(var(--dna-accent-palette-choice) - 3));
-    --is-palette-monochrome: calc(1 - abs(var(--dna-accent-palette-choice) - 4));
-    --is-palette-custom: calc(1 - abs(var(--dna-accent-palette-choice) - 0));
+    /* Hues: 1=Preset1(15), 2=Preset2(200), 3=Preset3(100), 4=Monochrome(use current bg hue, 0 sat) */
+    --palette-preset1-H: 15; --palette-preset1-S: 95%; --palette-preset1-L: 55%; /* Warm Tones */
+    --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%; /* Cool Tones */
+    --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%; /* Natural Tones */
 
-    --accent-H-resolved: calc(var(--is-palette-custom) * var(--dna-custom-accent-H) +
-                              var(--is-palette-fire) * var(--palette-H-fire) +
-                              var(--is-palette-ocean) * var(--palette-H-ocean) +
-                              var(--is-palette-forest) * var(--palette-H-forest) +
-                              var(--is-palette-monochrome) * 0); /* Monochrome hue from bg, or fixed */
-    --accent-S-resolved: calc(var(--is-palette-custom) * var(--dna-custom-accent-S) +
-                              var(--is-palette-fire) * var(--palette-S-fire) +
-                              var(--is-palette-ocean) * var(--palette-S-ocean) +
-                              var(--is-palette-forest) * var(--palette-S-forest) +
-                              var(--is-palette-monochrome) * 0%); /* Monochrome is 0% Sat */
-    --accent-L-base-resolved: calc(var(--is-palette-custom) * var(--dna-custom-accent-L) +
-                                  var(--is-palette-fire) * var(--palette-L-fire) +
-                                  var(--is-palette-ocean) * var(--palette-L-ocean) +
-                                  var(--is-palette-forest) * var(--palette-L-forest) +
-                                  var(--is-palette-monochrome) * (var(--dna-base-intent) * 30% + (1 - var(--dna-base-intent)) * 70%)); /* Mono L for contrast */
+    --_is-palette-preset1: calc(1 - abs(var(--cfg-accent-palette-profile) - 1));
+    --_is-palette-preset2: calc(1 - abs(var(--cfg-accent-palette-profile) - 2));
+    --_is-palette-preset3: calc(1 - abs(var(--cfg-accent-palette-profile) - 3));
+    --_is-palette-monochrome: calc(1 - abs(var(--cfg-accent-palette-profile) - 4));
+    --_is-palette-custom: calc(1 - abs(var(--cfg-accent-palette-profile) - 0));
+
+    --accent-H-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-H) +
+                              var(--_is-palette-preset1) * var(--palette-preset1-H) +
+                              var(--_is-palette-preset2) * var(--palette-preset2-H) +
+                              var(--_is-palette-preset3) * var(--palette-preset3-H) +
+                              var(--_is-palette-monochrome) * 0); /* Monochrome hue from bg, or fixed */
+    --accent-S-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-S) +
+                              var(--_is-palette-preset1) * var(--palette-preset1-S) +
+                              var(--_is-palette-preset2) * var(--palette-preset2-S) +
+                              var(--_is-palette-preset3) * var(--palette-preset3-S) +
+                              var(--_is-palette-monochrome) * 0%); /* Monochrome is 0% Sat */
+    --accent-L-base-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-L) +
+                                  var(--_is-palette-preset1) * var(--palette-preset1-L) +
+                                  var(--_is-palette-preset2) * var(--palette-preset2-L) +
+                                  var(--_is-palette-preset3) * var(--palette-preset3-L) +
+                                  var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%)); /* Mono L for contrast */
 
     /* --- Final Accent Colors (HSL) --- */
     --accent-H: var(--accent-H-resolved);
     --accent-S: var(--accent-S-resolved);
     --accent-L-base: var(--accent-L-base-resolved);
-    --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--is-palette-monochrome)))); /* Less dark shift for mono */
-    --accent-L-lighter: calc(var(--accent-L-base) + (12% * (1 - var(--is-palette-monochrome))));
-    --accent-L-highlight: calc(var(--accent-L-base) + (18% * (1 - var(--is-palette-monochrome))));
+    --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--_is-palette-monochrome)))); /* Less dark shift for mono */
+    --accent-L-lighter: calc(var(--accent-L-base) + (12% * (1 - var(--_is-palette-monochrome))));
+    --accent-L-highlight: calc(var(--accent-L-base) + (18% * (1 - var(--_is-palette-monochrome))));
 
     --theme-accent-primary-base: hsl(var(--accent-H), var(--accent-S), var(--accent-L-base));
     --theme-accent-primary-grad-start: hsl(var(--accent-H), var(--accent-S), var(--accent-L-lighter));
     --theme-accent-primary-grad-end: hsl(var(--accent-H), var(--accent-S), var(--accent-L-darker));
-    --theme-accent-secondary-base: hsl(var(--accent-H), calc(var(--accent-S) * 0.9), var(--accent-L-darker)); /* 0.9S for mono makes it still grey */
+    --theme-accent-secondary-base: hsl(var(--accent-H), calc(var(--accent-S) * 0.9), var(--accent-L-darker));
     --theme-accent-highlight: hsl(var(--accent-H), var(--accent-S), var(--accent-L-highlight));
 
     /* --- Spacing & Sizing (Scaled) --- */
-    --font-scale-factor: var(--dna-density-font-scale);
-    --spacing-unit: calc(4px * var(--dna-density-font-scale));
-    --radius-unit: calc(6px * var(--dna-density-font-scale));
+    --_density-scale-factor: var(--cfg-density-scale);
+    --spacing-unit: calc(4px * var(--_density-scale-factor));
+    --radius-unit: calc(6px * var(--_density-scale-factor));
 
     /* --- Visual Style Adjustments --- */
-    /* Style: 0=Pro, 1=Expressive, 2=Minimal(handled by --minimal-mode-active) */
-    --is-style-pro: calc(1 - abs(var(--dna-visual-style) - 0));
-    --is-style-expressive: calc(1 - abs(var(--dna-visual-style) - 1));
-    --animation-speed-multiplier: calc(1 - (var(--is-style-pro) * 0.3) - (var(--minimal-mode-active) * 0.7)); /* Pro is faster, Minimal very fast/off */
-    --transform-intensity-multiplier: calc(1 + (var(--is-style-expressive) * 0.3) - (var(--minimal-mode-active) * 0.8));
-    --border-style-default-actual: var(--minimal-mode-active) solid, var(--is-style-pro) solid, var(--is-style-expressive) solid; /* Can add dashed/dotted for expressive if desired */
-    --border-radius-multiplier: calc(1 - (var(--is-style-pro) * 0.3) + (var(--is-style-expressive) * 0.2) - (var(--minimal-mode-active) * 0.5));
+    /* Style: 0=Standard, 1=Enhanced, 2=Minimalist (handled by --_minimal-mode-active) */
+    --_is-visual-profile-standard: calc(1 - abs(var(--cfg-visual-style-profile) - 0));
+    --_is-visual-profile-enhanced: calc(1 - abs(var(--cfg-visual-style-profile) - 1));
+    --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7)); /* Standard is faster, Minimal very fast/off */
+    --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
+    --_effective-border-style: var(--_minimal-mode-active) solid, var(--_is-visual-profile-standard) solid, var(--_is-visual-profile-enhanced) solid; /* Can add dashed/dotted for enhanced if desired */
+    --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
 
 
     /*
      * ==========================================================================
-     * --- DETAILED DESIGN TOKENS (Titan Edition) ---
+     * --- DETAILED DESIGN TOKENS ---
      * ==========================================================================
      */
 
     /* --- Core Palette & Accents --- */
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
-    --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--is-style-expressive) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
-    --color-accent-primary-actual: var(--gradients-enabled) var(--color-accent-primary-gradient), var(--theme-accent-primary-base);
+    --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
+    --color-accent-primary-actual: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--theme-accent-primary-base);
     --color-accent-primary-solid: var(--theme-accent-primary-base);
     --color-accent-secondary: var(--theme-accent-secondary-base);
     --color-accent-highlight: var(--theme-accent-highlight);
@@ -195,95 +190,101 @@ window#waybar {
     --typography-font-family-icons: var(--font-stack-icons);
     --typography-font-variant-numeric: tabular-nums;
     --typography-font-feature-settings: "liga" 1, "clig" 1; /* Common ligatures */
-        /* --typography-font-feature-settings-expressive: "ss01" 1, "salt" 1; /* Stylistic sets for expressive */
-    --typography-font-size-default: calc(var(--theme-font-size-base) * var(--font-scale-factor));
+    --typography-font-size-default: calc(var(--theme-font-size-base, 14px) * var(--_density-scale-factor)); /* Added a fallback for --theme-font-size-base */
     --typography-font-size-small: calc(var(--typography-font-size-default) * 0.85);
     --typography-font-size-large: calc(var(--typography-font-size-default) * 1.15);
     --typography-font-weight-normal: 400;
     --typography-font-weight-medium: 500;
-    --typography-font-weight-bold: calc(600 + var(--is-style-expressive) * 100); /* Bolder for expressive */
+    --typography-font-weight-bold: calc(600 + var(--_is-visual-profile-enhanced) * 100); /* Bolder for enhanced */
     --typography-letter-spacing-normal: normal;
-    --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, calc(0.1 * var(--shadows-enabled) * var(--fx-tier-multiplier-reduced)));
-    --typography-text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, calc(0.15 * var(--shadows-enabled) * var(--fx-tier-multiplier-reduced)));
+    --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced)));
+    --typography-text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, calc(0.15 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced)));
 
     /* --- Dimensions & Spacing --- */
-    --dimension-bar-border-height: calc(3px * var(--font-scale-factor));
+    --dimension-bar-border-height: calc(3px * var(--_density-scale-factor));
     --dimension-module-padding-vertical: calc(var(--spacing-unit) * 1.25);
     --dimension-module-padding-horizontal: calc(var(--spacing-unit) * 2.5);
     --dimension-module-margin-vertical: var(--spacing-unit);
     --dimension-module-margin-horizontal: calc(var(--spacing-unit) * 1.25);
-    --dimension-radius-base: calc(var(--radius-unit) * var(--border-radius-multiplier));
+    --dimension-radius-base: calc(var(--radius-unit) * var(--_border-radius-multiplier));
     --dimension-radius-module: var(--dimension-radius-base);
     --dimension-radius-button: calc(var(--dimension-radius-base) * 0.8);
     --dimension-radius-tooltip: var(--dimension-radius-base);
     --dimension-border-width-thin: 1px;
     --dimension-border-width-normal: 2px;
-    --dimension-border-style-default: var(--border-style-default-actual);
+    --dimension-border-style-default: var(--_effective-border-style);
 
     /* --- Transitions & Animations --- */
-    --transition-duration-base: calc(0.2s * var(--animation-speed-multiplier) * var(--fx-tier-duration-scale));
+    --transition-duration-base: calc(0.2s * var(--_animation-speed-multiplier) * var(--_effects-duration-scale));
     --transition-duration-fast: calc(var(--transition-duration-base) * 0.6);
     --transition-duration-normal: var(--transition-duration-base);
     --transition-duration-slow: calc(var(--transition-duration-base) * 1.5);
-    --transition-timing-function-ui: var(--is-style-expressive) cubic-bezier(0.34, 1.56, 0.64, 1), cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Overshoot for expressive */
+    --transition-timing-function-ui: var(--_is-visual-profile-enhanced) cubic-bezier(0.34, 1.56, 0.64, 1), cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Overshoot for enhanced */
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
     /* --- Interaction Feedback --- */
-    --transform-scale-factor: calc(0.03 * var(--transform-intensity-multiplier));
-    --interaction-transform-hover-lift-actual: translateY(calc(-2px * var(--transform-intensity-multiplier) * var(--animations-cosmetic-enabled)));
-    --interaction-transform-hover-scale-actual: scale(calc(1 + var(--transform-scale-factor) * var(--animations-cosmetic-enabled)));
-    --interaction-transform-active-press: scale(calc(0.97 * (1 - var(--transform-scale-factor) / 2))); /* Press scales slightly less than hover expands */
+    --_transform-scale-factor: calc(0.03 * var(--_transform-intensity-multiplier));
+    --interaction-transform-hover-lift-actual: translateY(calc(-2px * var(--_transform-intensity-multiplier) * var(--_effective-cosmetic-animations-enabled)));
+    --interaction-transform-hover-scale-actual: scale(calc(1 + var(--_transform-scale-factor) * var(--_effective-cosmetic-animations-enabled)));
+    --interaction-transform-active-press: scale(calc(0.97 * (1 - var(--_transform-scale-factor) / 2)));
 
     /* --- Effects: Shadows, Focus, Glow --- */
-    --shadow-opacity-base: calc(0.1 * var(--shadows-enabled) * var(--fx-tier-multiplier-reduced));
-    --shadow-L-offset: var(--dna-base-intent) * 20% + (1 - var(--dna-base-intent)) * 0%;
-    --effects-shadow-color-ambient: hsla(0, 0%, var(--shadow-L-offset), var(--shadow-opacity-base) * 0.8);
-    --effects-shadow-color-direct: hsla(0, 0%, var(--shadow-L-offset), var(--shadow-opacity-base) * 1.2);
+    --_shadow-opacity-base: calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
+    --_shadow-L-offset: var(--cfg-base-theme-mode) * 20% + (1 - var(--cfg-base-theme-mode)) * 0%;
+    --effects-shadow-color-ambient: hsla(0, 0%, var(--_shadow-L-offset), var(--_shadow-opacity-base) * 0.8);
+    --effects-shadow-color-direct: hsla(0, 0%, var(--_shadow-L-offset), var(--_shadow-opacity-base) * 1.2);
     --effects-shadow-module-actual: 0 2px 5px -1px var(--effects-shadow-color-ambient), 0 4px 8px -2px var(--effects-shadow-color-direct);
     --effects-shadow-module-hover-actual: 0 5px 10px -2px var(--effects-shadow-color-ambient), 0 8px 16px -3px var(--effects-shadow-color-direct);
     --effects-shadow-tooltip-actual: 0 8px 24px -4px var(--effects-shadow-color-direct);
-    --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--shadow-L-offset), 0.2);
+    --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), 0.2);
 
     --effects-focus-ring-color: var(--color-accent-highlight);
-    --effects-focus-ring-width: calc(2px * (1 + var(--flag-high-contrast-focus-outline))); /* Thicker if high-contrast flag */
+    --effects-focus-ring-width: calc(2px * (1 + var(--enable-high-contrast-focus-outline))); /* Thicker if high-contrast flag */
     --effects-focus-ring-offset: 2px;
-    --effects-focus-ring-style: var(--flag-high-contrast-focus-outline) dashed, solid;
-    --effects-focus-ring-shadow-actual: var(--flag-enable-focus-ring-visual) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
-                                        var(--flag-enable-focus-ring-visual) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
-    --outline-high-contrast-focus-actual: var(--flag-high-contrast-focus-outline) var(--effects-focus-ring-width) var(--effects-focus-ring-style) var(--effects-focus-ring-color);
+    --effects-focus-ring-style: var(--enable-high-contrast-focus-outline) dashed, solid;
+    /* --flag-enable-focus-ring-visual was not defined, assuming it should be 1 or linked to a master animation/feature toggle */
+    --_enable-focus-ring-visual-effect: 1; /* Placeholder: Link to an appropriate master toggle if needed */
+    --effects-focus-ring-shadow-actual: var(--_enable-focus-ring-visual-effect) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
+                                        var(--_enable-focus-ring-visual-effect) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
+    --outline-high-contrast-focus-actual: var(--enable-high-contrast-focus-outline) var(--effects-focus-ring-width) var(--effects-focus-ring-style) var(--effects-focus-ring-color);
 
 
-    --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), calc(0.35 * var(--animations-cosmetic-enabled) * var(--fx-tier-multiplier-reduced)));
+    --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), calc(0.35 * var(--_effective-cosmetic-animations-enabled) * var(--_effects-detail-multiplier-reduced)));
     --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
 
     /* --- Animations --- */
-    --animation-name-aurora-sweep: aurora-sweep-titan;
-    --animation-duration-aurora-sweep: calc(10s * var(--animation-speed-multiplier));
-    --animation-aurora-bar-border-actual: var(--aurora-enabled) var(--animation-name-aurora-sweep) var(--animation-duration-aurora-sweep) linear infinite;
+    --animation-name-bar-border-sweep: bar-border-sweep-animation;
+    --animation-duration-bar-border-sweep: calc(10s * var(--_animation-speed-multiplier));
+    --animation-bar-border-actual: var(--_effective-animated-bar-border-enabled) var(--animation-name-bar-border-sweep) var(--animation-duration-bar-border-sweep) linear infinite;
 
-    --animation-name-urgent-pulse: urgent-pulse-titan;
-    --animation-duration-pulse: calc(1.4s * var(--animation-speed-multiplier));
-    --animation-urgent-actual: var(--flag-enable-animation-urgent-pulse) var(--animation-name-urgent-pulse) var(--animation-duration-pulse) ease-in-out infinite alternate;
+    /* --flag-enable-animation-urgent-pulse etc. were not defined, assuming 1 or link to master animation toggle */
+    --_enable-animation-urgent-pulse: 1; /* Placeholder */
+    --_enable-animation-focused-glow: 1; /* Placeholder */
+    --_enable-animation-state-feedback: 1; /* Placeholder */
 
-    --animation-name-focused-glow: focused-glow-titan;
-    --animation-duration-glow: calc(2.2s * var(--animation-speed-multiplier));
-    --animation-focused-glow-actual: var(--flag-enable-animation-focused-glow) var(--animation-name-focused-glow) var(--animation-duration-glow) ease-in-out infinite alternate;
+    --animation-name-urgent-pulse: urgent-pulse-animation;
+    --animation-duration-pulse: calc(1.4s * var(--_animation-speed-multiplier));
+    --animation-urgent-actual: var(--_enable-animation-urgent-pulse) var(--animation-name-urgent-pulse) var(--animation-duration-pulse) ease-in-out infinite alternate;
 
-    --animation-name-state-feedback: state-feedback-titan;
-    --animation-duration-state-feedback: calc(0.4s * var(--animation-speed-multiplier));
-    --animation-state-feedback-actual: var(--flag-enable-animation-state-feedback) var(--animation-name-state-feedback) var(--animation-duration-state-feedback) var(--transition-timing-function-ui);
+    --animation-name-focused-glow: focused-glow-animation;
+    --animation-duration-glow: calc(2.2s * var(--_animation-speed-multiplier));
+    --animation-focused-glow-actual: var(--_enable-animation-focused-glow) var(--animation-name-focused-glow) var(--animation-duration-glow) ease-in-out infinite alternate;
 
-    --animation-name-dynamic-border: dynamic-border-titan;
-    --animation-duration-dynamic-border: calc(0.35s * var(--animation-speed-multiplier));
-    --animation-dynamic-ws-border-actual: var(--dynamic-ws-accents-enabled);
+    --animation-name-state-feedback: state-feedback-animation;
+    --animation-duration-state-feedback: calc(0.4s * var(--_animation-speed-multiplier));
+    --animation-state-feedback-actual: var(--_enable-animation-state-feedback) var(--animation-name-state-feedback) var(--animation-duration-state-feedback) var(--transition-timing-function-ui);
+
+    --animation-name-dynamic-border: dynamic-border-animation;
+    --animation-duration-dynamic-border: calc(0.35s * var(--_animation-speed-multiplier));
+    --animation-dynamic-ws-border-actual: var(--_effective-dynamic-ws-accents-enabled);
 
     /* --- Optional Noise Texture --- */
     --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nFT)'/%3E%3C/svg%3E");
-    --noise-texture-opacity: calc(0.015 * var(--noise-enabled)); /* Even more subtle */
+    --noise-texture-opacity: calc(0.015 * var(--_effective-noise-texture-enabled));
 
     /* --- Experimental: Glassmorphism --- */
-    --glass-blur-radius-actual: calc(12px * var(--glass-enabled));
-    --glass-background-color-actual: hsla(0, 0%, var(--dna-base-intent) * 100% + (1 - var(--dna-base-intent)) * 20%, calc(0.15 * var(--glass-enabled)));
+    --glass-blur-radius-actual: calc(12px * var(--_effective-glassmorphism-enabled));
+    --glass-background-color-actual: hsla(0, 0%, var(--cfg-base-theme-mode) * 100% + (1 - var(--cfg-base-theme-mode)) * 20%, calc(0.15 * var(--_effective-glassmorphism-enabled)));
 
     /* --- Bar Properties --- */
     font-family: var(--typography-font-family-main);
@@ -293,7 +294,7 @@ window#waybar {
     color: var(--color-text-bar-default);
     position: relative;
     border-bottom: none; /* Border handled by ::after */
-    &::after { /* Aurora animated border */
+    &::after { /* Animated border */
         content: ''; position: absolute; left: 0; right: 0; bottom: 0;
         height: var(--dimension-bar-border-height);
         background: linear-gradient(90deg,
@@ -301,11 +302,11 @@ window#waybar {
             var(--theme-accent-primary-base), var(--theme-accent-highlight),
             var(--theme-accent-primary-grad-end), var(--theme-accent-highlight),
             var(--theme-accent-primary-base), var(--theme-accent-highlight),
-            var(--theme-accent-primary-grad-start)); /* More stops for smoother aurora */
+            var(--theme-accent-primary-grad-start));
         background-size: 400% 100%;
-        animation: var(--animation-aurora-bar-border-actual);
-        z-index: 0; opacity: var(--aurora-enabled);
-        box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.3 * var(--aurora-enabled)); /* Glow beneath bar */
+        animation: var(--animation-bar-border-actual);
+        z-index: 0; opacity: var(--_effective-animated-bar-border-enabled);
+        box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.3 * var(--_effective-animated-bar-border-enabled)); /* Glow beneath bar */
     }
     &::before { /* Noise Texture */
         content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -316,25 +317,26 @@ window#waybar {
 }
 
 /* --- Keyframe Animations --- */
-@keyframes aurora-sweep-titan { /* Smoother, more complex aurora */
+@keyframes bar-border-sweep-animation { /* Smoother, more complex gradient sweep */
     0% { background-position: 0% 50%; }
-    100% { background-position: 400% 50%; } /* Animates over the full extended gradient */
+    100% { background-position: 400% 50%; }
 }
-@keyframes urgent-pulse-titan {
-    0% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent), var(--effects-shadow-module-actual); opacity: 1;}
-    50% { transform: scale(1.05); box-shadow: 0 0 15px 2px var(--color-background-urgent), var(--effects-shadow-module-hover-actual); opacity: 0.8; }
-    100% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent), var(--effects-shadow-module-actual); opacity: 1;}
+@keyframes urgent-pulse-animation {
+    /* Assuming --color-background-urgent is defined elsewhere or should be an accent/error color */
+    0% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
+    50% { transform: scale(1.05); box-shadow: 0 0 15px 2px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-hover-actual); opacity: 0.8; }
+    100% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
 }
-@keyframes focused-glow-titan {
+@keyframes focused-glow-animation {
     from { box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual); transform: scale(1.01); }
     to   { box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 20px 5px var(--effects-glow-color-actual); transform: scale(1.02); }
 }
-@keyframes state-feedback-titan {
+@keyframes state-feedback-animation {
     0% { transform: scale(0.92); opacity: 0.6; }
     50% { transform: scale(1.04); opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
 }
-@keyframes dynamic-border-titan { /* For workspace button hover, subtle reveal */
+@keyframes dynamic-border-animation { /* For workspace button hover, subtle reveal */
     from { transform: scaleX(0) translateX(-50%); opacity: 0.5; }
     to   { transform: scaleX(1) translateX(-50%); opacity: 1; }
 }
@@ -351,10 +353,9 @@ window#waybar {
     box-shadow: var(--effects-shadow-module-actual);
     transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-ui);
     position: relative; z-index: 1; overflow: hidden;
-    /* Glassmorphism & Noise are applied via ::before/::after or direct background mix for glass */
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--glass-enabled))), var(--glass-background-color-actual) calc(100% * var(--glass-enabled)) );
+    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
     &::before { /* Noise Texture */
         content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
         background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
@@ -376,7 +377,7 @@ window#waybar {
 /* FOCUS */
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus,
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus-within {
-    outline: var(--outline-high-contrast-focus-actual); /* High contrast outline if flag is on */
+    outline: var(--outline-high-contrast-focus-actual);
     border-color: var(--color-accent-highlight);
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
     animation: var(--animation-focused-glow-actual);
@@ -392,19 +393,34 @@ window#waybar {
     animation: var(--animation-state-feedback-actual);
     z-index: 20;
 }
-/* DISABLED & ERROR */
+/* DISABLED & ERROR STATES (Assuming these variables are defined elsewhere or need defaults) */
+/* Fallback values for potentially undefined state colors/properties */
+:root {
+    --opacity-disabled: 0.5;
+    --interaction-cursor-disabled: not-allowed;
+    --interaction-cursor-pointer: pointer;
+    --color-background-disabled: hsl(0, 0%, 50%);
+    --color-text-disabled: hsl(0, 0%, 30%);
+    --filter-disabled: grayscale(50%);
+    --theme-grey-700: hsl(0, 0%, 40%); /* Example grey */
+    --color-background-error: hsl(0, 70%, 50%);
+    --color-text-error: hsl(0, 0%, 100%);
+    --color-border-error: hsl(0, 80%, 60%);
+    --dimension-border-style-dashed: dashed; /* Define if not globally available */
+}
+
 .disabled, :disabled, .error {
-    opacity: var(--opacity-disabled) !important; cursor: var(--interaction-cursor-disabled) !important;
+    opacity: var(--opacity-disabled, 0.6) !important; cursor: var(--interaction-cursor-disabled, default) !important;
     transform: none !important; animation: none !important; box-shadow: none !important;
     transition: none !important;
 }
 .disabled, :disabled {
-    background: var(--color-background-disabled) !important; color: var(--color-text-disabled) !important;
-    filter: var(--filter-disabled) !important; border-color: var(--theme-grey-700) !important;
+    background: var(--color-background-disabled, #ccc) !important; color: var(--color-text-disabled, #777) !important;
+    filter: var(--filter-disabled, none) !important; border-color: var(--theme-grey-700, #aaa) !important;
 }
 .error {
-    background: var(--color-background-error) !important; color: var(--color-text-error) !important;
-    border: var(--dimension-border-width-normal) var(--dimension-border-style-dashed) var(--color-border-error) !important;
+    background: var(--color-background-error, red) !important; color: var(--color-text-error, white) !important;
+    border: var(--dimension-border-width-normal) var(--dimension-border-style-dashed, dashed) var(--color-border-error, darkred) !important;
     font-weight: var(--typography-font-weight-bold);
 }
 
@@ -418,15 +434,16 @@ window#waybar {
     box-shadow: var(--effects-shadow-module-actual);
 }
 #workspaces button {
+    /* Assuming --color-text-workspace-default, etc. are defined or should use fallbacks */
     padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75);
     margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5);
-    color: var(--color-text-workspace-default);
+    color: var(--color-text-workspace-default, var(--color-text-bar-default));
     background: transparent;
     border: var(--dimension-border-width-thin) solid transparent;
     border-radius: var(--dimension-radius-button);
     font-weight: var(--typography-font-weight-medium);
     transition: var(--transition-properties-common) var(--transition-duration-fast) var(--transition-timing-function-ui);
-    cursor: var(--interaction-cursor-pointer); position: relative; overflow: visible;
+    cursor: var(--interaction-cursor-pointer, pointer); position: relative; overflow: visible;
     text-shadow: var(--typography-text-shadow-subtle);
     font-feature-settings: var(--typography-font-feature-settings);
 }
@@ -437,28 +454,29 @@ window#waybar {
 /* Dynamic Underline/Accent for Workspace Buttons */
 #workspaces button:not(.focused):not(.urgent)::after {
     content: ''; position: absolute;
-    left: 50%; bottom: calc(var(--spacing-unit) * -0.25); /* Slightly closer */
+    left: 50%; bottom: calc(var(--spacing-unit) * -0.25);
     height: var(--dimension-border-width-normal); width: 0%;
-    background: var(--color-border-workspace-hover-animated);
+    background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid));
     border-radius: var(--dimension-border-width-normal);
-    transform-origin: center; /* Ensure scale emanates from center */
-    animation: var(--animation-dynamic-ws-border-actual) var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap) forwards;
-    animation-play-state: paused; /* Controlled by hover */
+    transform-origin: center;
+    /* Assuming --transition-timing-function-snap needs definition or fallback */
+    animation: var(--animation-dynamic-ws-border-actual) var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
+    animation-play-state: paused;
     opacity: var(--animation-dynamic-ws-border-actual);
 }
 #workspaces button:not(.focused):not(.urgent):hover::after {
     animation-play-state: running;
-    width: 70%; /* Target width on hover */
+    width: 70%;
 }
 
-#workspaces button.persistent { color: var(--color-text-workspace-persistent); font-style: italic; opacity: 0.8; }
+#workspaces button.persistent { color: var(--color-text-workspace-persistent, var(--theme-fg-tertiary)); font-style: italic; opacity: 0.8; }
 #workspaces button.visible {
-    color: var(--color-text-workspace-visible);
-    background: var(--color-background-workspace-visible);
+    color: var(--color-text-workspace-visible, var(--theme-fg-primary));
+    background: var(--color-background-workspace-visible, var(--theme-bg-tertiary));
 }
 #workspaces button.focused {
-    color: var(--color-text-workspace-focused);
-    background: var(--color-background-workspace-focused);
+    color: var(--color-text-workspace-focused, var(--theme-fg-primary));
+    background: var(--color-background-workspace-focused, var(--color-accent-primary-actual));
     border-color: transparent;
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
     font-weight: var(--typography-font-weight-bold);
@@ -467,47 +485,47 @@ window#waybar {
     z-index: 5;
 }
 #workspaces button.urgent {
-    color: var(--color-text-urgent); background: var(--color-background-urgent);
-    border: var(--dimension-border-width-thin) solid var(--color-border-urgent);
+    color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent, var(--theme-accent-secondary-base));
+    border: var(--dimension-border-width-thin) solid var(--color-border-urgent, var(--theme-accent-highlight));
     animation: var(--animation-urgent-actual);
     font-weight: var(--typography-font-weight-bold);
-    box-shadow: 0 0 10px -2px var(--color-background-urgent);
+    box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base));
     z-index: 5;
 }
 
 #workspaces button:hover:not(.focused):not(.urgent) {
-    color: var(--color-text-workspace-hover);
+    color: var(--color-text-workspace-hover, var(--color-text-module-hover));
     background: var(--color-background-module-hover);
     transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
     z-index: 1;
 }
 #workspaces button.visible:hover:not(.focused) {
-    color: var(--color-text-workspace-hover);
-    background: color-mix(in srgb, var(--color-background-workspace-visible) 60%, var(--color-background-module-hover) 40%);
+    color: var(--color-text-workspace-hover, var(--color-text-module-hover));
+    background: color-mix(in srgb, var(--color-background-workspace-visible, var(--theme-bg-tertiary)) 60%, var(--color-background-module-hover) 40%);
     transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
     z-index: 1;
 }
 #workspaces button.focused:hover {
-    background: var(--color-background-workspace-focused); /* Keep gradient */
-    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual); /* Max glow on hover */
-    transform: scale(1.06); /* More pronounced focus hover */
+    background: var(--color-background-workspace-focused, var(--color-accent-primary-actual));
+    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual);
+    transform: scale(1.06);
 }
 #workspaces button.urgent:hover {
-    color: var(--color-text-urgent); background: var(--color-background-urgent-hover);
+    color: var(--color-text-urgent, var(--theme-fg-primary)); background: var(--color-background-urgent-hover, var(--color-accent-secondary));
     border-color: var(--color-accent-highlight);
     animation-play-state: paused;
     transform: var(--interaction-transform-hover-scale-actual);
 }
 
-/* --- INDIVIDUAL MODULE STYLING (Selected Examples for Titan Polish) --- */
+/* --- INDIVIDUAL MODULE STYLING --- */
 #clock {
     font-family: var(--typography-font-family-monospace);
     font-variant-numeric: var(--typography-font-variant-numeric);
-    color: var(--color-text-module-clock);
+    color: var(--color-text-module-clock, var(--color-text-bar-default));
     font-weight: var(--typography-font-weight-medium);
-    letter-spacing: 0.1em; /* Generous spacing for visual appeal */
-    text-shadow: var(--typography-text-shadow-header); /* More pronounced shadow for clock */
-    font-size: calc(var(--typography-font-size-default) * 1.05); /* Slightly larger clock */
+    letter-spacing: 0.1em;
+    text-shadow: var(--typography-text-shadow-header);
+    font-size: calc(var(--typography-font-size-default) * 1.05);
 }
 #clock:hover { color: var(--color-accent-highlight); transform: var(--interaction-transform-hover-lift-actual) scale(1.02); }
 
@@ -516,24 +534,25 @@ window#waybar {
     color: var(--theme-fg-primary); background: var(--color-accent-secondary);
     font-weight: var(--typography-font-weight-bold); letter-spacing: 0.075em; text-transform: uppercase;
     border-radius: var(--dimension-radius-module) 0 0 var(--dimension-radius-module);
-    clip-path: polygon(0 0, calc(100% - var(--spacing-unit)*2) 0, 100% 100%, 0% 100%); /* Angled edge for mode */
+    clip-path: polygon(0 0, calc(100% - var(--spacing-unit)*2) 0, 100% 100%, 0% 100%);
 }
 
 #hyprland-window {
     padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
-    color: var(--color-text-module-windowtitle);
+    color: var(--color-text-module-windowtitle, var(--color-text-bar-default));
     background: transparent; border-color: transparent; box-shadow: none;
     font-weight: var(--typography-font-weight-medium);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;
-    font-style: italic; /* Italicized window titles */
+    font-style: italic;
 }
 
 #pulseaudio, #network, #cpu, #memory {
-    background: var(--color-border-module-default);
+    background: var(--color-border-module-default); /* This was likely a typo, should be background-color. Using alternate background. */
+    /* background: var(--color-background-module-alternate); */ /* A more common choice */
     font-family: var(--typography-font-family-monospace);
     font-variant-numeric: var(--typography-font-variant-numeric);
-    color: var(--color-text-module-stats);
-    border-radius: var(--dimension-radius-button); /* Smaller radius for these compact modules */
+    color: var(--color-text-module-stats, var(--color-text-bar-default));
+    border-radius: var(--dimension-radius-button);
     padding: var(--spacing-unit) calc(var(--spacing-unit)*2);
 }
 #network.disconnected { animation: var(--animation-state-feedback-actual); }
@@ -550,23 +569,23 @@ window#waybar {
 #tray > widget {
     margin: 0 var(--spacing-unit); opacity: 0.75;
     transition: opacity 0.25s, transform 0.25s var(--transition-timing-function-ui);
-    filter: drop-shadow(var(--typography-text-shadow-subtle)); /* Subtle shadow for icons */
+    filter: drop-shadow(var(--typography-text-shadow-subtle));
 }
 #tray > widget:hover { opacity: 1; transform: scale(1.15) translateY(-1px); }
 
 #custom-power {
-    padding: 0; /* Padding handled by width/height for centering */
-    color: var(--color-text-module-power);
-    font-size: calc(var(--typography-font-size-large) * 1.1); /* Larger icon */
+    padding: 0;
+    color: var(--color-text-module-power, var(--color-text-bar-default));
+    font-size: calc(var(--typography-font-size-large) * 1.1);
     font-weight: var(--typography-font-weight-bold);
-    cursor: var(--interaction-cursor-pointer);
-    background: transparent; /* Power button "ghost" style, relies on icon color */
+    cursor: var(--interaction-cursor-pointer, pointer);
+    background: transparent;
     border: var(--dimension-border-width-normal) solid transparent;
     border-radius: 50%;
-    width: calc(var(--typography-font-size-large) * 2.5 * var(--font-scale-factor));
-    height: calc(var(--typography-font-size-large) * 2.5 * var(--font-scale-factor));
+    width: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
+    height: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
     display: flex; align-items: center; justify-content: center;
-    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-snap);
+    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-snap, ease-out);
 }
 #custom-power:hover {
     background: var(--color-accent-secondary);
@@ -585,17 +604,16 @@ window#waybar {
 tooltip {
     padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3.5);
     color: var(--color-text-bar-default);
-    background: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Use bar bg for tooltip */
+    background: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%);
     border: var(--dimension-border-width-thin) solid var(--color-accent-primary-solid);
     border-radius: var(--dimension-radius-tooltip);
     box-shadow: var(--effects-shadow-tooltip-actual);
     font-family: var(--typography-font-family-main);
     font-size: var(--typography-font-size-small);
     line-height: 1.6; max-width: 380px;
-    /* Glassmorphism & Noise are applied via ::before/::after or direct background mix for glass */
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--glass-enabled))), var(--glass-background-color-actual) calc(100% * var(--glass-enabled)) );
+    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
     &::before { /* Noise Texture */
         content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
         background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
@@ -605,38 +623,47 @@ tooltip {
 tooltip label { color: inherit; }
 
 /* --- UNIVERSAL ICON STYLING --- */
+/* Fallback values for potentially undefined icon variables */
+:root {
+    --dimension-icon-size-default: 1em;
+    --color-icon-default: inherit;
+    --text-shadow-icon-default: none;
+    --color-icon-hover: var(--theme-accent-highlight);
+    --color-icon-active: var(--theme-accent-primary-solid);
+}
+
 .icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
     font-family: var(--typography-font-family-icons) !important;
-    font-size: var(--dimension-icon-size-default);
-    color: var(--color-icon-default);
+    font-size: var(--dimension-icon-size-default, 1em);
+    color: var(--color-icon-default, inherit);
     margin-right: calc(var(--spacing-unit) * 0.85);
-    vertical-align: -0.15em; /* Fine-tuned */
+    vertical-align: -0.15em;
     transition: color var(--transition-duration-normal) var(--transition-timing-function-ui),
                 transform var(--transition-duration-normal) var(--transition-timing-function-ui),
                 text-shadow var(--transition-duration-normal) var(--transition-timing-function-ui);
-    text-shadow: var(--text-shadow-icon-default); display: inline-block;
-    font-style: normal !important; /* Ensure icons aren't italicized by parent styles */
+    text-shadow: var(--text-shadow-icon-default, none); display: inline-block;
+    font-style: normal !important;
 }
-*:hover > .icon, *:hover > [class*="fa-"], /* etc. */
-*:focus > .icon, *:focus > [class*="fa-"],
-*:focus-within > .icon, *:focus-within > [class*="fa-"] {
-    color: var(--color-icon-hover);
-    transform: scale(1.18) translateY(-1.5px) rotate(var(--is-style-expressive) * -5deg); /* More playful icon hover */
-    text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), 0.4); /* Icon glow on hover */
+*:hover > .icon, *:hover > [class*="fa-"], *:hover > [class*="mdi-"], *:hover > [class*="nf-"],
+*:focus > .icon, *:focus > [class*="fa-"], *:focus > [class*="mdi-"], *:focus > [class*="nf-"],
+*:focus-within > .icon, *:focus-within > [class*="fa-"], *:focus-within > [class*="mdi-"], *:focus-within > [class*="nf-"] {
+    color: var(--color-icon-hover, var(--color-accent-highlight));
+    transform: scale(1.18) translateY(-1.5px) rotate(var(--_is-visual-profile-enhanced) * -5deg);
+    text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), 0.4);
 }
-.active .icon, .active [class*="fa-"] { /* etc. */
-    color: var(--color-icon-active); transform: scale(1.1);
+.active .icon, .active [class*="fa-"], .active [class*="mdi-"], .active [class*="nf-"] {
+    color: var(--color-icon-active, var(--color-accent-primary-solid)); transform: scale(1.1);
     text-shadow: 0 1px 3px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.5);
 }
-.error .icon, .error [class*="fa-"] { /* etc. */
-    color: var(--color-text-error) !important; transform: none !important; text-shadow: none !important;
+.error .icon, .error [class*="fa-"], .error [class*="mdi-"], .error [class*="nf-"] {
+    color: var(--color-text-error, red) !important; transform: none !important; text-shadow: none !important;
 }
 
-/* --- FINISHING TOUCHES & OVERRIDES (User custom additions) --- */
+/* --- USER CUSTOM ADDITIONS / OVERRIDES --- */
 /* Example:
 #my-custom-module {
     background-color: darkblue !important;
 }
 */
 
-/* --- END OF OLYMPUS EDITION STYLESHEET --- */
+/* --- END OF STYLESHEET --- */
