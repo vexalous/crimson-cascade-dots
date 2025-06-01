@@ -13,7 +13,7 @@
     min-height: 0; padding: 0; margin: 0;
     font-family: sans-serif; font-size: 14px; font-weight: normal;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+    /* text-rendering: optimizeLegibility; */ /* Commented out as a test, might be problematic for Waybar's parser */
 }
 *::before,
 *::after {
@@ -37,9 +37,6 @@ window#waybar {
 
     /*
      * --- Global Feature Toggles (1 for on, 0 for off) ---
-     * These --enable-* flags control major visual features.
-     * --enable-force-minimalism: If set to 1, this toggle overrides several other
-     * feature flags to enforce a very basic appearance.
      */
     --enable-shadows-master: 1;
     --enable-gradients-master: 1;
@@ -48,7 +45,7 @@ window#waybar {
     --enable-dynamic-workspace-accents: 1;
     --enable-subtle-noise-texture: 0;
     --enable-experimental-glassmorphism: 0;
-    --enable-high-contrast-focus-outline: 0; /* This is the key flag for conditional outline/shadow */
+    --enable-high-contrast-focus-outline: 0;
     --enable-force-minimalism: 0;
 
     /* --- Font Stack Configuration --- */
@@ -63,8 +60,10 @@ window#waybar {
      */
 
     /* --- Minimalist Override Logic --- */
-    --_is-minimalist-style: calc(var(--cfg-visual-style-profile) / 2);
-    --_minimal-mode-active: max(var(--enable-force-minimalism), var(--_is-minimalist-style));
+    --_is-minimalist-style: calc(var(--cfg-visual-style-profile) / 2); /* 0, 0.5, or 1 */
+    /* Replaced max(A,B) with calc for A=0/1 flag taking precedence: A if A=1, else B */
+    --_minimal-mode-active: calc( (var(--enable-force-minimalism) * 1) + ( (1 - var(--enable-force-minimalism)) * var(--_is-minimalist-style) ) );
+
 
     /* --- Effective Toggles --- */
     --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
@@ -77,6 +76,7 @@ window#waybar {
 
     /* --- Effects Detail Adjustments --- */
     --_effects-detail-multiplier-full: calc((1 - var(--cfg-effects-detail-level) / 2) * (1 - var(--cfg-effects-detail-level) / 1));
+    /* The following uses max() inside calc(). If Waybar's parser doesn't support max(), this will fail. */
     --_effects-detail-multiplier-standard: calc(1 - max(var(--cfg-effects-detail-level) - 1, 1 - var(--cfg-effects-detail-level)));
     --_effects-detail-multiplier-reduced: var(--_effects-detail-multiplier-full);
     --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25));
@@ -103,15 +103,17 @@ window#waybar {
     --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%;
     --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%;
 
+    /* These flags rely on max() inside calc(). If max() is unsupported, these will be problematic. */
     --_is-palette-preset1: calc(1 - max(var(--cfg-accent-palette-profile) - 1, 1 - var(--cfg-accent-palette-profile)));
     --_is-palette-preset2: calc(1 - max(var(--cfg-accent-palette-profile) - 2, 2 - var(--cfg-accent-palette-profile)));
     --_is-palette-preset3: calc(1 - max(var(--cfg-accent-palette-profile) - 3, 3 - var(--cfg-accent-palette-profile)));
     --_is-palette-monochrome: calc(1 - max(var(--cfg-accent-palette-profile) - 4, 4 - var(--cfg-accent-palette-profile)));
     --_is-palette-custom: calc(1 - max(var(--cfg-accent-palette-profile) - 0, 0 - var(--cfg-accent-palette-profile)));
 
-    --accent-H-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-H) + var(--_is-palette-preset1) * var(--palette-preset1-H) + var(--_is-palette-preset2) * var(--palette-preset2-H) + var(--_is-palette-preset3) * var(--palette-preset3-H) + var(--_is-palette-monochrome) * 0);
-    --accent-S-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-S) + var(--_is-palette-preset1) * var(--palette-preset1-S) + var(--_is-palette-preset2) * var(--palette-preset2-S) + var(--_is-palette-preset3) * var(--palette-preset3-S) + var(--_is-palette-monochrome) * 0%);
-    --accent-L-base-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-L) + var(--_is-palette-preset1) * var(--palette-preset1-L) + var(--_is-palette-preset2) * var(--palette-preset2-L) + var(--_is-palette-preset3) * var(--palette-preset3-L) + var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%));
+    --accent-H-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-H)) + (var(--_is-palette-preset1) * var(--palette-preset1-H)) + (var(--_is-palette-preset2) * var(--palette-preset2-H)) + (var(--_is-palette-preset3) * var(--palette-preset3-H)) + (var(--_is-palette-monochrome) * 0) );
+    --accent-S-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-S)) + (var(--_is-palette-preset1) * var(--palette-preset1-S)) + (var(--_is-palette-preset2) * var(--palette-preset2-S)) + (var(--_is-palette-preset3) * var(--palette-preset3-S)) + (var(--_is-palette-monochrome) * 0%) );
+    --_temp-mono-L-calc: calc( (var(--cfg-base-theme-mode) * 30%) + ( (1 - var(--cfg-base-theme-mode)) * 70% ) );
+    --accent-L-base-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-L)) + (var(--_is-palette-preset1) * var(--palette-preset1-L)) + (var(--_is-palette-preset2) * var(--palette-preset2-L)) + (var(--_is-palette-preset3) * var(--palette-preset3-L)) + (var(--_is-palette-monochrome) * var(--_temp-mono-L-calc)) );
 
     --accent-H: var(--accent-H-resolved);
     --accent-S: var(--accent-S-resolved);
@@ -132,6 +134,7 @@ window#waybar {
     --radius-unit: calc(6px * var(--_density-scale-factor));
 
     /* --- Visual Style Adjustments --- */
+    /* These flags rely on max() inside calc(). If max() is unsupported, these will be problematic. */
     --_is-visual-profile-standard: calc(1 - max(var(--cfg-visual-style-profile) - 0, 0 - var(--cfg-visual-style-profile)));
     --_is-visual-profile-enhanced: calc(1 - max(var(--cfg-visual-style-profile) - 1, 1 - var(--cfg-visual-style-profile)));
     --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
@@ -149,7 +152,7 @@ window#waybar {
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
     --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
-    --color-accent-primary-actual: var(--theme-accent-primary-base); /* Default solid. Gradient applied conditionally where used. */
+    --color-accent-primary-actual: var(--theme-accent-primary-base);
     --color-accent-primary-solid: var(--theme-accent-primary-base);
     --color-accent-secondary: var(--theme-accent-secondary-base);
     --color-accent-highlight: var(--theme-accent-highlight);
@@ -206,7 +209,7 @@ window#waybar {
 
     --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-timing-function-ui: var(--transition-timing-function-standard); /* Default. Enhanced applied via class/selector. */
+    --transition-timing-function-ui: var(--transition-timing-function-standard);
 
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
@@ -227,13 +230,13 @@ window#waybar {
     --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), 0.2);
 
     --effects-focus-ring-color: var(--color-accent-highlight);
-    --effects-focus-ring-width-base: 2px; /* Base width for HC outline */
-    --_hc-outline-style-keyword: dashed; /* Style for HC outline */
+    --effects-focus-ring-width-base: 2px;
+    --_hc-outline-style-keyword: dashed;
     --_hc-outline-width-actual: calc(var(--enable-high-contrast-focus-outline) * var(--effects-focus-ring-width-base));
     --outline-high-contrast-focus-actual: var(--_hc-outline-width-actual) var(--_hc-outline-style-keyword) var(--effects-focus-ring-color);
 
-    --effects-focus-ring-offset: 2px; /* For shadow version of focus ring */
-    --_enable-focus-ring-shadow-effect: var(--enable-high-contrast-focus-outline); /* Tie to HC flag */
+    --effects-focus-ring-offset: 2px;
+    --_enable-focus-ring-shadow-effect: var(--enable-high-contrast-focus-outline);
     --_hc-shadow-h-offset: 0px;
     --_hc-shadow-v-offset: 0px;
     --_hc-shadow-blur: 0px;
@@ -242,7 +245,6 @@ window#waybar {
     --effects-focus-ring-shadow-actual:
         var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread1) var(--color-background-bar),
         var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread2) var(--effects-focus-ring-color);
-
 
     --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), calc(0.35 * var(--_effective-cosmetic-animations-enabled) * var(--_effects-detail-multiplier-reduced)));
     --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
@@ -344,12 +346,17 @@ window#waybar::before { /* Noise Texture */
     border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
     border-radius: var(--dimension-radius-module);
     box-shadow: var(--effects-shadow-module-actual);
-    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-ui);
+    transition-property: var(--transition-properties-common);
+    transition-duration: var(--transition-duration-normal);
+    transition-timing-function: var(--transition-timing-function-ui); /* Default to standard */
     position: relative; z-index: 1; overflow: hidden;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: var(--color-background-module-default); /* Fallback */
     background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
+}
+:where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window).visual-profile-enhanced {
+    transition-timing-function: var(--transition-timing-function-enhanced);
 }
 :where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window)::before { /* Noise Texture */
     content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -367,12 +374,6 @@ window#waybar::before { /* Noise Texture */
     transition-duration: var(--transition-duration-fast);
     z-index: 10;
 }
-/* Apply enhanced timing function if visual profile is enhanced */
-.visual-profile-enhanced :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):not(.active):hover,
-.visual-profile-enhanced :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray).active:not(.disabled):not(.error) {
-    transition-timing-function: var(--transition-timing-function-enhanced);
-}
-
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus,
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus-within {
     outline: var(--outline-high-contrast-focus-actual);
@@ -436,13 +437,14 @@ window#waybar::before { /* Noise Texture */
     border: var(--dimension-border-width-thin) solid transparent;
     border-radius: var(--dimension-radius-button);
     font-weight: var(--typography-font-weight-medium);
-    transition: var(--transition-properties-common) var(--transition-duration-fast) var(--transition-timing-function-ui);
+    transition-property: var(--transition-properties-common);
+    transition-duration: var(--transition-duration-fast);
+    transition-timing-function: var(--transition-timing-function-ui); /* Default to standard */
     cursor: var(--interaction-cursor-pointer, pointer); position: relative; overflow: visible;
     text-shadow: var(--typography-text-shadow-subtle);
     font-feature-settings: var(--typography-font-feature-settings);
 }
-/* Apply enhanced timing function if visual profile is enhanced */
-.visual-profile-enhanced #workspaces button {
+#workspaces button.visual-profile-enhanced {
     transition-timing-function: var(--transition-timing-function-enhanced);
 }
 #workspaces button:focus, #workspaces button:focus-visible {
@@ -471,7 +473,8 @@ window#waybar::before { /* Noise Texture */
 }
 #workspaces button.focused {
     color: var(--color-text-workspace-focused, var(--theme-fg-primary));
-    background: var(--color-background-workspace-focused, var(--color-accent-primary-actual));
+    /* Apply gradient background if enabled for focused workspace button */
+    background: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--color-accent-primary-solid);
     border-color: transparent;
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
     font-weight: var(--typography-font-weight-bold);
@@ -500,7 +503,8 @@ window#waybar::before { /* Noise Texture */
     z-index: 1;
 }
 #workspaces button.focused:hover {
-    background: var(--color-background-workspace-focused, var(--color-accent-primary-actual));
+    /* Apply gradient background if enabled for focused hovered workspace button */
+    background: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--color-accent-primary-solid);
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual);
     transform: scale(1.06);
 }
@@ -551,7 +555,9 @@ window#waybar::before { /* Noise Texture */
 #network.disconnected { animation: var(--animation-state-feedback-actual); }
 
 #battery.critical:not(.charging) {
-    background: var(--color-accent-primary-actual); color: var(--theme-fg-primary);
+    /* Apply gradient background if enabled for critical battery */
+    background: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--color-accent-primary-solid);
+    color: var(--theme-fg-primary);
     font-weight: var(--typography-font-weight-bold); animation: var(--animation-urgent-actual);
 }
 
@@ -561,11 +567,12 @@ window#waybar::before { /* Noise Texture */
 }
 #tray > widget {
     margin: 0 var(--spacing-unit); opacity: 0.75;
-    transition: opacity 0.25s, transform 0.25s var(--transition-timing-function-ui);
+    transition-property: opacity, transform;
+    transition-duration: 0.25s;
+    transition-timing-function: var(--transition-timing-function-ui); /* Default to standard */
     filter: drop-shadow(var(--typography-text-shadow-subtle));
 }
-/* Apply enhanced timing function if visual profile is enhanced */
-.visual-profile-enhanced #tray > widget {
+#tray > widget.visual-profile-enhanced {
     transition-timing-function: var(--transition-timing-function-enhanced);
 }
 #tray > widget:hover { opacity: 1; transform: scale(1.15) translateY(-1px); }
@@ -582,11 +589,12 @@ window#waybar::before { /* Noise Texture */
     width: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
     height: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
     display: flex; align-items: center; justify-content: center;
-    transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-snap, ease-out);
+    transition-property: var(--transition-properties-common);
+    transition-duration: var(--transition-duration-normal);
+    transition-timing-function: var(--transition-timing-function-snap, ease-out); /* Default to snap */
 }
-/* Apply enhanced timing function if visual profile is enhanced */
-.visual-profile-enhanced #custom-power {
-    transition-timing-function: var(--transition-timing-function-enhanced); /* Assuming snap is for non-enhanced */
+#custom-power.visual-profile-enhanced {
+    transition-timing-function: var(--transition-timing-function-enhanced);
 }
 #custom-power:hover {
     background: var(--color-accent-secondary);
@@ -637,17 +645,16 @@ tooltip label { color: inherit; }
     color: var(--color-icon-default, inherit);
     margin-right: calc(var(--spacing-unit) * 0.85);
     vertical-align: -0.15em;
-    transition: color var(--transition-duration-normal) var(--transition-timing-function-ui),
-                transform var(--transition-duration-normal) var(--transition-timing-function-ui),
-                text-shadow var(--transition-duration-normal) var(--transition-timing-function-ui);
+    transition-property: color, transform, text-shadow;
+    transition-duration: var(--transition-duration-normal);
+    transition-timing-function: var(--transition-timing-function-ui); /* Default to standard */
     text-shadow: var(--text-shadow-icon-default, none); display: inline-block;
     font-style: normal !important;
 }
-/* Apply enhanced timing function if visual profile is enhanced */
-.visual-profile-enhanced .icon,
-.visual-profile-enhanced [class*="fa-"],
-.visual-profile-enhanced [class*="mdi-"],
-.visual-profile-enhanced [class*="nf-"] {
+.icon.visual-profile-enhanced,
+[class*="fa-"].visual-profile-enhanced,
+[class*="mdi-"].visual-profile-enhanced,
+[class*="nf-"].visual-profile-enhanced {
     transition-timing-function: var(--transition-timing-function-enhanced);
 }
 
@@ -668,26 +675,11 @@ tooltip label { color: inherit; }
 
 /* --- USER CUSTOM ADDITIONS / OVERRIDES --- */
 /*
-  To apply conditional styles based on --cfg-visual-style-profile (0=Standard, 1=Enhanced):
-  Waybar doesn't directly support adding classes based on CSS variables.
-  You would typically handle this in your Waybar config by conditionally adding a class
-  to the main Waybar window or specific modules if your Waybar version/setup allows it,
-  or by maintaining separate style snippets.
-
-  Example if you can add a class "visual-profile-enhanced" to window#waybar when --cfg-visual-style-profile is 1:
-
-  window#waybar.visual-profile-enhanced {
-      --transition-timing-function-ui: var(--transition-timing-function-enhanced);
-  }
-  window#waybar.visual-profile-enhanced some-module {
-      Apply specific enhanced styles here
-  }
-
-  The --transition-timing-function-ui is now set to standard by default.
-  Selectors like ".visual-profile-enhanced <element>" have been added to demonstrate
-  how to apply the enhanced timing function. You'll need to ensure the
-  .visual-profile-enhanced class is added to a parent (like window#waybar)
-  when --cfg-visual-style-profile is 1.
+  To apply conditional styles like --transition-timing-function-enhanced or gradients:
+  These now require a class like '.visual-profile-enhanced' to be added to window#waybar
+  (or relevant modules) when --cfg-visual-style-profile is 1.
+  This typically needs to be handled by your Waybar configuration logic if it supports
+  dynamically adding classes to elements based on settings.
 */
 
 /* --- END OF STYLESHEET --- */
