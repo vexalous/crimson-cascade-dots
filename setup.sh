@@ -41,12 +41,13 @@ log_message() {
     local type="$1" message="$2" timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     local formatted_message="[${type}] [${timestamp}] ${message}"
-    echo "${formatted_message}" >> "${SCRIPT_LOG_FILE}" # Always log to file
+    # Use printf for safer handling of special characters and consistency.
+    printf '%s\n' "${formatted_message}" >> "${SCRIPT_LOG_FILE}" # Always log to file
     case "${type}" in # Optionally print to console
-        ERROR|CRITICAL) echo "${formatted_message}" >&2 ;;
-        WARNING) echo "${formatted_message}" >&2 ;;
-        INFO) echo "${formatted_message}" ;;
-        DEBUG) [[ "${DEBUG_MODE}" == "true" ]] && echo "${formatted_message}" ;;
+        ERROR|CRITICAL) printf '%s\n' "${formatted_message}" >&2 ;;
+        WARNING) printf '%s\n' "${formatted_message}" >&2 ;;
+        INFO) printf '%s\n' "${formatted_message}" ;;
+        DEBUG) [[ "${DEBUG_MODE}" == "true" ]] && printf '%s\n' "${formatted_message}" ;;
     esac
 }
 error_msg() { log_message "ERROR" "$*"; }
@@ -89,33 +90,20 @@ release_lock() {
 source_libraries() {
     info_msg "Sourcing library scripts from '${SCRIPT_DIR}/scripts/setup_lib'..."
     local lib_dir="${SCRIPT_DIR}/scripts/setup_lib"
+    local libraries_to_source=( "ui.sh" "dependencies.sh" "backup.sh" "fs_ops.sh" "git_ops.sh" )
 
-    # Unrolled loop for individual shellcheck directives
-    local lib_path="${lib_dir}/ui.sh"
-    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
-    # shellcheck source=scripts/setup_lib/ui.sh
-    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
-
-    lib_path="${lib_dir}/dependencies.sh"
-    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
-    # shellcheck source=scripts/setup_lib/dependencies.sh
-    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
-
-    lib_path="${lib_dir}/backup.sh"
-    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
-    # shellcheck source=scripts/setup_lib/backup.sh
-    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
-
-    lib_path="${lib_dir}/fs_ops.sh"
-    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
-    # shellcheck source=scripts/setup_lib/fs_ops.sh
-    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
-
-    lib_path="${lib_dir}/git_ops.sh"
-    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
-    # shellcheck source=scripts/setup_lib/git_ops.sh
-    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
-
+    # Shellcheck directive for the loop. For precise per-file analysis by Shellcheck,
+    # individual `source` lines each with their own directive would be needed.
+    # This loop adheres to DRY; adjust path if Shellcheck needs more specific hints.
+    # shellcheck source=./scripts/setup_lib/ # Example base path for shellcheck
+    for lib_file in "${libraries_to_source[@]}"; do
+        local lib_path="${lib_dir}/${lib_file}"
+        if [[ ! -f "${lib_path}" ]]; then
+            critical_exit "Required library file not found: ${lib_path}"
+        fi
+        source "${lib_path}" # Functions from these scripts are now available
+        debug_msg "Sourced library: ${lib_path}"
+    done
     info_msg "All library scripts sourced successfully."
 }
 
@@ -210,16 +198,19 @@ update_hyprland_env_config() {
         # Use process substitution for grep to avoid issues with `while read` loops and variable scope
         grep -Ev -- "${combined_filter_regex}" <<< "${original_content}" > "${temp_new_content_file}" || true # Allow no match (empty output)
     else
-        # If original content is empty, ensure temp file is also empty (or effectively by > redirect)
-        >"${temp_new_content_file}"
+        # If original content is empty, ensure temp file is also empty using explicit no-op redirect.
+        : > "${temp_new_content_file}" # SC2188 fix
     fi
 
     # Append desired lines, ensuring proper newline if needed
     if [[ -s "${temp_new_content_file}" ]]; then
-        local last_char_of_temp_file
-        last_char_of_temp_file=$(<"${temp_new_content_file}") # Read entire file to check last char
-        if [[ "${last_char_of_temp_file: -1}" != $'\n' ]]; then
-            echo "" >> "${temp_new_content_file}" # Explicitly echo "" for newline
+        # Read only the last character to check for newline, more efficient than reading whole file
+        local last_char_val=""
+        # Using a subshell for `tail` to ensure `read` gets the character correctly
+        # and `read` doesn't consume from a pipe that might close early.
+        last_char_val=$(tail -c1 "${temp_new_content_file}")
+        if [[ "${last_char_val}" != "" && "${last_char_val}" != $'\n' ]]; then
+            echo "" >> "${temp_new_content_file}" # Explicitly echo "" for newline (SC2188 fix)
         fi
     fi
     echo "${desired_scripts_line}" >> "${temp_new_content_file}"
@@ -254,6 +245,7 @@ update_hyprland_env_config() {
 configure_hyprpaper_script() {
     info_msg "Configuring local hyprpaper script (if found)..."
     local script_path="${USER_HYPR_SCRIPTS_DIR}/hyprpaper.sh"
+    local script_exit_status=0
 
     if [[ ! -f "${script_path}" ]]; then
         warning_msg "Hyprpaper script not found at: ${script_path}. Cannot configure wallpaper via this script."
@@ -271,11 +263,14 @@ configure_hyprpaper_script() {
     fi
     export CONFIG_TARGET_DIR # Make available to the sub-script
 
-    if "${script_path}"; then
+    # Execute and capture exit status
+    "${script_path}" || script_exit_status=$?
+
+    if [[ "${script_exit_status}" -eq 0 ]]; then
         info_msg "Hyprpaper configuration script executed successfully."
         return 0
     else
-        warning_msg "Hyprpaper configuration script (${script_path}) execution failed. Check its output or logs."
+        warning_msg "Hyprpaper configuration script (${script_path}) execution failed with status ${script_exit_status}. Check its output or logs."
         return 1
     fi
 }
@@ -357,10 +352,8 @@ cleanup() {
     if [[ "${script_exit_status}" -eq 0 && "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
         info_msg "Script completed all operations successfully and exited cleanly (status 0)."
     elif [[ "${script_exit_status}" -eq 1 && "${OVERALL_SCRIPT_STATUS}" -ne 0 ]]; then
-        # This case means script logic determined non-critical errors, and it's exiting with 1 (due to main logic)
-        warning_msg "Script finished with non-critical operations reporting issues (OVERALL_SCRIPT_STATUS=${OVERALL_SCRIPT_STATUS}). Exiting with status 1."
+        warning_msg "Script finished, but non-critical operations reported issues (OVERALL_SCRIPT_STATUS=${OVERALL_SCRIPT_STATUS}). Exiting with status 1."
     elif [[ "${script_exit_status}" -ne 0 ]]; then
-        # This means errexit, critical_exit, or an external signal caused a non-zero exit before main could set its final exit code.
         error_msg "Script exited prematurely or with a critical error (captured exit status: ${script_exit_status}). OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}."
     else # script_exit_status is 0, but OVERALL_SCRIPT_STATUS might be non-zero (should not happen if main exits based on OVERALL_SCRIPT_STATUS)
         warning_msg "Script exiting with status 0, but internal OVERALL_SCRIPT_STATUS was ${OVERALL_SCRIPT_STATUS}. This indicates an unexpected state. Review logs."
@@ -383,29 +376,23 @@ Options:
                          (Default: ${DEFAULT_SCRIPT_LOG_FILE})
   -h, --help             Display this help message and exit.
 
-Example:
-  ${SCRIPT_NAME} --skip-backups --debug
+Note: This script uses GNU getopt for argument parsing, which is standard on most Linux
+      systems but may require installation (e.g., gnu-getopt via Homebrew) on macOS or
+      other non-GNU systems if advanced option parsing is critical there.
 EOF
 }
 
 # --- Main Script Orchestration ---
 main() {
     # Argument Parsing with GNU getopt:
-    # This script uses GNU getopt for long options. For maximum portability to systems
-    # without GNU getopt (e.g., macOS by default, some minimal *BSDs), consider:
-    # 1. Sticking to POSIX getopts (short options only).
-    # 2. Implementing a check for GNU getopt and falling back to getopts or manual parsing.
-    # 3. Requiring GNU getopt as a dependency.
-    # For most Linux desktop environments, GNU getopt is standard.
-    local short_opts="h" # Only -h for short options, others are long
+    local short_opts="h"
     local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help"
     local parsed_opts
     if ! parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME}" -- "$@"); then
-        # getopt prints error messages on invalid options to stderr
         print_help >&2
-        exit 1 # Exit with an error code
+        exit 1
     fi
-    eval set -- "${parsed_opts}" # Reset positional parameters ($1, $2, etc.)
+    eval set -- "${parsed_opts}"
 
     while true; do
         case "$1" in
@@ -415,24 +402,20 @@ main() {
             --debug) DEBUG_MODE=true; shift ;;
             --log-file) SCRIPT_LOG_FILE="$2"; shift 2 ;;
             -h|--help) print_help; exit 0 ;;
-            --) shift; break ;; # End of options marker
-            *) critical_exit "Internal error in argument parsing logic!" ;; # Should not happen with getopt
+            --) shift; break ;;
+            *) critical_exit "Internal error in argument parsing logic!" ;;
         esac
     done
 
-    # Initialize logging system
     mkdir -p "$(dirname "${SCRIPT_LOG_FILE}")" && touch "${SCRIPT_LOG_FILE}"
     info_msg "--- ${SCRIPT_NAME} execution started ---"
     info_msg "Using script log file: ${SCRIPT_LOG_FILE}"
     [[ "${DEBUG_MODE}" == "true" ]] && info_msg "DEBUG mode has been enabled."
 
-    # Register cleanup trap and acquire lock
     trap cleanup EXIT HUP INT QUIT TERM
     if ! acquire_lock; then critical_exit "Exiting due to failure to acquire script lock."; fi
 
-    # Execute main phases, updating OVERALL_SCRIPT_STATUS if any phase reports non-critical issues.
     initialize_script || OVERALL_SCRIPT_STATUS=1
-    # Only proceed to next phase if the previous critical steps were successful (OVERALL_SCRIPT_STATUS is 0)
     if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
         process_configurations || OVERALL_SCRIPT_STATUS=1
         if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
@@ -444,34 +427,56 @@ main() {
          warning_msg "Skipping configuration and service management due to issues encountered in initialization."
     fi
 
-    # Determine final exit code based on OVERALL_SCRIPT_STATUS
     if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
         info_msg "--- ${SCRIPT_NAME} execution concluded successfully. ---"
-        exit 0 # Explicitly exit 0 for full success
+        exit 0
     else
         warning_msg "--- ${SCRIPT_NAME} execution concluded, but one or more non-critical errors occurred. Review log. ---"
-        exit 1 # Exit 1 if any non-critical errors were tracked by OVERALL_SCRIPT_STATUS
+        exit 1
     fi
 }
 
 initialize_script() {
     info_msg "Phase: Initializing Script..."
-    local phase_status=0 # 0 for success, 1 for non-critical issues in this phase
-    source_libraries       # This will critical_exit if a library is not found
-    print_header           # print_header is expected from ui.sh
+    local phase_status=0
+    source_libraries
+    print_header
 
-    DOTFILES_SOURCE_DIR="" TEMP_CLONE_DIR="" # Reset/initialize
-    local source_dir_output
-    source_dir_output="$(determine_source_dir)" # determine_source_dir from git_ops.sh
-    read -r DOTFILES_SOURCE_DIR TEMP_CLONE_DIR <<< "${source_dir_output}"
+    DOTFILES_SOURCE_DIR="" TEMP_CLONE_DIR=""
+    # IMPORTANT ASSUMPTION: determine_source_dir (from git_ops.sh) must output
+    # two NUL-terminated strings for DOTFILES_SOURCE_DIR and TEMP_CLONE_DIR respectively
+    # to handle potential spaces in paths correctly.
+    # This requires Bash 4.4+ for mapfile -d.
+    local source_dirs_array=()
+    if ! mapfile -d $'\0' -t source_dirs_array < <(determine_source_dir); then
+        error_msg "Failed to read output from determine_source_dir. Ensure it provides NUL-delimited paths."
+        # mapfile returns non-zero if it fails to read anything, or if the command fails
+        # and pipefail is set.
+        critical_exit "Could not determine source directories."
+    fi
+
+    # Check if we got at least two elements (can be empty strings if determine_source_dir outputs them)
+    if [[ "${#source_dirs_array[@]}" -lt 2 ]]; then
+        # This might happen if determine_source_dir doesn't output two NUL-terminated strings
+        error_msg "determine_source_dir did not provide two NUL-delimited paths. Received ${#source_dirs_array[@]} elements."
+        # Pad with empty strings if fewer than 2 elements to avoid unbound variable errors later if nounset is off,
+        # but with nounset, we must ensure they are assigned.
+        # For simplicity, critical_exit if the contract with determine_source_dir is broken.
+        critical_exit "Invalid output format from determine_source_dir."
+
+    fi
+
+    DOTFILES_SOURCE_DIR="${source_dirs_array[0]}"
+    TEMP_CLONE_DIR="${source_dirs_array[1]}"
+
 
     if [[ -z "${DOTFILES_SOURCE_DIR}" ]]; then
-        critical_exit "Dotfiles source directory could not be determined. Cannot proceed."
+        critical_exit "Dotfiles source directory could not be determined (empty after parsing). Cannot proceed."
     fi
     info_msg "Dotfiles source directory identified as: ${DOTFILES_SOURCE_DIR}"
     if [[ -n "${TEMP_CLONE_DIR}" ]]; then
         info_msg "Using temporary clone directory: ${TEMP_CLONE_DIR}"
-        verify_core_dependencies || phase_status=1 # verify_core_dependencies from dependencies.sh
+        verify_core_dependencies || phase_status=1
     fi
 
     if [[ "${phase_status}" -eq 0 ]]; then info_msg "Initialization phase completed with no issues reported.";
@@ -485,10 +490,9 @@ process_configurations() {
 
     perform_backups || phase_status=1
 
-    # setup_target_directories is critical. If it fails, return immediately.
     if ! setup_target_directories; then
         error_msg "Critical failure during target directory setup. Aborting configuration processing phase."
-        return 1 # Indicates failure of this phase
+        return 1
     fi
 
     copy_configurations || phase_status=1
@@ -503,7 +507,7 @@ process_configurations() {
 manage_services_phase() {
     if [[ "${SKIP_SERVICES}" == "true" ]]; then
         info_msg "Phase: Skipping service management (user-specified --skip-services)."
-        return 0 # Skipped successfully
+        return 0
     fi
     info_msg "Phase: Managing Services (Waybar, Hyprpaper)..."
     local phase_status=0
@@ -514,8 +518,7 @@ manage_services_phase() {
     if [[ "${phase_status}" -eq 0 ]]; then info_msg "Service management phase completed with no issues reported.";
     else warning_msg "Service management phase completed with some issues reported."; fi
 
-    # Final user advice message
-    echo # Add a blank line for readability
+    info_msg "" # Consistent logging for blank line
     info_msg "--------------------------------------------------------------------"
     info_msg "Relevant services have been (re)started (if installed and not skipped)."
     info_msg "If you are running this script outside of an active Hyprland session,"
@@ -526,7 +529,6 @@ manage_services_phase() {
 }
 
 # --- Script Execution Guard ---
-# Ensures main() is called only when the script is executed directly, not when sourced.
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
     main "$@"
 fi
