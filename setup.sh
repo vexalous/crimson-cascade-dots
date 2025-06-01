@@ -3,20 +3,26 @@
 # Strict mode: exit on error, unset variable, or pipe failure
 set -o errexit -o nounset -o pipefail
 # Set Internal Field Separator to only newline and tab, guarding against unintended word splitting.
+# Note: 'set -o nounset' requires all variables (including those in sourced scripts)
+# to be explicitly set or defaulted. Verify this for all dependencies.
 IFS=$'\n\t'
 
 # --- Script Identity & Constants ---
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly LOCK_FILE="/tmp/${SCRIPT_NAME}.lock" # Lockfile to prevent concurrent runs
-readonly DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly SCRIPT_NAME
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+LOCK_FILE="/tmp/${SCRIPT_NAME}.lock" # Lockfile to prevent concurrent runs
+readonly LOCK_FILE
+DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
+readonly DEFAULT_SCRIPT_LOG_FILE
 
 # --- Configuration Constants ---
-# These constants might be used by sourced library scripts (e.g., backup.sh, git_ops.sh)
-# If not, they should be removed or their usage verified. (SC2034 - flagged if truly unused by *this* script and its direct dependencies)
-readonly BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
-readonly GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
-readonly REPO_NAME="crimson-cascade-dots"
+# These constants are intended for use by sourced library scripts (e.g., backup.sh, git_ops.sh).
+# Export them to make them available to those scripts.
+export readonly BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
+export readonly GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
+export readonly REPO_NAME="crimson-cascade-dots"
 
 readonly CONFIG_TARGET_DIR="${HOME}/.config"
 readonly DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png"
@@ -75,6 +81,7 @@ acquire_lock() {
         warning_msg "Removing stale lockfile: ${LOCK_FILE}"
         rm -f "${LOCK_FILE}"
         info_msg "Stale lockfile removed. Please try running the script again."
+        # Consider a brief retry here if concurrent stale removal is a concern on high-throughput systems.
     fi
     return 1 # Lock not acquired
 }
@@ -90,20 +97,33 @@ release_lock() {
 source_libraries() {
     info_msg "Sourcing library scripts from '${SCRIPT_DIR}/scripts/setup_lib'..."
     local lib_dir="${SCRIPT_DIR}/scripts/setup_lib"
-    local libraries_to_source=( "ui.sh" "dependencies.sh" "backup.sh" "fs_ops.sh" "git_ops.sh" )
 
-    # Shellcheck directive for the loop. For precise per-file analysis by Shellcheck,
-    # individual `source` lines each with their own directive would be needed.
-    # This loop adheres to DRY; adjust path if Shellcheck needs more specific hints.
-    # shellcheck source=./scripts/setup_lib/ # Example base path for shellcheck
-    for lib_file in "${libraries_to_source[@]}"; do
-        local lib_path="${lib_dir}/${lib_file}"
-        if [[ ! -f "${lib_path}" ]]; then
-            critical_exit "Required library file not found: ${lib_path}"
-        fi
-        source "${lib_path}" # Functions from these scripts are now available
-        debug_msg "Sourced library: ${lib_path}"
-    done
+    # Unrolled loop for individual shellcheck directives
+    local lib_path="${lib_dir}/ui.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/ui.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/dependencies.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/dependencies.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/backup.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/backup.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/fs_ops.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/fs_ops.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
+    lib_path="${lib_dir}/git_ops.sh"
+    if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
+    # shellcheck source=scripts/setup_lib/git_ops.sh
+    source "${lib_path}"; debug_msg "Sourced library: ${lib_path}"
+
     info_msg "All library scripts sourced successfully."
 }
 
@@ -278,6 +298,7 @@ configure_hyprpaper_script() {
 manage_daemon() {
     local process_name="$1" command_to_start="$2" log_file daemon_status=0
     local -r sigterm_timeout_seconds=3 # Seconds to wait for SIGTERM
+    local nohup_pid
 
     info_msg "Managing daemon process: ${process_name}..."
     if ! command -v "${process_name}" >/dev/null 2>&1; then
@@ -317,6 +338,9 @@ manage_daemon() {
     log_file=$(mktemp --tmpdir "${process_name}_${SCRIPT_NAME}.XXXXXX.log")
     info_msg "Starting ${process_name} in background. Log: ${log_file}"
     if nohup "${command_to_start}" >"${log_file}" 2>&1 & then
+        nohup_pid=$! # Get PID of the nohup process itself
+        disown "${nohup_pid}" # Decouple from script's job table
+        debug_msg "${process_name} (via nohup PID ${nohup_pid}) disowned."
         sleep 0.5 # Allow process to initialize or fail fast
         if pgrep --exact --uid "$(id -u)" "${process_name}" >/dev/null; then
             info_msg "${process_name} started successfully in background."
@@ -377,13 +401,37 @@ Options:
   -h, --help             Display this help message and exit.
 
 Note: This script uses GNU getopt for argument parsing, which is standard on most Linux
-      systems but may require installation (e.g., gnu-getopt via Homebrew) on macOS or
-      other non-GNU systems if advanced option parsing is critical there.
+      systems. For macOS or other systems without GNU getopt by default, you may need
+      to install 'gnu-getopt' (e.g., via Homebrew) and ensure it's in your PATH,
+      or modify the script to use POSIX getopts (short options only).
 EOF
 }
 
 # --- Main Script Orchestration ---
 main() {
+    # Check for Bash version (Bash 4.4+ for mapfile -d)
+    if ((BASH_VERSINFO[0] < 4)) || ((BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 4)); then
+      critical_exit "This script requires Bash version 4.4 or newer (for NUL-delimited mapfile support)."
+    fi
+
+    # Check for GNU getopt
+    if ! command -v getopt >/dev/null || ! getopt -T >/dev/null 2>&1; then
+        # getopt -T exits 4 for GNU getopt, non-zero for others or if not found.
+        # We need to ensure it's the GNU version for long options.
+        # A simple `getopt --test` also works for GNU getopt, exits 4.
+        # `getopt -T` is a more direct test.
+        # If `getopt -T` output is empty or command fails, it's not GNU getopt or not found.
+        # A more robust check:
+        local getopt_output
+        getopt_output=$(getopt -T 2>&1)
+        if [[ -z "${getopt_output}" && $? -eq 4 ]]; then
+             debug_msg "GNU getopt detected."
+        else
+             critical_exit "GNU getopt is required for long option parsing but not found or not the GNU version. Please install 'gnu-getopt' or ensure GNU getopt is in your PATH."
+        fi
+    fi
+
+
     # Argument Parsing with GNU getopt:
     local short_opts="h"
     local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help"
@@ -407,7 +455,9 @@ main() {
         esac
     done
 
-    mkdir -p "$(dirname "${SCRIPT_LOG_FILE}")" && touch "${SCRIPT_LOG_FILE}"
+    mkdir -p "$(dirname "${SCRIPT_LOG_FILE}")" || critical_exit "Cannot create log directory: $(dirname "${SCRIPT_LOG_FILE}")"
+    touch "${SCRIPT_LOG_FILE}" || critical_exit "Cannot create log file: ${SCRIPT_LOG_FILE}"
+
     info_msg "--- ${SCRIPT_NAME} execution started ---"
     info_msg "Using script log file: ${SCRIPT_LOG_FILE}"
     [[ "${DEBUG_MODE}" == "true" ]] && info_msg "DEBUG mode has been enabled."
@@ -445,25 +495,20 @@ initialize_script() {
     DOTFILES_SOURCE_DIR="" TEMP_CLONE_DIR=""
     # IMPORTANT ASSUMPTION: determine_source_dir (from git_ops.sh) must output
     # two NUL-terminated strings for DOTFILES_SOURCE_DIR and TEMP_CLONE_DIR respectively
-    # to handle potential spaces in paths correctly.
-    # This requires Bash 4.4+ for mapfile -d.
+    # to handle potential spaces in paths correctly. This requires Bash 4.4+.
     local source_dirs_array=()
+    # The command substitution `determine_source_dir` is run. Its stdout is piped to mapfile.
     if ! mapfile -d $'\0' -t source_dirs_array < <(determine_source_dir); then
-        error_msg "Failed to read output from determine_source_dir. Ensure it provides NUL-delimited paths."
-        # mapfile returns non-zero if it fails to read anything, or if the command fails
-        # and pipefail is set.
-        critical_exit "Could not determine source directories."
+        error_msg "Failed to read output from determine_source_dir."
+        error_msg "Ensure git_ops.sh/determine_source_dir provides two NUL-delimited paths."
+        critical_exit "Could not determine source directories due to read failure."
     fi
 
-    # Check if we got at least two elements (can be empty strings if determine_source_dir outputs them)
-    if [[ "${#source_dirs_array[@]}" -lt 2 ]]; then
-        # This might happen if determine_source_dir doesn't output two NUL-terminated strings
-        error_msg "determine_source_dir did not provide two NUL-delimited paths. Received ${#source_dirs_array[@]} elements."
-        # Pad with empty strings if fewer than 2 elements to avoid unbound variable errors later if nounset is off,
-        # but with nounset, we must ensure they are assigned.
-        # For simplicity, critical_exit if the contract with determine_source_dir is broken.
+    # Ensure we received exactly two elements from determine_source_dir
+    if [[ "${#source_dirs_array[@]}" -ne 2 ]]; then
+        error_msg "determine_source_dir provided an unexpected number of paths."
+        error_msg "Expected 2 NUL-delimited paths, received ${#source_dirs_array[@]}."
         critical_exit "Invalid output format from determine_source_dir."
-
     fi
 
     DOTFILES_SOURCE_DIR="${source_dirs_array[0]}"
@@ -471,7 +516,9 @@ initialize_script() {
 
 
     if [[ -z "${DOTFILES_SOURCE_DIR}" ]]; then
-        critical_exit "Dotfiles source directory could not be determined (empty after parsing). Cannot proceed."
+        # This check is important if determine_source_dir might correctly output an empty first path.
+        # However, for this script's purpose, an empty DOTFILES_SOURCE_DIR is likely an error.
+        critical_exit "Dotfiles source directory was determined to be empty. Cannot proceed."
     fi
     info_msg "Dotfiles source directory identified as: ${DOTFILES_SOURCE_DIR}"
     if [[ -n "${TEMP_CLONE_DIR}" ]]; then
