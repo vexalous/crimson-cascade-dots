@@ -26,30 +26,20 @@ window#waybar {
      * ==========================================================================
      * --- CORE THEME CONFIGURATION ---
      * ==========================================================================
-     * Define the foundational appearance settings.
-     * These high-level choices influence styles throughout the stylesheet.
-     * For "Accent Palette": 0=Custom HSL, 1=Preset 1 (Warm), 2=Preset 2 (Cool), 3=Preset 3 (Natural), 4=Monochrome.
-     * For "Visual Style": 0=Standard, 1=Enhanced, 2=Minimalist.
-     * For "Effects Detail": 0=Full, 1=Standard (reduced motion/shadows), 2=Minimal (essential only).
      */
     --cfg-base-theme-mode: 0; /* 0: Dark, 1: Light */
     --cfg-accent-palette-profile: 1;
-        /* Custom HSL (used if --cfg-accent-palette-profile is 0) */
         --cfg-custom-accent-H: 348; --cfg-custom-accent-S: 100%; --cfg-custom-accent-L: 57%;
 
     --cfg-visual-style-profile: 0; /* 0=Standard, 1=Enhanced, 2=Minimalist */
-    --cfg-density-scale: 1; /* 0.8=Compact, 1=Default, 1.2=Spacious (affects spacing & font size) */
-    --cfg-effects-detail-level: 0; /* 0=Full, 1=Standard, 2=Minimal */
+    --cfg-density-scale: 1;
+    --cfg-effects-detail-level: 0;
 
     /*
      * --- Global Feature Toggles (1 for on, 0 for off) ---
      * These --enable-* flags control major visual features.
      * --enable-force-minimalism: If set to 1, this toggle overrides several other
-     * feature flags (like shadows, gradients, animations) to enforce a
-     * very basic, performance-focused appearance, regardless of their
-     * individual settings. It acts as a master switch for an ultra-minimal look.
-     * Other flags control specific features which may also be influenced by
-     * the "Visual Style" and "Effects Detail" profiles.
+     * feature flags to enforce a very basic appearance.
      */
     --enable-shadows-master: 1;
     --enable-gradients-master: 1;
@@ -58,7 +48,7 @@ window#waybar {
     --enable-dynamic-workspace-accents: 1;
     --enable-subtle-noise-texture: 0;
     --enable-experimental-glassmorphism: 0;
-    --enable-high-contrast-focus-outline: 0;
+    --enable-high-contrast-focus-outline: 0; /* This is the key flag for conditional outline/shadow */
     --enable-force-minimalism: 0;
 
     /* --- Font Stack Configuration --- */
@@ -159,7 +149,7 @@ window#waybar {
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
     --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
-    --color-accent-primary-actual: var(--theme-accent-primary-base); /* Default solid color. Gradient var(--color-accent-primary-gradient) needs to be applied conditionally based on --_effective-gradients-enabled where this variable is used (e.g. via classes). */
+    --color-accent-primary-actual: var(--theme-accent-primary-base); /* Default solid. Gradient applied conditionally where used. */
     --color-accent-primary-solid: var(--theme-accent-primary-base);
     --color-accent-secondary: var(--theme-accent-secondary-base);
     --color-accent-highlight: var(--theme-accent-highlight);
@@ -216,7 +206,7 @@ window#waybar {
 
     --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-timing-function-ui: var(--transition-timing-function-standard); /* Default. Apply --transition-timing-function-enhanced conditionally where used (e.g. via classes based on --_is-visual-profile-enhanced) */
+    --transition-timing-function-ui: var(--transition-timing-function-standard); /* Default. Enhanced applied via class/selector. */
 
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
@@ -237,19 +227,22 @@ window#waybar {
     --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), 0.2);
 
     --effects-focus-ring-color: var(--color-accent-highlight);
-    --effects-focus-ring-width: calc(2px * (1 + var(--enable-high-contrast-focus-outline)));
-    --effects-focus-ring-offset: 2px;
-    /* The following value var(--enable-high-contrast-focus-outline) results in '0' or '1'.
-       '0 dashed solid' or '1 dashed solid' are not standard single border-style keywords.
-       'dashed solid' is a valid shorthand (top/bottom dashed, left/right solid).
-       This relies on Waybar's parser or var() evaluating to empty string for '0'.
-       A more robust CSS method would use distinct variables for 'dashed' and 'solid' and apply conditionally.
-       Applied literal change from user feedback. */
-    --effects-focus-ring-style: var(--enable-high-contrast-focus-outline) dashed solid;
-    --_enable-focus-ring-visual-effect: 1;
-    --effects-focus-ring-shadow-actual: var(--_enable-focus-ring-visual-effect) 0 0 0 var(--effects-focus-ring-offset) var(--color-background-bar),
-                                        var(--_enable-focus-ring-visual-effect) 0 0 0 calc(var(--effects-focus-ring-offset) + var(--effects-focus-ring-width)) var(--effects-focus-ring-color);
-    --outline-high-contrast-focus-actual: var(--enable-high-contrast-focus-outline) var(--effects-focus-ring-width) var(--effects-focus-ring-style) var(--effects-focus-ring-color);
+    --effects-focus-ring-width-base: 2px; /* Base width for HC outline */
+    --_hc-outline-style-keyword: dashed; /* Style for HC outline */
+    --_hc-outline-width-actual: calc(var(--enable-high-contrast-focus-outline) * var(--effects-focus-ring-width-base));
+    --outline-high-contrast-focus-actual: var(--_hc-outline-width-actual) var(--_hc-outline-style-keyword) var(--effects-focus-ring-color);
+
+    --effects-focus-ring-offset: 2px; /* For shadow version of focus ring */
+    --_enable-focus-ring-shadow-effect: var(--enable-high-contrast-focus-outline); /* Tie to HC flag */
+    --_hc-shadow-h-offset: 0px;
+    --_hc-shadow-v-offset: 0px;
+    --_hc-shadow-blur: 0px;
+    --_hc-shadow-spread1: calc(var(--_enable-focus-ring-shadow-effect) * var(--effects-focus-ring-offset));
+    --_hc-shadow-spread2: calc(var(--_enable-focus-ring-shadow-effect) * (var(--effects-focus-ring-offset) + var(--effects-focus-ring-width-base)));
+    --effects-focus-ring-shadow-actual:
+        var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread1) var(--color-background-bar),
+        var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread2) var(--effects-focus-ring-color);
+
 
     --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), calc(0.35 * var(--_effective-cosmetic-animations-enabled) * var(--_effects-detail-multiplier-reduced)));
     --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
@@ -374,6 +367,12 @@ window#waybar::before { /* Noise Texture */
     transition-duration: var(--transition-duration-fast);
     z-index: 10;
 }
+/* Apply enhanced timing function if visual profile is enhanced */
+.visual-profile-enhanced :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):not(.active):hover,
+.visual-profile-enhanced :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray).active:not(.disabled):not(.error) {
+    transition-timing-function: var(--transition-timing-function-enhanced);
+}
+
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus,
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus-within {
     outline: var(--outline-high-contrast-focus-actual);
@@ -441,6 +440,10 @@ window#waybar::before { /* Noise Texture */
     cursor: var(--interaction-cursor-pointer, pointer); position: relative; overflow: visible;
     text-shadow: var(--typography-text-shadow-subtle);
     font-feature-settings: var(--typography-font-feature-settings);
+}
+/* Apply enhanced timing function if visual profile is enhanced */
+.visual-profile-enhanced #workspaces button {
+    transition-timing-function: var(--transition-timing-function-enhanced);
 }
 #workspaces button:focus, #workspaces button:focus-visible {
     outline: var(--outline-high-contrast-focus-actual);
@@ -561,6 +564,10 @@ window#waybar::before { /* Noise Texture */
     transition: opacity 0.25s, transform 0.25s var(--transition-timing-function-ui);
     filter: drop-shadow(var(--typography-text-shadow-subtle));
 }
+/* Apply enhanced timing function if visual profile is enhanced */
+.visual-profile-enhanced #tray > widget {
+    transition-timing-function: var(--transition-timing-function-enhanced);
+}
 #tray > widget:hover { opacity: 1; transform: scale(1.15) translateY(-1px); }
 
 #custom-power {
@@ -576,6 +583,10 @@ window#waybar::before { /* Noise Texture */
     height: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
     display: flex; align-items: center; justify-content: center;
     transition: var(--transition-properties-common) var(--transition-duration-normal) var(--transition-timing-function-snap, ease-out);
+}
+/* Apply enhanced timing function if visual profile is enhanced */
+.visual-profile-enhanced #custom-power {
+    transition-timing-function: var(--transition-timing-function-enhanced); /* Assuming snap is for non-enhanced */
 }
 #custom-power:hover {
     background: var(--color-accent-secondary);
@@ -602,7 +613,7 @@ tooltip {
     line-height: 1.6; max-width: 380px;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Fallback - though color-mix is also new */
+    background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Fallback */
     background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
 }
 tooltip::before { /* Noise Texture */
@@ -632,6 +643,14 @@ tooltip label { color: inherit; }
     text-shadow: var(--text-shadow-icon-default, none); display: inline-block;
     font-style: normal !important;
 }
+/* Apply enhanced timing function if visual profile is enhanced */
+.visual-profile-enhanced .icon,
+.visual-profile-enhanced [class*="fa-"],
+.visual-profile-enhanced [class*="mdi-"],
+.visual-profile-enhanced [class*="nf-"] {
+    transition-timing-function: var(--transition-timing-function-enhanced);
+}
+
 *:hover > .icon, *:hover > [class*="fa-"], *:hover > [class*="mdi-"], *:hover > [class*="nf-"],
 *:focus > .icon, *:focus > [class*="fa-"], *:focus > [class*="mdi-"], *:focus > [class*="nf-"],
 *:focus-within > .icon, *:focus-within > [class*="fa-"], *:focus-within > [class*="mdi-"], *:focus-within > [class*="nf-"] {
@@ -648,10 +667,27 @@ tooltip label { color: inherit; }
 }
 
 /* --- USER CUSTOM ADDITIONS / OVERRIDES --- */
-/* Example:
-#my-custom-module {
-    background-color: darkblue !important;
-}
+/*
+  To apply conditional styles based on --cfg-visual-style-profile (0=Standard, 1=Enhanced):
+  Waybar doesn't directly support adding classes based on CSS variables.
+  You would typically handle this in your Waybar config by conditionally adding a class
+  to the main Waybar window or specific modules if your Waybar version/setup allows it,
+  or by maintaining separate style snippets.
+
+  Example if you can add a class "visual-profile-enhanced" to window#waybar when --cfg-visual-style-profile is 1:
+
+  window#waybar.visual-profile-enhanced {
+      --transition-timing-function-ui: var(--transition-timing-function-enhanced);
+  }
+  window#waybar.visual-profile-enhanced some-module {
+      Apply specific enhanced styles here
+  }
+
+  The --transition-timing-function-ui is now set to standard by default.
+  Selectors like ".visual-profile-enhanced <element>" have been added to demonstrate
+  how to apply the enhanced timing function. You'll need to ensure the
+  .visual-profile-enhanced class is added to a parent (like window#waybar)
+  when --cfg-visual-style-profile is 1.
 */
 
 /* --- END OF STYLESHEET --- */
