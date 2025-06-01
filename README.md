@@ -1,138 +1,160 @@
-# My Personalized Dotfiles for a Hyprland Environment
+# Personalized Hyprland Dotfiles
 
-This repository contains my personal configuration files (dotfiles) for a Linux desktop environment centered around the Hyprland Wayland compositor. It also includes scripts for setting up and managing these configurations.
+## 1. Brief Overview
 
-## Overview
+This repository contains a set of personalized configuration files (dotfiles) for a Linux desktop environment built around the [Hyprland](https://hyprland.org/) Wayland compositor. The aim is to provide a visually appealing, keyboard-driven, and efficient user experience.
 
-These dotfiles provide a customized experience for:
+Key software configured:
 
-*   **Window Manager:** [Hyprland](https://hyprland.org/) (with various plugins and custom scripts)
+*   **Window Manager:** Hyprland (with various plugins and custom scripts)
 *   **Terminal Emulator:** [Alacritty](https://alacritty.org/)
 *   **Status Bar:** [Waybar](https://github.com/Alexays/Waybar)
-*   **Application Launcher/Powermenu:** [Rofi](https://github.com/davatorium/rofi) (Wayland fork)
-*   **Notification Daemon:** Mako
-*   **Screen Locker:** Hyprlock
-*   **Wallpaper Utility:** Hyprpaper
-*   **Clipboard Manager:** cliphist
+*   **Application Launcher/Powermenu:** [Rofi](https://github.com/Alexays/rofi) (Wayland fork)
+*   **Notification Daemon:** [Mako](https://github.com/emersion/mako)
+*   **Screen Locker:** [Hyprlock](https://github.com/hyprwm/hyprlock)
+*   **Wallpaper Utility:** [Hyprpaper](https://github.com/hyprwm/hyprpaper)
+*   **Clipboard Manager:** [cliphist](https://github.com/sentriz/cliphist)
 
-The goal is to create a visually appealing, keyboard-driven, and efficient desktop environment.
+## 2. Prerequisites
 
-## Prerequisites
+Before you begin, ensure you have the following essential software installed:
 
-
-*   **Hyprland** and its dependencies.
+### Core Desktop Components
+*   **Hyprland** (and its core dependencies)
 *   **Alacritty**
 *   **Waybar**
-*   **Fonts:**
-    *   JetBrainsMono Nerd Font (for general UI and terminal)
-    *   Font Awesome (for icons)
-*   **Essential Utilities:**
-    *   `git` (to clone this repository)
-    *   `jq` (for JSON processing, used by some scripts)
-    *   `yad` (for GUI dialogs in scripts)
-    *   `brightnessctl` (for backlight/brightness control)
-    *   `playerctl` (for media player control)
-    *   `mako` (notification daemon)
-    *   `hyprlock` (screen locker)
-    *   `hyprpaper` (wallpaper utility)
-    *   `wl-paste` & `cliphist` (clipboard utilities)
-    *   A Polkit agent (e.g., `polkit-kde-agent` or similar, for elevated privileges)
-*   **Shell:** `bash` (for running setup scripts)
+*   **Rofi** (Wayland-compatible version)
+*   **Mako**
+*   **Hyprlock**
+*   **Hyprpaper**
 
-## Installation
+### Required Fonts
+*   **JetBrainsMono Nerd Font** (for UI and terminal)
+    *   Download from [Nerd Fonts](https://www.nerdfonts.com/font-downloads) (JetBrainsMono is listed on this page).
+    *   Installation methods vary by OS (e.g., manual copy, Homebrew on macOS, AUR on Arch Linux). Refer to Nerd Fonts documentation or your OS's font installation guides.
+*   **Font Awesome** (for icons)
+    *   Typically installed as a desktop font. Download and instructions can be found at [Font Awesome Desktop Setup](https://fontawesome.com/docs/desktop/setup/get-started).
+    *   Follow their instructions for downloading and installing the font files on your system.
+
+### Essential Utilities & Tools
+*   `git` (for cloning this repository)
+*   `bash` (for running setup scripts)
+*   `jq` (for JSON processing by some scripts)
+*   `yad` (for GUI dialogs used by some scripts)
+*   `brightnessctl` (for screen brightness control)
+*   `playerctl` (for media player control)
+*   `wl-paste` & `cliphist` (clipboard utilities)
+*   A Polkit agent (e.g., `polkit-kde-agent`, necessary for elevated privileges for some actions)
+
+## 3. Installation
 
 1.  **Clone the repository:**
+    Using HTTPS:
     ```bash
+    git clone https://github.com/vexalous/crimson-cascade-dots.git
+    cd crimson-cascade-dots
+    ```
+    Alternatively, using SSH:
+    ```bash
+    git clone git@github.com:vexalous/crimson-cascade-dots.git
+    cd crimson-cascade-dots
+    ```
 
 2.  **Run the setup script:**
+    Navigate into the cloned directory if you haven't already, then run:
     ```bash
     bash setup.sh
     ```
-    This script will:
-    *   Back up any existing configuration files in `~/.config/` for the applications managed by these dotfiles (e.g., `~/.config/hypr`, `~/.config/alacritty`, etc.) to a timestamped backup directory.
-    *   Copy the configuration files from this repository into your `~/.config/` directory.
-    *   Set necessary environment variables (e.g., for Hyprland scripts).
+    The `setup.sh` script will:
+      * **Backup:** Create a timestamped backup of any existing configuration files in `~/.config/` for the applications managed by these dotfiles (e.g., `~/.config/hypr`, `~/.config/alacritty`).
+      * **Copy:** Copy the new configuration files from this repository into your `~/.config/` directory.
+      * It may also set necessary environment variables or permissions for scripts.
 
-## How it Works
+## 4. Usage / Post-Installation
 
-This repository is structured to provide ready-to-use configurations while also offering a way to understand and regenerate them.
+*   **Using Configurations:** Once `setup.sh` completes, your new configurations are active in `~/.config/`. Applications like Hyprland, Alacritty, and Waybar will use these new settings automatically upon their next launch.
+*   **Reloading:**
+    *   **Hyprland:** To apply changes to Hyprland without logging out, you can usually reload its configuration using a keybinding (often `Super + M` or `Super + Shift + R` - check `~/.config/hypr/conf/keybinds.conf` for the exact binding).
+    *   **Waybar:** Waybar typically reloads automatically when its configuration file (`~/.config/waybar/config`) or stylesheet (`~/.config/waybar/style.css`) is saved. If not, you may need to kill and restart the Waybar process.
+*   **Detailed Configuration:**
+    *   For Alacritty details, see: `alacritty/README.md` (in this repository, corresponding to `~/.config/alacritty/`)
+    *   For Hyprland details, see: `hypr/README.md` (in this repository, corresponding to `~/.config/hypr/`)
+    *   For Waybar details, see: `waybar/README.md` (in this repository, corresponding to `~/.config/waybar/`)
 
-### Hyprland (`hypr/`)
+## 5. Basic Customization
 
-*   The core window manager.
-*   Configuration is split into multiple files within `hypr/conf/` for better organization (e.g., `keybinds.conf`, `animations.conf`, `windowrules.conf`).
-*   `hyprland.conf` sources these individual files.
-*   Extensive use of custom scripts in `hypr/scripts/` for enhanced functionality.
-*   See `hypr/README.md` for detailed information on structure, keybinds, and customization.
+For most users, customization involves editing the configuration files directly after the setup script has run:
 
-### Rofi (`hypr/rofi/`)
+*   Navigate to your `~/.config/` directory.
+*   Edit files like `~/.config/hypr/hyprland.conf`, `~/.config/alacritty/alacritty.toml`, or `~/.config/waybar/config` using your preferred text editor.
+*   Changes made here are local to your system and will be active once the respective application is reloaded or restarted.
 
-*   Used for the application launcher and a custom power menu (`rofi_powermenu.sh`).
-*   Theming is done via `hypr/rofi/powermenu_theme.rasi`.
-*   No separate Rofi configuration directory; it's integrated with Hyprland's scripts and theming.
+This method is straightforward and recommended for tweaking settings to your personal preference.
 
-### Waybar (`waybar/`)
+## 6. Advanced Customization & Development
 
-*   Highly customizable status bar.
-*   Configuration is in `waybar/config` (JSON format).
-*   Styling is done via `waybar/style.css`.
-*   Modules are configured to display workspace information, clock, system tray, hardware status (CPU, RAM, disk), volume, network, etc.
-*   See `waybar/README.md` for details on modules and styling.
+This repository also contains scripts that were used to *generate* the configuration files. This is for users who want to modify the underlying logic of how configurations are built, or contribute to the development of these dotfiles.
 
-## Customization
+*   The generation scripts are located in the `scripts/config/` directory within the cloned repository.
+*   These scripts take template files or use helper libraries (in `scripts/config_lib/`) to produce the final configuration files found in `hypr/`, `alacritty/`, etc.
+*   For detailed information on how to use these scripts, their structure, and contribution guidelines for them, please refer to `scripts/README.md`.
+*   **Caution:** Modifying and running these generator scripts will overwrite the configuration files within the repository itself.
 
-There are two main ways to customize these dotfiles:
+## 7. Troubleshooting
 
-1.  **Post-Setup Modification (Recommended for most users):**
-    *   After running `setup.sh`, the configuration files will be in your `~/.config/` directory (e.g., `~/.config/hypr/hyprland.conf`, `~/.config/waybar/config`).
-    *   You can directly edit these files to make changes. This is the simplest way to tweak settings to your liking.
-    *   Changes made here will not affect the files in your cloned repository unless you manually copy them back.
-
-2.  **Modifying Generator Scripts (Advanced):**
-    *   If you want to change the fundamental structure or generation logic of the configurations, you can modify the scripts in the `scripts/config/` directory within your cloned repository.
-    *   After making changes, you would run the relevant script (e.g., `bash scripts/config/hyprland_main.sh`) from the root of the repository to regenerate the configuration files (e.g., `hypr/hyprland.conf`).
-    *   These changes can then be committed to your fork of the repository.
-    *   **Caution:** Be careful when running these scripts, as they will overwrite the existing configurations in the repository.
-
-## Troubleshooting
-
-*   **Fonts not displaying correctly (especially icons):** Ensure you have JetBrainsMono Nerd Font and Font Awesome installed and correctly recognized by your system. You might need to rebuild your font cache (`fc-cache -fv`).
-*   **Scripts not executing:** Some scripts (especially those in `hypr/scripts/`) might require execute permissions. The `setup.sh` script attempts to handle this, but you can manually set them if needed: `chmod +x ~/.config/hypr/scripts/*.sh`.
+*   **Fonts not displaying correctly (especially icons):**
+    *   Ensure JetBrainsMono Nerd Font and Font Awesome are installed and recognized.
+    *   You might need to rebuild your font cache: `fc-cache -fv`.
+*   **Scripts not executing:**
+    *   The `setup.sh` script attempts to set execute permissions. If issues persist, ensure scripts in `~/.config/hypr/scripts/` (and other relevant locations) are executable: `chmod +x ~/.config/hypr/scripts/*.sh`.
 *   **Changes not applying:**
-    *   For Hyprland, reload the configuration (usually `Super + M` or as defined in your `hypr/conf/keybinds.conf`).
-    *   For Waybar, it usually reloads automatically upon saving its config/style file. If not, you might need to kill and restart it.
-    *   For Alacritty, new settings apply to newly opened terminals.
+    *   **Hyprland:** Reload configuration (e.g., `Super + M`).
+    *   **Waybar:** Should reload on config save. If not, restart Waybar (e.g., `killall waybar && waybar &`).
+    *   **Alacritty:** New settings apply to newly opened terminal windows.
+*   **Missing dependencies:** If applications fail to start or features are missing, double-check the "Prerequisites" section and ensure all listed software is installed.
 
-## Repository Structure
+## 8. Repository Structure
 
-```
+A brief overview of the main directories in this repository:
+
+```text
 .
 ├── README.md               # This file
 ├── LICENSE                 # License information
 ├── .stylelintrc.json       # Stylelint configuration for Waybar CSS
-├── alacritty/              # Alacritty configuration
+├── alacritty/              # Alacritty terminal configuration
 │   ├── README.md
 │   └── alacritty.toml
-├── hypr/                   # Hyprland configuration
+├── hypr/                   # Hyprland window manager configuration
 │   ├── README.md
-│   ├── conf/               # Main Hyprland config snippets
-│   ├── hyprland.conf       # Main Hyprland configuration file (sources from conf/)
+│   ├── conf/               # Hyprland config snippets
+│   ├── hyprland.conf       # Main Hyprland configuration file
 │   └── scripts/            # Helper scripts for Hyprland
 ├── scripts/                # Setup and configuration generation scripts
 │   ├── README.md
-│   ├── config/             # Scripts to GENERATE the dotfiles in this repo
-│   ├── config_lib/         # Libraries for config generation scripts
-│   ├── setup_lib/          # Libraries for the main setup.sh script
-│   └── setup.sh            # Main setup script for end-users
-├── waybar/                 # Waybar configuration
+│   ├── config/             # Scripts to GENERATE dotfiles
+│   ├── config_lib/         # Libraries for config generation
+│   ├── setup_lib/          # Libraries for setup.sh
+│   └── setup.sh            # Main setup script
+├── waybar/                 # Waybar status bar configuration
 │   ├── README.md
-└── crimson_black_wallpaper.png # Example wallpaper
+│   ├── config
+│   └── style.css
+├── crimson_black_wallpaper.png # Example wallpaper
 ```
 
-## Contributing
+## 9. Contributing
 
-Feel free to fork this repository, make improvements, and open pull requests. If you find any issues or have suggestions, please open an issue on the GitHub repository.
+Contributions are welcome!
 
-When contributing, if you modify the configuration generation logic in `scripts/config/`, please ensure you regenerate the relevant configuration files and commit them as well.
+*   Fork the repository.
+*   Create a new branch for your feature or bug fix.
+*   Make your changes.
+    *   If modifying basic configurations (e.g., `hypr/hyprland.conf`), ensure your changes are well-tested.
+    *   If modifying the generation scripts in `scripts/config/`, please also regenerate the relevant output configuration files and commit them. Ensure you've read `scripts/README.md`.
+*   Open a pull request with a clear description of your changes.
+*   Please report any issues or suggest improvements by opening an issue on the GitHub repository.
 
-## License
+## 10. License
+
+This project is released into the public domain. See the [LICENSE](LICENSE) file for details, which is based on the [Unlicense](https://unlicense.org).
