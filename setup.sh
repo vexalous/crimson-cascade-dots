@@ -7,6 +7,10 @@ BACKUP_DIR_BASE="$HOME/config_backups_crimson_cascade"
 GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
 REPO_NAME="crimson-cascade-dots"
 
+DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png"
+WALLPAPER_TARGET_DIR="$CONFIG_TARGET_DIR/hypr/wallpaper"
+HYPRPAPER_SCRIPT_PATH="$DOTFILES_SOURCE_DIR/scripts/config/hyprpaper.sh"
+
 DOTFILES_SOURCE_DIR=""
 TEMP_CLONE_DIR=""
 
@@ -34,6 +38,15 @@ declare -a target_dirs_to_ensure=(
 )
 ensure_target_dirs "$CONFIG_TARGET_DIR" "${target_dirs_to_ensure[@]}"
 
+echo "Setting up default wallpaper..."
+mkdir -p "$WALLPAPER_TARGET_DIR"
+if [ -f "$DOTFILES_SOURCE_DIR/$DEFAULT_WALLPAPER_FILE" ]; then
+    cp "$DOTFILES_SOURCE_DIR/$DEFAULT_WALLPAPER_FILE" "$WALLPAPER_TARGET_DIR/"
+    echo "Default wallpaper copied to $WALLPAPER_TARGET_DIR."
+else
+    echo "Warning: Default wallpaper file '$DEFAULT_WALLPAPER_FILE' not found in '$DOTFILES_SOURCE_DIR'."
+fi
+
 echo "Copying Configuration Files from $DOTFILES_SOURCE_DIR ..."
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "hypr" "Hyprland"
 
@@ -55,10 +68,25 @@ if [ -f "$target_env_file" ]; then
 else
     echo "Warning: $target_env_file not found. Cannot set HYPR_SCRIPTS_DIR."
 fi
+
+echo "Configuring hyprpaper..."
+if [ -f "$HYPRPAPER_SCRIPT_PATH" ]; then
+    chmod +x "$HYPRPAPER_SCRIPT_PATH"
+    echo "Executing hyprpaper configuration script: $HYPRPAPER_SCRIPT_PATH"
+    "$HYPRPAPER_SCRIPT_PATH"
+else
+    echo "Warning: hyprpaper configuration script not found at $HYPRPAPER_SCRIPT_PATH"
+fi
+
 copy_component "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "waybar" "Waybar"
 copy_single_file "alacritty/alacritty.toml" "alacritty/alacritty.toml" "$DOTFILES_SOURCE_DIR" "$CONFIG_TARGET_DIR" "Alacritty"
 
 cleanup_temp_dir "$TEMP_CLONE_DIR"
+
+echo "Starting hyprpaper daemon..."
+killall hyprpaper || true
+hyprpaper &
+echo "hyprpaper started in background."
 
 echo "--------------------------------------------------------------------"
 echo "Crimson Cascade Dotfiles setup process finished."
