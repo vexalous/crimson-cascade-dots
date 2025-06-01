@@ -41,7 +41,16 @@ window#waybar {
     --cfg-density-scale: 1; /* 0.8=Compact, 1=Default, 1.2=Spacious (affects spacing & font size) */
     --cfg-effects-detail-level: 0; /* 0=Full, 1=Standard, 2=Minimal */
 
-    /* --- Global Feature Toggles (1 for on, 0 for off) --- */
+    /*
+     * --- Global Feature Toggles (1 for on, 0 for off) ---
+     * These --enable-* flags control major visual features.
+     * --enable-force-minimalism: If set to 1, this toggle overrides several other
+     * feature flags (like shadows, gradients, animations) to enforce a
+     * very basic, performance-focused appearance, regardless of their
+     * individual settings. It acts as a master switch for an ultra-minimal look.
+     * Other flags control specific features which may also be influenced by
+     * the "Visual Style" and "Effects Detail" profiles.
+     */
     --enable-shadows-master: 1; /* Master switch for all shadows */
     --enable-gradients-master: 1; /* Master switch for all gradients */
     --enable-animations-master: 1; /* Master switch for most cosmetic animations */
@@ -66,8 +75,8 @@ window#waybar {
      */
 
     /* --- Minimalist Override Logic --- */
-    --_is-minimalist-style: calc(var(--cfg-visual-style-profile) / 2); /* Becomes 1 if --cfg-visual-style-profile is 2, else 0 or 0.5 */
-    --_minimal-mode-active: max(var(--enable-force-minimalism), var(--_is-minimalist-style)); /* 1 if either is true */
+    --_is-minimalist-style: calc(var(--cfg-visual-style-profile) / 2);
+    --_minimal-mode-active: max(var(--enable-force-minimalism), var(--_is-minimalist-style));
 
     /* --- Effective Toggles (Minimalism can override these) --- */
     --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
@@ -79,11 +88,10 @@ window#waybar {
     --_effective-glassmorphism-enabled: calc(var(--enable-experimental-glassmorphism) * (1 - var(--_minimal-mode-active)));
 
     /* --- Effects Detail Adjustments --- */
-    /* Opacity/Intensity multipliers based on effects detail level */
-    --_effects-detail-multiplier-full: calc((1 - var(--cfg-effects-detail-level) / 2) * (1 - var(--cfg-effects-detail-level) / 1)); /* 1 if level 0, 0 if level 2, 0.5 if level 1 approx */
-    --_effects-detail-multiplier-standard: calc(1 - max(var(--cfg-effects-detail-level) - 1, 1 - var(--cfg-effects-detail-level))); /* 1 if level 1, 0 if level 0 or 2 */
+    --_effects-detail-multiplier-full: calc((1 - var(--cfg-effects-detail-level) / 2) * (1 - var(--cfg-effects-detail-level) / 1));
+    --_effects-detail-multiplier-standard: calc(1 - max(var(--cfg-effects-detail-level) - 1, 1 - var(--cfg-effects-detail-level)));
     --_effects-detail-multiplier-reduced: var(--_effects-detail-multiplier-full);
-    --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25)); /* Animations slower on lower effect detail levels */
+    --_effects-duration-scale: calc(1 + (var(--cfg-effects-detail-level) * 0.25));
 
     /* --- Base Color Palette (HSL based on --cfg-base-theme-mode) --- */
     --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
@@ -103,10 +111,9 @@ window#waybar {
     --theme-border-default: hsl(0, 0%, var(--L-border-default));
 
     /* --- Accent Palette Selection --- */
-    /* Hues: 1=Preset1(15), 2=Preset2(200), 3=Preset3(100), 4=Monochrome(use current bg hue, 0 sat) */
-    --palette-preset1-H: 15; --palette-preset1-S: 95%; --palette-preset1-L: 55%; /* Warm Tones */
-    --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%; /* Cool Tones */
-    --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%; /* Natural Tones */
+    --palette-preset1-H: 15; --palette-preset1-S: 95%; --palette-preset1-L: 55%;
+    --palette-preset2-H: 200; --palette-preset2-S: 85%; --palette-preset2-L: 60%;
+    --palette-preset3-H: 100; --palette-preset3-S: 60%; --palette-preset3-L: 45%;
 
     --_is-palette-preset1: calc(1 - max(var(--cfg-accent-palette-profile) - 1, 1 - var(--cfg-accent-palette-profile)));
     --_is-palette-preset2: calc(1 - max(var(--cfg-accent-palette-profile) - 2, 2 - var(--cfg-accent-palette-profile)));
@@ -114,21 +121,9 @@ window#waybar {
     --_is-palette-monochrome: calc(1 - max(var(--cfg-accent-palette-profile) - 4, 4 - var(--cfg-accent-palette-profile)));
     --_is-palette-custom: calc(1 - max(var(--cfg-accent-palette-profile) - 0, 0 - var(--cfg-accent-palette-profile)));
 
-    --accent-H-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-H) +
-                              var(--_is-palette-preset1) * var(--palette-preset1-H) +
-                              var(--_is-palette-preset2) * var(--palette-preset2-H) +
-                              var(--_is-palette-preset3) * var(--palette-preset3-H) +
-                              var(--_is-palette-monochrome) * 0);
-    --accent-S-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-S) +
-                              var(--_is-palette-preset1) * var(--palette-preset1-S) +
-                              var(--_is-palette-preset2) * var(--palette-preset2-S) +
-                              var(--_is-palette-preset3) * var(--palette-preset3-S) +
-                              var(--_is-palette-monochrome) * 0%);
-    --accent-L-base-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-L) +
-                                  var(--_is-palette-preset1) * var(--palette-preset1-L) +
-                                  var(--_is-palette-preset2) * var(--palette-preset2-L) +
-                                  var(--_is-palette-preset3) * var(--palette-preset3-L) +
-                                  var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%));
+    --accent-H-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-H) + var(--_is-palette-preset1) * var(--palette-preset1-H) + var(--_is-palette-preset2) * var(--palette-preset2-H) + var(--_is-palette-preset3) * var(--palette-preset3-H) + var(--_is-palette-monochrome) * 0);
+    --accent-S-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-S) + var(--_is-palette-preset1) * var(--palette-preset1-S) + var(--_is-palette-preset2) * var(--palette-preset2-S) + var(--_is-palette-preset3) * var(--palette-preset3-S) + var(--_is-palette-monochrome) * 0%);
+    --accent-L-base-resolved: calc(var(--_is-palette-custom) * var(--cfg-custom-accent-L) + var(--_is-palette-preset1) * var(--palette-preset1-L) + var(--_is-palette-preset2) * var(--palette-preset2-L) + var(--_is-palette-preset3) * var(--palette-preset3-L) + var(--_is-palette-monochrome) * (var(--cfg-base-theme-mode) * 30% + (1 - var(--cfg-base-theme-mode)) * 70%));
 
     /* --- Final Accent Colors (HSL) --- */
     --accent-H: var(--accent-H-resolved);
@@ -150,14 +145,12 @@ window#waybar {
     --radius-unit: calc(6px * var(--_density-scale-factor));
 
     /* --- Visual Style Adjustments --- */
-    /* Style: 0=Standard, 1=Enhanced, 2=Minimalist (handled by --_minimal-mode-active) */
     --_is-visual-profile-standard: calc(1 - max(var(--cfg-visual-style-profile) - 0, 0 - var(--cfg-visual-style-profile)));
     --_is-visual-profile-enhanced: calc(1 - max(var(--cfg-visual-style-profile) - 1, 1 - var(--cfg-visual-style-profile)));
     --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
     --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
-    --_effective-border-style: var(--_minimal-mode-active) solid, var(--_is-visual-profile-standard) solid, var(--_is-visual-profile-enhanced) solid;
+    --_effective-border-style: solid; /* Simplified: original logic consistently led to 'solid' via invalid constructs */
     --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
-
 
     /*
      * ==========================================================================
@@ -169,7 +162,7 @@ window#waybar {
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
     --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
-    --color-accent-primary-actual: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--theme-accent-primary-base);
+    --color-accent-primary-actual: var(--_effective-gradients-enabled) var(--color-accent-primary-gradient), var(--theme-accent-primary-base); /* Note: if --_effective-gradients-enabled is 1, "1 linear-gradient(...)" is invalid, causing fallback to base. This logic might be reversed from intent. */
     --color-accent-primary-solid: var(--theme-accent-primary-base);
     --color-accent-secondary: var(--theme-accent-secondary-base);
     --color-accent-highlight: var(--theme-accent-highlight);
@@ -193,7 +186,7 @@ window#waybar {
     --typography-font-family-icons: var(--font-stack-icons);
     --typography-font-variant-numeric: tabular-nums;
     --typography-font-feature-settings: "liga" 1, "clig" 1;
-    --theme-font-size-base: 14px; /* Define fallback if not globally available */
+    --theme-font-size-base: 14px;
     --typography-font-size-default: calc(var(--theme-font-size-base) * var(--_density-scale-factor));
     --typography-font-size-small: calc(var(--typography-font-size-default) * 0.85);
     --typography-font-size-large: calc(var(--typography-font-size-default) * 1.15);
@@ -223,7 +216,19 @@ window#waybar {
     --transition-duration-fast: calc(var(--transition-duration-base) * 0.6);
     --transition-duration-normal: var(--transition-duration-base);
     --transition-duration-slow: calc(var(--transition-duration-base) * 1.5);
-    --transition-timing-function-ui: var(--_is-visual-profile-enhanced) cubic-bezier(0.34, 1.56, 0.64, 1), cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* The following line implements the user's suggested structure.
+       If --_is-visual-profile-enhanced is 1, "1 var(--transition-timing-function-enhanced)" is typically invalid,
+       causing a fallback to var(--transition-timing-function-standard). This might be the reverse of the intended logic.
+       Standard CSS fallback is `var(--undefined-prop, fallback-val)`.
+       This pattern `var(flag-val) val1, val2` assigns the string "flag-val val1, val2" to the variable.
+       This string as a whole is likely invalid for `transition-timing-function`.
+       However, implementing as requested.
+    */
+    --transition-timing-function-ui: var(--_is-visual-profile-enhanced) var(--transition-timing-function-enhanced), var(--transition-timing-function-standard);
+
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
     /* --- Interaction Feedback --- */
@@ -277,9 +282,8 @@ window#waybar {
 
     --animation-name-dynamic-border: dynamic-border-animation;
     --animation-duration-dynamic-border: calc(0.35s * var(--_animation-speed-multiplier));
-    --transition-timing-function-snap: ease-out; /* Define or use existing */
+    --transition-timing-function-snap: ease-out;
     --animation-dynamic-ws-border-actual: var(--_effective-dynamic-ws-accents-enabled) var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
-
 
     /* --- Optional Noise Texture --- */
     --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nFT)'/%3E%3C/svg%3E");
@@ -296,10 +300,10 @@ window#waybar {
     background: var(--color-background-bar);
     color: var(--color-text-bar-default);
     position: relative;
-    border-bottom: none; /* Border handled by ::after */
+    border-bottom: none;
 }
-/* Animated border for window#waybar */
-window#waybar::after {
+
+window#waybar::after { /* Animated border */
     content: ''; position: absolute; left: 0; right: 0; bottom: 0;
     height: var(--dimension-bar-border-height);
     background: linear-gradient(90deg,
@@ -311,10 +315,9 @@ window#waybar::after {
     background-size: 400% 100%;
     animation: var(--animation-bar-border-actual);
     z-index: 0; opacity: var(--_effective-animated-bar-border-enabled);
-    box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), calc(0.3 * var(--_effective-animated-bar-border-enabled))); /* Glow beneath bar */
+    box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), calc(0.3 * var(--_effective-animated-bar-border-enabled)));
 }
-/* Noise Texture for window#waybar */
-window#waybar::before {
+window#waybar::before { /* Noise Texture */
     content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-image: var(--noise-texture-svg);
     opacity: var(--noise-texture-opacity);
@@ -322,12 +325,11 @@ window#waybar::before {
 }
 
 /* --- Keyframe Animations --- */
-@keyframes bar-border-sweep-animation { /* Smoother, more complex gradient sweep */
+@keyframes bar-border-sweep-animation {
     0% { background-position: 0% 50%; }
     100% { background-position: 400% 50%; }
 }
 @keyframes urgent-pulse-animation {
-    /* Assuming --color-background-urgent is defined elsewhere or should be an accent/error color */
     0% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
     50% { transform: scale(1.05); box-shadow: 0 0 15px 2px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-hover-actual); opacity: 0.8; }
     100% { transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
@@ -341,11 +343,10 @@ window#waybar::before {
     50% { transform: scale(1.04); opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
 }
-@keyframes dynamic-border-animation { /* For workspace button hover, subtle reveal */
+@keyframes dynamic-border-animation {
     from { transform: scaleX(0) translateX(-50%); opacity: 0.5; }
     to   { transform: scaleX(1) translateX(-50%); opacity: 1; }
 }
-
 
 /* --- GENERAL MODULE STYLING --- */
 :where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window) {
@@ -362,15 +363,13 @@ window#waybar::before {
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
 }
-/* Noise Texture for general modules */
-:where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window)::before {
+:where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window)::before { /* Noise Texture */
     content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
     pointer-events: none; z-index: -1; border-radius: inherit;
 }
 
 /* --- GENERAL MODULE INTERACTION & STATES --- */
-/* HOVER */
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):not(.active):hover {
     background: var(--color-background-module-hover);
     color: var(--color-text-module-hover);
@@ -380,7 +379,6 @@ window#waybar::before {
     transition-duration: var(--transition-duration-fast);
     z-index: 10;
 }
-/* FOCUS */
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus,
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray):not(.disabled):not(.error):focus-within {
     outline: var(--outline-high-contrast-focus-actual);
@@ -389,7 +387,6 @@ window#waybar::before {
     animation: var(--animation-focused-glow-actual);
     z-index: 15;
 }
-/* ACTIVE */
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray).active:not(.disabled):not(.error) {
     background: var(--color-background-module-active);
     color: var(--color-text-module-active);
@@ -399,8 +396,7 @@ window#waybar::before {
     animation: var(--animation-state-feedback-actual);
     z-index: 20;
 }
-/* DISABLED & ERROR STATES (Assuming these variables are defined elsewhere or need defaults) */
-/* Fallback values for potentially undefined state colors/properties */
+
 :root {
     --opacity-disabled: 0.5;
     --interaction-cursor-disabled: not-allowed;
@@ -408,13 +404,12 @@ window#waybar::before {
     --color-background-disabled: hsl(0, 0%, 50%);
     --color-text-disabled: hsl(0, 0%, 30%);
     --filter-disabled: grayscale(50%);
-    --theme-grey-700: hsl(0, 0%, 40%); /* Example grey */
+    --theme-grey-700: hsl(0, 0%, 40%);
     --color-background-error: hsl(0, 70%, 50%);
     --color-text-error: hsl(0, 0%, 100%);
     --color-border-error: hsl(0, 80%, 60%);
-    --dimension-border-style-dashed: dashed; /* Define if not globally available */
+    --dimension-border-style-dashed: dashed;
 }
-
 .disabled, :disabled, .error {
     opacity: var(--opacity-disabled, 0.6) !important; cursor: var(--interaction-cursor-disabled, default) !important;
     transform: none !important; animation: none !important; box-shadow: none !important;
@@ -440,7 +435,6 @@ window#waybar::before {
     box-shadow: var(--effects-shadow-module-actual);
 }
 #workspaces button {
-    /* Assuming --color-text-workspace-default, etc. are defined or should use fallbacks */
     padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75);
     margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5);
     color: var(--color-text-workspace-default, var(--color-text-bar-default));
@@ -457,7 +451,6 @@ window#waybar::before {
     outline: var(--outline-high-contrast-focus-actual);
     box-shadow: var(--effects-focus-ring-shadow-actual);
 }
-/* Dynamic Underline/Accent for Workspace Buttons */
 #workspaces button:not(.focused):not(.urgent)::after {
     content: ''; position: absolute;
     left: 50%; bottom: calc(var(--spacing-unit) * -0.25);
@@ -465,15 +458,14 @@ window#waybar::before {
     background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid));
     border-radius: var(--dimension-border-width-normal);
     transform-origin: center;
-    animation: var(--animation-dynamic-ws-border-actual); /* Already full shorthand via variable */
+    animation: var(--animation-dynamic-ws-border-actual);
     animation-play-state: paused;
-    opacity: var(--_effective-dynamic-ws-accents-enabled); /* Use flag for opacity control */
+    opacity: var(--_effective-dynamic-ws-accents-enabled);
 }
 #workspaces button:not(.focused):not(.urgent):hover::after {
     animation-play-state: running;
     width: 70%;
 }
-
 #workspaces button.persistent { color: var(--color-text-workspace-persistent, var(--theme-fg-tertiary)); font-style: italic; opacity: 0.8; }
 #workspaces button.visible {
     color: var(--color-text-workspace-visible, var(--theme-fg-primary));
@@ -497,7 +489,6 @@ window#waybar::before {
     box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base));
     z-index: 5;
 }
-
 #workspaces button:hover:not(.focused):not(.urgent) {
     color: var(--color-text-workspace-hover, var(--color-text-module-hover));
     background: var(--color-background-module-hover);
@@ -552,7 +543,7 @@ window#waybar::before {
 }
 
 #pulseaudio, #network, #cpu, #memory {
-    background-color: var(--color-background-module-alternate); /* Corrected from border to background color */
+    background-color: var(--color-background-module-alternate);
     font-family: var(--typography-font-family-monospace);
     font-variant-numeric: var(--typography-font-variant-numeric);
     color: var(--color-text-module-stats, var(--color-text-bar-default));
@@ -619,8 +610,7 @@ tooltip {
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
 }
-/* Noise Texture for tooltips */
-tooltip::before {
+tooltip::before { /* Noise Texture */
     content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-image: var(--noise-texture-svg); opacity: var(--noise-texture-opacity);
     pointer-events: none; z-index: -1; border-radius: inherit;
@@ -628,7 +618,6 @@ tooltip::before {
 tooltip label { color: inherit; }
 
 /* --- UNIVERSAL ICON STYLING --- */
-/* Fallback values for potentially undefined icon variables */
 :root {
     --dimension-icon-size-default: 1em;
     --color-icon-default: inherit;
@@ -636,7 +625,6 @@ tooltip label { color: inherit; }
     --color-icon-hover: var(--theme-accent-highlight);
     --color-icon-active: var(--theme-accent-primary-solid);
 }
-
 .icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
     font-family: var(--typography-font-family-icons) !important;
     font-size: var(--dimension-icon-size-default, 1em);
