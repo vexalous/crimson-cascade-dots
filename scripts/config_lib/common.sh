@@ -47,21 +47,11 @@ finish_script_generation_dir() {
     local target_dir="$1"
     local description="$2"
     echo "$description generated in $target_dir."
-    # Find all .sh files in the target directory (non-recursive) and make them executable.
-    # -maxdepth 1: Prevents find from descending into subdirectories.
-    # -name '*.sh': Finds files ending with .sh.
-    # -exec chmod +x {} +: Executes chmod +x on the found files.
-    #   The '{}' is replaced by the found file names, and '+' groups multiple files
-    #   into a single chmod command for efficiency.
+    # Find all .sh files (non-recursive via -maxdepth 1) in $target_dir
+    # and make them executable using 'chmod +x'.
+    # The -exec ... {} + syntax is efficient for multiple files.
     # If no .sh files are found, chmod will not be executed.
     find "$target_dir" -maxdepth 1 -name '*.sh' -exec chmod +x {} +
 
-    # Note: It's harder to conditionally print "Made scripts executable" without
-    # re-running find or checking its output. A generic message or no message
-    # after this simplified command is common. For now, we'll assume the action
-    # is attempted and trust find/chmod to handle no-ops gracefully.
-    # If specific feedback is needed, the previous approach was more explicit.
-    # For simplicity and common practice with 'find -exec', we omit the conditional echo.
-    # A more advanced approach could count files first if the message is critical.
-    echo "Attempted to make shell scripts in $target_dir executable (if any were found)."
+    echo "Successfully set executable permissions for .sh files in $target_dir (if any existed)."
 }

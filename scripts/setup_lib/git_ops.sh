@@ -23,11 +23,15 @@ determine_source_dir() {
     local local_dotfiles_source_dir=""
     local local_temp_clone_dir="" # Will store the path if a temporary clone is made
 
-    # Check if current directory is within a Git repo and if a 'hypr' subdirectory exists at the repo root.
-    # The 'hypr' check is a heuristic to ensure it's the correct dotfiles repository.
-    if [ -d ".git" ] && [ -d "$(git rev-parse --show-toplevel 2>/dev/null)/hypr" ]; then
+    # Attempt to get the top-level directory of the current git repository.
+    local git_root
+    git_root=$(git rev-parse --show-toplevel 2>/dev/null)
+
+    # Check if 'git rev-parse' succeeded and the '/hypr' subdirectory exists at the git root.
+    # This confirms we are in the correct dotfiles repository.
+    if [ $? -eq 0 ] && [ -n "$git_root" ] && [ -d "$git_root/hypr" ]; then
         echo "Running from local Git repository. Attempting to update..." >&2
-        local_dotfiles_source_dir="$(git rev-parse --show-toplevel)"
+        local_dotfiles_source_dir="$git_root"
 
         # Get the current branch name.
         current_branch=$(git -C "$local_dotfiles_source_dir" symbolic-ref --short HEAD 2>/dev/null || echo "")
@@ -73,8 +77,7 @@ determine_source_dir() {
 
         # Pull the latest changes from the remote 'main' branch.
         echo "Pulling changes for 'main' branch..." >&2
-        git -C "$local_dotfiles_source_dir" pull >&2
-        if [ $? -ne 0 ]; then
+        if ! git -C "$local_dotfiles_source_dir" pull >&2; then
             echo "ERROR: 'git pull' failed. Please resolve conflicts or issues manually." >&2
             exit 1
         fi

@@ -249,9 +249,6 @@ _perform_main_operation() {
     _ensure_essential_commands_exist
     _validate_critical_environment_variables
 
-    _ensure_essential_commands_exist
-    _validate_critical_environment_variables
-
     # Resolve HYPRLOCK_TARGET_FILE to an absolute, canonical path.
     # 'readlink -m' resolves symlinks, '..', '.' and makes the path absolute.
     local final_target_path
