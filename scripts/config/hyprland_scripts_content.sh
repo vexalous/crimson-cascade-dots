@@ -193,7 +193,6 @@ process_mic_mute_status() {
     send_notification "$notification_title" "$percentage_value" "$icon_path" "$display_text"
 }
 
-# Determines volume level and sends a notification.
 process_volume_status() {
     local notification_title="Volume"
     local current_volume
@@ -222,7 +221,7 @@ process_volume_status() {
     send_notification "$notification_title" "$percentage_value" "$icon_path" "$display_text"
 }
 
-# Main logic: display mic mute or volume status based on argument.
+# Handle "MUTE" argument or show volume status.
 main() {
     if [[ "$1" == "MUTE" ]]; then # Check if the first argument is "MUTE"
         process_mic_mute_status
@@ -231,7 +230,7 @@ main() {
     fi
 }
 
-main # Execute main with the first command-line argument (if any)
+main "$@" # Forward all script arguments to the main function.
 EOF
 
 # Finalize the script generation process for this directory.

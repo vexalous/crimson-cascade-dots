@@ -2,7 +2,7 @@
 
 ## Brief Overview
 
-This repository contains a set of personalized configuration files (dotfiles) for a Linux desktop environment built around the [Hyprland](https://hyprland.org/) Wayland compositor. It's primarily aimed at Linux enthusiasts and users who prefer a highly customized, keyboard-driven, and efficient workflow. The aim is to provide a visually appealing and performant user experience.
+This repository contains a set of personalized configuration files (dotfiles) for a Linux desktop environment built around the [Hyprland](https://hyprland.org/) Wayland compositor. This repository provides configurations for Linux enthusiasts who prefer a highly customized, keyboard-driven, and efficient workflow. The aim is to provide a visually appealing and performant user experience.
 
 Key software configured:
 
@@ -100,7 +100,7 @@ Before you begin, ensure you have the following essential software installed:
       * **Copy:** Copy the new configuration files from this repository into your `~/.config/` directory.
       * It may also set necessary environment variables or permissions for scripts.
 
-## Usage and Customization
+## Usage & Customization
 
 *   **Using Configurations:** Once `setup.sh` completes, your new configurations are active in `~/.config/`. Applications like Hyprland, Alacritty, and Waybar will use these new settings automatically upon their next launch.
 *   **Reloading Configurations:**
