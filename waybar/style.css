@@ -18,16 +18,8 @@
 
 /* --- WAYBAR MAIN STYLING & CSS VARIABLES --- */
 window#waybar {
-    /*
-     * ==========================================================================
-     * --- CORE THEME CONFIGURATION ---
-     * ==========================================================================
-     * YOU MUST MANUALLY SET THE DERIVED FLAGS (_is-*) BELOW
-     * BASED ON YOUR CHOICES HERE.
-     */
     --cfg-base-theme-mode: 0; /* 0: Dark, 1: Light */
 
-    /* Accent Palette Choice - User needs to set corresponding --_is-palette-* to 1 below */
     --cfg-custom-accent-H: 348;
     --cfg-custom-accent-S: 100%;
     --cfg-custom-accent-L: 57%;
