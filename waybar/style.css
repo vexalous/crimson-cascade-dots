@@ -193,9 +193,13 @@ window#waybar {
     --typography-font-weight-bold: calc(600 + var(--_is-visual-profile-enhanced) * 100);
     --typography-letter-spacing-normal: normal;
 
-    /* Pre-calculate alpha values for hsla() that use calc() */
+    /* Pre-calculate alpha values for hsla() that use calc() or for consistency */
     --_alpha-text-shadow-subtle: calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
     --_alpha-text-shadow-header: calc(0.15 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
+    --_alpha-inner-shadow: 0.2;
+    --_alpha-icon-hover-shadow: 0.4;
+    --_alpha-icon-active-shadow: 0.5;
+
 
     --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, var(--_alpha-text-shadow-subtle));
     --typography-text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, var(--_alpha-text-shadow-header));
@@ -245,7 +249,7 @@ window#waybar {
     --effects-shadow-module-actual: 0 2px 5px -1px var(--effects-shadow-color-ambient), 0 4px 8px -2px var(--effects-shadow-color-direct);
     --effects-shadow-module-hover-actual: 0 5px 10px -2px var(--effects-shadow-color-ambient), 0 8px 16px -3px var(--effects-shadow-color-direct);
     --effects-shadow-tooltip-actual: 0 8px 24px -4px var(--effects-shadow-color-direct);
-    --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), 0.2); /* 0.2 is static, no calc needed */
+    --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), var(--_alpha-inner-shadow));
 
     --effects-focus-ring-color: var(--color-accent-highlight);
     --effects-focus-ring-width-base: 2px;
@@ -371,6 +375,20 @@ window#waybar::before { /* Noise Texture */
     from {transform: scaleX(0) translateX(-50%); opacity: 0.5;}
     to {transform: scaleX(1) translateX(-50%); opacity: 1;}
 }
+
+/*
+ * Regarding Module Selectors:
+ * The following grouped ID selectors (e.g., #clock, #cpu, #memory, ...) might appear verbose.
+ * This approach is intentional for the following reasons:
+ * 1. Waybar modules are identified by unique HTML IDs (e.g., #clock), not common classes
+ *    that can be targeted broadly by default. We cannot modify Waybar's HTML output to add such classes.
+ * 2. Using explicit comma-separated ID lists is the most direct and compatible way to apply
+ *    shared styles across a specific set of modules.
+ * 3. Advanced CSS pseudo-classes like :is() or :where(), which could shorten these lists,
+ *    were previously removed to ensure broader compatibility with Waybar's GTK CSS parser.
+ * Therefore, these explicit lists represent the most robust and maintainable solution
+ * under the given constraints.
+ */
 
 /* General Module Styling (Replaced :where with simple list) */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window {
@@ -791,7 +809,7 @@ tooltip label {
 *:focus-within > .icon, *:focus-within > [class*="fa-"], *:focus-within > [class*="mdi-"], *:focus-within > [class*="nf-"] {
     color: var(--color-icon-hover, var(--color-accent-highlight));
     transform: scale(1.18) translateY(-1.5px) rotate(calc(var(--_is-visual-profile-enhanced) * -5deg));
-    text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), 0.4); /* Alpha is static 0.4, no calc needed */
+    text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), var(--_alpha-icon-hover-shadow));
 }
 .active .icon,
 .active [class*="fa-"],
@@ -799,7 +817,7 @@ tooltip label {
 .active [class*="nf-"] {
     color: var(--color-icon-active, var(--color-accent-primary-solid));
     transform: scale(1.1);
-    text-shadow: 0 1px 3px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), 0.5); /* Alpha is static 0.5, no calc needed */
+    text-shadow: 0 1px 3px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), var(--_alpha-icon-active-shadow));
 }
 .error .icon,
 .error [class*="fa-"],
