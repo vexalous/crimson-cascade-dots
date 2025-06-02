@@ -267,7 +267,6 @@ window#waybar {
     /* --- Animations --- */
     --animation-name-bar-border-sweep: bar-border-sweep-animation;
     --animation-duration-bar-border-sweep: calc(10s * var(--_animation-speed-multiplier));
-    /* Corrected: Removed var(--_effective-animated-bar-border-enabled) from start */
     --animation-bar-border-actual: var(--animation-name-bar-border-sweep) var(--animation-duration-bar-border-sweep) linear infinite;
 
     --_enable-animation-urgent-pulse: 1;
@@ -276,33 +275,25 @@ window#waybar {
 
     --animation-name-urgent-pulse: urgent-pulse-animation;
     --animation-duration-pulse: calc(1.4s * var(--_animation-speed-multiplier));
-    /* Added effective duration for toggle */
     --_animation-duration-pulse-eff: calc(var(--animation-duration-pulse) * var(--_enable-animation-urgent-pulse));
-    /* Corrected: Used effective duration */
     --animation-urgent-actual: var(--animation-name-urgent-pulse) var(--_animation-duration-pulse-eff) ease-in-out infinite alternate;
 
     --animation-name-focused-glow: focused-glow-animation;
     --animation-duration-glow: calc(2.2s * var(--_animation-speed-multiplier));
-    /* Added effective duration for toggle */
     --_animation-duration-glow-eff: calc(var(--animation-duration-glow) * var(--_enable-animation-focused-glow));
-    /* Corrected: Used effective duration */
     --animation-focused-glow-actual: var(--animation-name-focused-glow) var(--_animation-duration-glow-eff) ease-in-out infinite alternate;
 
     --animation-name-state-feedback: state-feedback-animation;
     --animation-duration-state-feedback: calc(0.4s * var(--_animation-speed-multiplier));
-    /* Added effective duration for toggle */
     --_animation-duration-state-feedback-eff: calc(var(--animation-duration-state-feedback) * var(--_enable-animation-state-feedback));
-    /* Corrected: Used effective duration */
     --animation-state-feedback-actual: var(--animation-name-state-feedback) var(--_animation-duration-state-feedback-eff) var(--transition-timing-function-ui);
 
     --animation-name-dynamic-border: dynamic-border-animation;
     --animation-duration-dynamic-border: calc(0.35s * var(--_animation-speed-multiplier));
     --transition-timing-function-snap: ease-out;
-    /* Corrected: Removed var(--_effective-dynamic-ws-accents-enabled) from start */
     --animation-dynamic-ws-border-actual: var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
 
     /* --- Optional Noise Texture --- */
-    /* Corrected: Encoded % to %25 and # to %23 in SVG data URI */
     --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%2525' height='100%2525' filter='url(%2523nFT)'/%3E%3C/svg%3E");
     --noise-texture-opacity: calc(0.015 * var(--_effective-noise-texture-enabled));
 
@@ -334,7 +325,7 @@ window#waybar::after { /* Animated border */
         var(--theme-accent-primary-base), var(--theme-accent-highlight),
         var(--theme-accent-primary-grad-start));
     background-size: 400% 100%;
-    animation: var(--animation-bar-border-actual); /* Corrected variable usage */
+    animation: var(--animation-bar-border-actual);
     z-index: 0;
     opacity: var(--_effective-animated-bar-border-enabled);
     box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), calc(0.3 * var(--_effective-animated-bar-border-enabled)));
@@ -427,7 +418,7 @@ window#waybar::before { /* Noise Texture */
     outline: var(--outline-high-contrast-focus-actual);
     border-color: var(--color-accent-highlight);
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
-    animation: var(--animation-focused-glow-actual); /* Corrected variable usage */
+    animation: var(--animation-focused-glow-actual);
     z-index: 15;
 }
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray).active:not(.disabled):not(.error) {
@@ -436,7 +427,7 @@ window#waybar::before { /* Noise Texture */
     border-color: var(--color-border-module-active);
     box-shadow: var(--effects-shadow-inner-pressed), var(--effects-focus-ring-shadow-actual);
     transform: var(--interaction-transform-active-press);
-    animation: var(--animation-state-feedback-actual); /* Corrected variable usage */
+    animation: var(--animation-state-feedback-actual);
     z-index: 20;
 }
 
@@ -522,7 +513,7 @@ window#waybar::before { /* Noise Texture */
     background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid));
     border-radius: var(--dimension-border-width-normal);
     transform-origin: center;
-    animation: var(--animation-dynamic-ws-border-actual); /* Corrected variable usage */
+    animation: var(--animation-dynamic-ws-border-actual);
     animation-play-state: paused;
     opacity: var(--_effective-dynamic-ws-accents-enabled);
 }
@@ -546,7 +537,7 @@ window#waybar::before { /* Noise Texture */
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
     font-weight: var(--typography-font-weight-bold);
     transform: var(--interaction-transform-hover-scale-actual);
-    animation: var(--animation-focused-glow-actual); /* Corrected variable usage */
+    animation: var(--animation-focused-glow-actual);
     z-index: 5;
 }
 #workspaces button.focused.gradients-enabled {
@@ -556,7 +547,7 @@ window#waybar::before { /* Noise Texture */
     color: var(--color-text-urgent, var(--theme-fg-primary));
     background: var(--color-background-urgent, var(--theme-accent-secondary-base));
     border: var(--dimension-border-width-thin) solid var(--color-border-urgent, var(--theme-accent-highlight));
-    animation: var(--animation-urgent-actual); /* Corrected variable usage */
+    animation: var(--animation-urgent-actual);
     font-weight: var(--typography-font-weight-bold);
     box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base));
     z-index: 5;
@@ -638,13 +629,13 @@ window#waybar::before { /* Noise Texture */
     padding: var(--spacing-unit) calc(var(--spacing-unit)*2);
 }
 #network.disconnected {
-    animation: var(--animation-state-feedback-actual); /* Corrected variable usage */
+    animation: var(--animation-state-feedback-actual);
 }
 #battery.critical:not(.charging) {
     background: var(--theme-accent-primary-solid); /* Default to solid */
     color: var(--theme-fg-primary);
     font-weight: var(--typography-font-weight-bold);
-    animation: var(--animation-urgent-actual); /* Corrected variable usage */
+    animation: var(--animation-urgent-actual);
 }
 #battery.critical.gradients-enabled:not(.charging) {
     background: var(--color-accent-primary-gradient);
