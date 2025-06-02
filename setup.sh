@@ -17,7 +17,9 @@ print_header() {
 
 determine_source_dir() {
     echo "Determining dotfiles source..."
-    # Check for a known root file to confirm we are in the correct repo root
+    # Check for a .git directory and a known root file (crimson_black_wallpaper.png)
+    # to confirm we are in the correct repository root. This helps prevent running
+    # the script from an incorrect location if it was partially copied.
     if [ -d ".git" ] && [ -f "$(git rev-parse --show-toplevel 2>/dev/null)/crimson_black_wallpaper.png" ]; then
         DOTFILES_SOURCE_DIR="$(git rev-parse --show-toplevel)"
         echo "Running from local Git repository: $DOTFILES_SOURCE_DIR"
@@ -66,6 +68,7 @@ perform_backups() {
         
         for component in "${components_to_backup[@]}"; do
             local target_path="${CONFIG_TARGET_DIR}/${component}"
+            # Check if the target path exists (can be a file or directory)
             if [ -e "$target_path" ]; then 
                 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
                 SPECIFIC_BACKUP_DIR_FOR_COMPONENT="${BACKUP_DIR_BASE}/${component}_${TIMESTAMP}"
@@ -88,9 +91,17 @@ perform_backups() {
 }
 
 force_copy_content() {
-    local source_relative_path_in_repo="$1" 
-    local target_relative_path_in_config="$2" 
-    local display_name="$3"                 
+    local source_relative_path_in_repo="$1" # Path to the source file/dir relative to DOTFILES_SOURCE_DIR
+    local target_relative_path_in_config="$2" # Path to the target file/dir relative to CONFIG_TARGET_DIR
+    local display_name="$3"                 # User-friendly name for logging
+
+    # This function forcefully copies content. It will:
+    # 1. Check if the source exists in the dotfiles repository.
+    # 2. Create the parent directory for the target if it doesn't exist.
+    # 3. If the target already exists, it will be REMOVED (rm -rf).
+    # 4. Copy the source to the target location.
+    #    - Uses 'cp -rT' for directories to copy contents directly into the target directory.
+    #    - Uses 'cp -f' for files.
 
     local full_source_path="${DOTFILES_SOURCE_DIR}/${source_relative_path_in_repo}"
     local full_target_path="${CONFIG_TARGET_DIR}/${target_relative_path_in_config}"
@@ -119,8 +130,11 @@ force_copy_content() {
 
     echo "Copying '${full_source_path}' to '${full_target_path}'..."
     if [ -d "${full_source_path}" ]; then
+        # -r: recursive, -T: treat source as a normal file (useful when source is a dir,
+        # ensures contents are copied into target_path, not source_dir as a subdir in target_path)
         cp -rT "${full_source_path}" "${full_target_path}" 
     else 
+        # -f: force (overwrite if target exists, though we removed it already)
         cp -f "${full_source_path}" "${full_target_path}"
     fi
     
