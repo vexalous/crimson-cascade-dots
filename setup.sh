@@ -3,33 +3,36 @@
 # --- Configuration ---
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DIR_BASE="$HOME/config_backups_crimson_cascade"
-GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git" # Your repo URL
-REPO_NAME="crimson-cascade-dots" # Your repo name
+GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
+REPO_NAME="crimson-cascade-dots"
 DOTFILES_SOURCE_DIR=""
 TEMP_CLONE_DIR=""
 
 # --- Helper Functions ---
 print_header() {
     echo "--------------------------------------------------------------------"
-    echo " Crimson Cascade Dotfiles - Forceful Setup"
+    echo " Crimson Cascade Dotfiles - Forceful Setup v4 (Based on Your Structure)"
     echo "--------------------------------------------------------------------"
 }
 
 determine_source_dir() {
     echo "Determining dotfiles source..."
-    # Check if current directory is the git repo and contains 'hypr' (as a sanity check)
-    if [ -d ".git" ] && [ -d "$(git rev-parse --show-toplevel 2>/dev/null)/hypr" ]; then
+    # Check for a known root file to confirm we are in the correct repo root
+    if [ -d ".git" ] && [ -f "$(git rev-parse --show-toplevel 2>/dev/null)/crimson_black_wallpaper.png" ]; then
         DOTFILES_SOURCE_DIR="$(git rev-parse --show-toplevel)"
         echo "Running from local Git repository: $DOTFILES_SOURCE_DIR"
         echo "Attempting to update repository..."
-        (cd "$DOTFILES_SOURCE_DIR" && git pull origin main) # Or your default branch
+        (
+            cd "$DOTFILES_SOURCE_DIR" && \
+            git pull origin main # Or your default branch
+        )
         if [ $? -ne 0 ]; then
             echo "WARNING: 'git pull' failed. Using local state."
         else
             echo "Repository updated."
         fi
     else
-        echo "Not in a recognized dotfiles Git repository or 'hypr' dir missing. Cloning fresh..."
+        echo "Not in a recognized dotfiles Git repository or key file (wallpaper) missing. Cloning fresh..."
         TEMP_CLONE_DIR=$(mktemp -d -t "${REPO_NAME}_XXXXXX")
         git clone --depth 1 "$GIT_REPO_URL" "$TEMP_CLONE_DIR"
         if [ $? -ne 0 ]; then
@@ -39,6 +42,12 @@ determine_source_dir() {
         fi
         DOTFILES_SOURCE_DIR="$TEMP_CLONE_DIR"
         echo "Repository cloned to temporary directory: $DOTFILES_SOURCE_DIR"
+    fi
+    echo ""
+    echo "FINAL DOTFILES SOURCE DIR: $DOTFILES_SOURCE_DIR" 
+    if [ ! -d "$DOTFILES_SOURCE_DIR" ]; then
+        echo "CRITICAL ERROR: DOTFILES_SOURCE_DIR is not a valid directory: $DOTFILES_SOURCE_DIR"
+        exit 1
     fi
     echo ""
 }
@@ -51,11 +60,13 @@ perform_backups() {
         echo "Backing up existing configurations to $BACKUP_DIR_BASE..."
         mkdir -p "$BACKUP_DIR_BASE"
         
-        local components_to_backup=("hypr" "waybar" "alacritty" "rofi") # Add more as needed
+        # Rofi is still in this list; if ~/.config/rofi exists, it will be backed up.
+        # If not, the script will just note it wasn't found for backup.
+        local components_to_backup=("hypr" "waybar" "alacritty" "rofi") 
         
         for component in "${components_to_backup[@]}"; do
             local target_path="${CONFIG_TARGET_DIR}/${component}"
-            if [ -e "$target_path" ]; then # Check if file or directory exists
+            if [ -e "$target_path" ]; then 
                 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
                 SPECIFIC_BACKUP_DIR_FOR_COMPONENT="${BACKUP_DIR_BASE}/${component}_${TIMESTAMP}"
                 mkdir -p "$SPECIFIC_BACKUP_DIR_FOR_COMPONENT"
@@ -66,7 +77,7 @@ perform_backups() {
                     echo "WARNING: Backup of '$component' FAILED. It might be overwritten."
                 fi
             else
-                echo "No existing '$target_path' found to back up."
+                echo "No existing '$target_path' found to back up for component '${component}'."
             fi
         done
         echo "Backup process finished."
@@ -76,101 +87,127 @@ perform_backups() {
     echo ""
 }
 
-# This function will DELETE the target component directory if it exists, then copy.
-# For single files, it will just overwrite.
 force_copy_content() {
-    local source_relative_path="$1" # e.g., "hypr" or "alacritty/alacritty.toml"
-    local display_name="$2"         # e.g., "Hyprland"
+    local source_relative_path_in_repo="$1" 
+    local target_relative_path_in_config="$2" 
+    local display_name="$3"                 
 
-    local full_source_path="${DOTFILES_SOURCE_DIR}/${source_relative_path}"
-    local full_target_path="${CONFIG_TARGET_DIR}/${source_relative_path}"
+    local full_source_path="${DOTFILES_SOURCE_DIR}/${source_relative_path_in_repo}"
+    local full_target_path="${CONFIG_TARGET_DIR}/${target_relative_path_in_config}"
 
     echo "--- Forcefully processing ${display_name} ---"
+    echo "DEBUG: Source Path to check: '${full_source_path}'"
+    echo "DEBUG: Target Path to create/replace: '${full_target_path}'"
 
-    if [ ! -e "${full_source_path}" ]; then
-        echo "ERROR: Source NOT FOUND: '${full_source_path}'. Skipping ${display_name}."
+    if [ ! -e "${full_source_path}" ]; then 
+        echo "ERROR: Source NOT FOUND: '${full_source_path}'. CANNOT COPY ${display_name}."
         echo "-------------------------------------------"
-        return 1 # Critical error for this component
+        return 1 
     fi
 
-    # Ensure parent directory of the target exists
-    mkdir -p "$(dirname "${full_target_path}")"
+    mkdir -p "$(dirname "${full_target_path}")" # Ensure parent of target exists
 
-    # If target exists, remove it first for a clean copy (especially for directories)
-    if [ -e "${full_target_path}" ]; then
+    if [ -e "${full_target_path}" ]; then 
         echo "Removing existing target: '${full_target_path}'..."
         rm -rf "${full_target_path}"
+        if [ $? -ne 0 ]; then
+            echo "ERROR: Failed to remove '${full_target_path}'. Permissions issue or target is busy?"
+            echo "-------------------------------------------"
+            return 1 # Stop this specific copy operation
+        fi
     fi
 
     echo "Copying '${full_source_path}' to '${full_target_path}'..."
-    # For directories, `cp -rT` copies contents of source dir into target dir.
-    # If target dir doesn't exist, it creates it.
-    # If source is a file, `cp -f` overwrites.
     if [ -d "${full_source_path}" ]; then
-        cp -rT "${full_source_path}" "${full_target_path}" # -T treats DEST as a normal file/dir
-    else # It's a file
+        cp -rT "${full_source_path}" "${full_target_path}" 
+    else 
         cp -f "${full_source_path}" "${full_target_path}"
     fi
     
-    echo "${display_name} forcefully processed."
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Failed to copy '${full_source_path}' to '${full_target_path}'."
+        echo "-------------------------------------------"
+        return 1 # Stop this specific copy operation
+    fi
+    
+    echo "${display_name} forcefully processed and copied to '${full_target_path}'."
     echo "-------------------------------------------"
 }
 
 # --- Main Script ---
 print_header
-determine_source_dir
+determine_source_dir 
 perform_backups
 
 echo ">>> Starting UNCONDITIONAL forceful configuration copy process... <<<"
+echo ">>> Using DOTFILES_SOURCE_DIR: ${DOTFILES_SOURCE_DIR} <<<"
+echo ">>> Target base directory: ${CONFIG_TARGET_DIR} <<<"
+echo ""
 
 # --- Component/File Copying ---
-# For each component, specify its relative path in your dotfiles repo
-# and a display name.
+# Paths are based on the directory structure you provided.
 
-force_copy_content "hypr"       "Hyprland"
-force_copy_content "waybar"     "Waybar"
+# Source: ${DOTFILES_SOURCE_DIR}/hypr
+# Target: ${CONFIG_TARGET_DIR}/hypr
+force_copy_content "hypr" "hypr" "Hyprland"
 
-# For Alacritty, assuming alacritty.toml is inside an 'alacritty' folder in your repo
-force_copy_content "alacritty/alacritty.toml" "Alacritty Config"
-# If alacritty is a full directory in your repo:
-# force_copy_content "alacritty" "Alacritty"
+# Source: ${DOTFILES_SOURCE_DIR}/waybar
+# Target: ${CONFIG_TARGET_DIR}/waybar
+force_copy_content "waybar" "waybar" "Waybar"
 
-# For Rofi, assuming rofi is a full directory in your repo
-force_copy_content "rofi" "Rofi"
-# If rofi is just a single config file (e.g., config.rasi inside a 'rofi' folder):
-# force_copy_content "rofi/config.rasi" "Rofi Config"
+# Source: ${DOTFILES_SOURCE_DIR}/alacritty/alacritty.toml
+# Target: ${CONFIG_TARGET_DIR}/alacritty/alacritty.toml
+force_copy_content "alacritty/alacritty.toml" "alacritty/alacritty.toml" "Alacritty Config"
+
+# ROFI HAS BEEN REMOVED as it's not in the provided root structure.
+# If you have Rofi configs, provide the path within your dotfiles repo.
+# For example, if it was actually in 'dotfiles_repo/my_rofi_configs/', you'd use:
+# force_copy_content "my_rofi_configs" "rofi" "Rofi"
 
 
-# --- Specific File Copies (if not handled by component copies) ---
-# Example: Wallpaper (if it's at the root of your repo and needs to go to a specific place)
-# This assumes your 'hypr' component copy already created ~/.config/hypr/
-WALLPAPER_SOURCE_FILE="crimson_black_wallpaper.png" # Name of wallpaper in DOTFILES_SOURCE_DIR root
-HYPR_WALLPAPER_TARGET_DIR="${CONFIG_TARGET_DIR}/hypr/wallpaper" # Target dir for wallpaper
+# --- Specific File Copies (Standalone files) ---
+WALLPAPER_SOURCE_FILE_IN_REPO="crimson_black_wallpaper.png" # This is at the root of your repo
+HYPR_WALLPAPER_TARGET_DIR="${CONFIG_TARGET_DIR}/hypr/wallpaper" 
 
-if [ -f "${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE}" ]; then
+if [ -f "${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}" ]; then
     echo "--- Forcefully copying Wallpaper ---"
+    echo "DEBUG: Wallpaper Source: '${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}'"
+    echo "DEBUG: Wallpaper Target Dir: '${HYPR_WALLPAPER_TARGET_DIR}/'"
     mkdir -p "${HYPR_WALLPAPER_TARGET_DIR}"
-    cp -f "${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE}" "${HYPR_WALLPAPER_TARGET_DIR}/"
-    echo "Wallpaper copied to ${HYPR_WALLPAPER_TARGET_DIR}/"
+    cp -f "${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}" "${HYPR_WALLPAPER_TARGET_DIR}/"
+    if [ $? -eq 0 ]; then
+        echo "Wallpaper copied to ${HYPR_WALLPAPER_TARGET_DIR}/"
+    else
+        echo "ERROR: Failed to copy wallpaper."
+    fi
     echo "-------------------------------------------"
 else
-    echo "WARNING: Wallpaper source '${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE}' not found."
+    echo "WARNING: Wallpaper source '${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}' not found."
+    echo "-------------------------------------------"
 fi
 
-# Example: A specific script
-# This assumes your 'hypr' component copy already created ~/.config/hypr/scripts
-HYPRPAPER_SCRIPT_SOURCE_PATH="scripts/config/hyprpaper.sh" # Relative to DOTFILES_SOURCE_DIR
-HYPRPAPER_SCRIPT_TARGET_PATH="${CONFIG_TARGET_DIR}/hypr/scripts/hyprpaper.sh"
+# Hyprpaper script, located in scripts/config/ within your repo
+HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO="scripts/config/hyprpaper.sh" 
+HYPRPAPER_SCRIPT_TARGET_FULL_PATH="${CONFIG_TARGET_DIR}/hypr/scripts/hyprpaper.sh"
 
-if [ -f "${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH}" ]; then
+if [ -f "${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}" ]; then
     echo "--- Forcefully copying Hyprpaper script ---"
-    mkdir -p "$(dirname "${HYPRPAPER_SCRIPT_TARGET_PATH}")"
-    cp -f "${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH}" "${HYPRPAPER_SCRIPT_TARGET_PATH}"
-    chmod +x "${HYPRPAPER_SCRIPT_TARGET_PATH}"
-    echo "Hyprpaper script copied and made executable."
+    echo "DEBUG: Hyprpaper Script Source: '${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}'"
+    echo "DEBUG: Hyprpaper Script Target: '${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}'"
+    mkdir -p "$(dirname "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}")"
+    cp -f "${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}" "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}"
+    if [ $? -eq 0 ]; then
+        chmod +x "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}"
+        echo "Hyprpaper script copied and made executable."
+    else
+        echo "ERROR: Failed to copy Hyprpaper script."
+    fi
     echo "-------------------------------------------"
 else
-    echo "WARNING: Hyprpaper script source '${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH}' not found."
+    echo "WARNING: Hyprpaper script source '${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}' not found."
+    echo "This script path is based on 'scripts/config/' existing in your repo."
+    echo "If hyprpaper.sh is elsewhere, please adjust the HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO variable."
+    echo "-------------------------------------------"
 fi
 
 # --- Cleanup Temporary Directory ---
