@@ -164,27 +164,104 @@ setup_target_directories() {
     fi
 }
 
+# NEW HELPER FUNCTION to fully overwrite a component directory
+# This replaces the need for fs_ops.sh/copy_component for cases requiring full overwrite.
+overwrite_component_dir() {
+    local source_base_dir="$1"     # e.g., ${DOTFILES_SOURCE_DIR}
+    local dest_base_dir="$2"       # e.g., ${CONFIG_TARGET_DIR}
+    local component_name="$3"      # e.g., "hypr"
+    local display_name="${4:-${component_name}}" # User-friendly name for logging
+
+    local source_component_full_path="${source_base_dir}/${component_name}"
+    local dest_component_full_path="${dest_base_dir}/${component_name}"
+
+    info_msg "Force-overwriting component ${display_name}: '${source_component_full_path}' -> '${dest_component_full_path}'"
+
+    if [[ ! -d "${source_component_full_path}" ]]; then
+        error_msg "Source directory for ${display_name} component not found: ${source_component_full_path}"
+        return 1
+    fi
+
+    # Ensure parent of destination component directory exists
+    # e.g., if dest_component_full_path is /home/user/.config/hypr, parent is /home/user/.config
+    local parent_dest_dir
+    parent_dest_dir=$(dirname "${dest_component_full_path}")
+    if ! mkdir -p "${parent_dest_dir}"; then
+        error_msg "Failed to create parent directory for ${display_name} destination: ${parent_dest_dir}"
+        return 1
+    fi
+    
+    # Remove existing destination directory or file if it exists to ensure a clean overwrite
+    if [[ -e "${dest_component_full_path}" ]]; then
+        info_msg "Removing existing configuration at '${dest_component_full_path}' for ${display_name}."
+        if ! rm -rf "${dest_component_full_path}"; then
+            error_msg "Failed to remove existing '${dest_component_full_path}' for ${display_name}."
+            return 1
+        fi
+    fi
+
+    # Copy the source component directory to the parent of the intended destination path.
+    # cp -rL source_dir/component_name dest_base_dir/
+    # e.g., cp -rL "${DOTFILES_SOURCE_DIR}/hypr" "${CONFIG_TARGET_DIR}/"
+    # This creates ${CONFIG_TARGET_DIR}/hypr
+    # -L: follow all symbolic links in SOURCE and copy the files and directories they point to.
+    if cp -rL "${source_component_full_path}" "${parent_dest_dir}/"; then
+        info_msg "${display_name} component force-overwritten successfully at ${dest_component_full_path}."
+        return 0
+    else
+        error_msg "Failed to copy ${display_name} component from '${source_component_full_path}' to '${parent_dest_dir}/'."
+        return 1
+    fi
+}
+
+
 copy_configurations() {
     info_msg "Copying configuration files from ${DOTFILES_SOURCE_DIR}..."
     local all_copied_successfully=true
-    # Simplified destination path for wallpaper
-    local wallpaper_dest_rel_path="hypr/wallpaper/${DEFAULT_WALLPAPER_FILE}"
+    
+    # Note on overwrite strategy:
+    # - For component directories (hypr, waybar), we use `overwrite_component_dir`.
+    #   This function removes the target directory first, then copies the source.
+    #   This ensures that any user files in the target not present in the source are removed.
+    # - For single files, `copy_single_file` (from fs_ops.sh) is assumed to use `cp -f`,
+    #   which overwrites the destination file if it exists.
+    # - Order matters: Overwrite components first, then copy specific single files into them.
+    #   This prevents a single file copy from being erased by a subsequent component overwrite.
 
-    # Assumes copy_single_file & copy_component from fs_ops.sh return 0 on success, non-0 on failure
+    # --- Component Directories (Full Overwrite) ---
+    # Overwrite Hyprland component
+    overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "hypr" "Hyprland" || all_copied_successfully=false
+    # Overwrite Waybar component
+    overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "waybar" "Waybar" || all_copied_successfully=false
+    # Add other components here if they need full overwrite, e.g.:
+    # overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "rofi" "Rofi" || all_copied_successfully=false
+    # overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "alacritty" "Alacritty" || all_copied_successfully=false
+    # N.B.: The original script copied alacritty.toml as a single file. If 'alacritty' is a full component
+    # directory in your dotfiles, use overwrite_component_dir. If it's just the .toml, keep copy_single_file.
+
+    # --- Single Files (Copied/Overwritten into place) ---
+    # These are copied *after* their parent components are established to ensure they are not wiped out.
+    
+    # Wallpaper (copied into the now-overwritten hypr component's wallpaper dir)
+    local wallpaper_dest_rel_path="hypr/wallpaper/${DEFAULT_WALLPAPER_FILE}"
     copy_single_file "${DEFAULT_WALLPAPER_FILE}" "${wallpaper_dest_rel_path}" \
         "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Default wallpaper" || all_copied_successfully=false
-    copy_component "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "hypr" "Hyprland" || all_copied_successfully=false
+
+    # Hyprpaper script (copied into the now-overwritten hypr component's scripts dir)
     copy_single_file "scripts/config/hyprpaper.sh" "hypr/scripts/hyprpaper.sh" \
         "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Hyprpaper script" || all_copied_successfully=false
-    copy_component "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "waybar" "Waybar" || all_copied_successfully=false
+
+    # Alacritty config (if it's a single file and not a full component directory)
+    # If DOTFILES_SOURCE_DIR/alacritty is a directory with more than just alacritty.toml,
+    # consider using overwrite_component_dir for "alacritty" instead.
     copy_single_file "alacritty/alacritty.toml" "alacritty/alacritty.toml" \
-        "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Alacritty" || all_copied_successfully=false
+        "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Alacritty configuration" || all_copied_successfully=false
 
     if [[ "${all_copied_successfully}" == true ]]; then
-        info_msg "Configuration files copy process completed successfully."
+        info_msg "Configuration files copy process completed successfully (with overwrites)."
         return 0
     else
-        warning_msg "One or more configuration files may have failed to copy. Review logs."
+        warning_msg "One or more configuration files may have failed to copy/overwrite. Review logs."
         return 1
     fi
 }
@@ -404,6 +481,9 @@ print_help() {
     cat << EOF
 Usage: ${SCRIPT_NAME} [OPTIONS] (Version: ${SCRIPT_VERSION})
 Manages the setup of Crimson Cascade Dotfiles. This script attempts to be idempotent.
+It overwrites existing configuration directories like hypr, waybar, etc., with the
+versions from the dotfiles repository. Single configuration files are also overwritten.
+Backups are created by default before overwriting.
 
 Options:
   --skip-backups         Skip the configuration backup process.
@@ -503,7 +583,7 @@ initialize_script() {
     info_msg "Phase: Initializing Script..."
     local phase_status=0
     source_libraries
-    print_header
+    print_header # Assumed from ui.sh
 
     DOTFILES_SOURCE_DIR="" TEMP_CLONE_DIR=""
     # IMPORTANT ASSUMPTION: determine_source_dir (from git_ops.sh) must output
@@ -534,8 +614,18 @@ initialize_script() {
     info_msg "Dotfiles source directory identified as: ${DOTFILES_SOURCE_DIR}"
     if [[ -n "${TEMP_CLONE_DIR}" ]]; then
         info_msg "Using temporary clone directory: ${TEMP_CLONE_DIR}"
-        verify_core_dependencies || phase_status=1
     fi
+    # verify_core_dependencies might be called here or within determine_source_dir context
+    # Original script had it after TEMP_CLONE_DIR check, so keeping it if it's relevant
+    # if [[ -n "${TEMP_CLONE_DIR}" ]]; then
+    #    verify_core_dependencies || phase_status=1 # verify_core_dependencies usually from dependencies.sh
+    # fi
+    # Assuming verify_core_dependencies is general or handled correctly by sourced scripts.
+    # If it's meant to check deps for cloning and the repo is local, it might be skipped.
+    # For now, let's assume it's correctly handled by the original logic if needed.
+    # A general dependency check is good practice anyway.
+    verify_core_dependencies || phase_status=1
+
 
     if [[ "${phase_status}" -eq 0 ]]; then info_msg "Initialization phase completed with no issues reported.";
     else warning_msg "Initialization phase completed with some issues reported."; fi
@@ -550,7 +640,8 @@ process_configurations() {
 
     if ! setup_target_directories; then
         error_msg "Critical failure during target directory setup. Aborting configuration processing phase."
-        return 1
+        return 1 # This return will be caught by `|| OVERALL_SCRIPT_STATUS=1` in main.
+                 # but for clarity, we set phase_status and let the main flow handle OVERALL_SCRIPT_STATUS.
     fi
 
     copy_configurations || phase_status=1
