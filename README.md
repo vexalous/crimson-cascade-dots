@@ -60,11 +60,11 @@ Before you begin, ensure you have the following essential software installed:
 
 ### Required Fonts
 *   **JetBrainsMono Nerd Font** (for UI and terminal)
-    *   Download from [Nerd Fonts](https://www.nerdfonts.com/font-downloads).
-    *   Installation methods vary by OS (e.g., manual copy, using a package manager if available for your distribution like `AUR` on Arch Linux, or Homebrew on macOS). Refer to Nerd Fonts documentation or your OS's font installation guides.
+  *   Download from [Nerd Fonts](https://www.nerdfonts.com/font-downloads).
+  *   Installation methods vary by OS (e.g., manual copy, using a package manager if available for your distribution like `AUR` on Arch Linux, or Homebrew on macOS). Refer to Nerd Fonts documentation or your OS's font installation guides.
 *   **Font Awesome** (for icons)
-    *   Typically installed as a desktop font. Download and instructions can be found at [Font Awesome Desktop Setup](https://fontawesome.com/docs/desktop/setup/get-started).
-    *   Follow their instructions for downloading and installing the font files on your system, or use a package manager if available.
+  *   Typically installed as a desktop font. Download and instructions can be found at [Font Awesome Desktop Setup](https://fontawesome.com/docs/desktop/setup/get-started).
+  *   Follow their instructions for downloading and installing the font files on your system, or use a package manager if available.
 
 ### Essential Utilities & Tools
 *   `git` (for cloning this repository)
@@ -104,9 +104,9 @@ Before you begin, ensure you have the following essential software installed:
 
 *   **Using Configurations:** Once `setup.sh` completes, your new configurations are active in `~/.config/`. Applications like Hyprland, Alacritty, and Waybar will use these new settings automatically upon their next launch.
 *   **Reloading Configurations:**
-    *   **Hyprland:** To apply changes to Hyprland without logging out, you can usually reload its configuration using a keybinding (often `Super + M` or `Super + Shift + R` - check `~/.config/hypr/conf/keybinds.conf` for the exact binding).
-    *   **Waybar:** Waybar typically reloads automatically when its configuration file (`~/.config/waybar/config`) or stylesheet (`~/.config/waybar/style.css`) is saved. If not, you may need to kill and restart the Waybar process.
-    *   **Alacritty:** New settings generally apply to newly opened terminal windows.
+  *   **Hyprland:** To apply changes to Hyprland without logging out, you can usually reload its configuration using a keybinding (often `Super + M` or `Super + Shift + R` - check `~/.config/hypr/conf/keybinds.conf` for the exact binding).
+  *   **Waybar:** Waybar typically reloads automatically when its configuration file (`~/.config/waybar/config`) or stylesheet (`~/.config/waybar/style.css`) is saved. If not, you may need to kill and restart the Waybar process.
+  *   **Alacritty:** New settings generally apply to newly opened terminal windows.
 *   **Basic Customization:** For most users, further customization involves editing the configuration files directly in your `~/.config/` directory (e.g., `~/.config/hypr/hyprland.conf`, `~/.config/alacritty/alacritty.toml`, etc.) using your preferred text editor. Changes made here are local to your system and will be active once the respective application is reloaded or restarted.
 *   **Detailed Configuration:** For more in-depth information on configuring specific applications, refer to their respective `README.md` files within this repository (e.g., `hypr/README.md`, `alacritty/README.md`, `waybar/README.md`). These files provide more component-specific details.
 
@@ -122,14 +122,14 @@ This repository also contains scripts that were used to *generate* the configura
 ## Troubleshooting
 
 *   **Fonts not displaying correctly (especially icons):**
-    *   Ensure JetBrainsMono Nerd Font and Font Awesome are installed and recognized.
-    *   You might need to rebuild your font cache: `fc-cache -fv`.
+  *   Ensure JetBrainsMono Nerd Font and Font Awesome are installed and recognized.
+  *   You might need to rebuild your font cache: `fc-cache -fv`.
 *   **Scripts not executing:**
-    *   The `setup.sh` script attempts to set execute permissions for scripts it knows about. If you have custom scripts or encounter issues, ensure your scripts (e.g., in `~/.config/hypr/scripts/` or other custom paths) are executable: `chmod +x /path/to/your/script.sh`.
+  *   The `setup.sh` script attempts to set execute permissions for scripts it knows about. If you have custom scripts or encounter issues, ensure your scripts (e.g., in `~/.config/hypr/scripts/` or other custom paths) are executable: `chmod +x /path/to/your/script.sh`.
 *   **Changes not applying:**
-    *   **Hyprland:** Reload configuration (e.g., `Super + M`).
-    *   **Waybar:** Should reload on config save. If not, restart Waybar (e.g., `killall waybar && waybar &`).
-    *   **Alacritty:** New settings apply to newly opened terminal windows.
+  *   **Hyprland:** Reload configuration (e.g., `Super + M`).
+  *   **Waybar:** Should reload on config save. If not, restart Waybar (e.g., `killall waybar && waybar &`).
+  *   **Alacritty:** New settings apply to newly opened terminal windows.
 *   **Missing dependencies:** If applications fail to start or features are missing, double-check the "Prerequisites" section and ensure all listed software is installed.
 
 ## Contributing
@@ -139,8 +139,8 @@ Contributions are welcome!
 *   Fork the repository.
 *   Create a new branch for your feature or bug fix.
 *   Make your changes.
-    *   If modifying basic configurations (e.g., `hypr/hyprland.conf`), ensure your changes are well-tested.
-    *   If modifying the generation scripts in `scripts/config/`, please also regenerate the relevant output configuration files and commit them. Ensure you've read `scripts/README.md`.
+  *   If modifying basic configurations (e.g., `hypr/hyprland.conf`), ensure your changes are well-tested.
+  *   If modifying the generation scripts in `scripts/config/`, please also regenerate the relevant output configuration files and commit them. Ensure you've read `scripts/README.md`.
 *   Open a pull request with a clear description of your changes.
 *   Please report any issues or suggest improvements by opening an issue on the GitHub repository.
 

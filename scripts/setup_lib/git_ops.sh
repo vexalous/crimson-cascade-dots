@@ -44,16 +44,14 @@ determine_source_dir() {
             # Check if a local 'main' branch exists.
             if git -C "$local_dotfiles_source_dir" rev-parse --verify main >/dev/null 2>&1; then
                 # Local 'main' exists, check it out.
-                git -C "$local_dotfiles_source_dir" checkout main >&2
-                if [ $? -ne 0 ]; then
+                if ! git -C "$local_dotfiles_source_dir" checkout main >&2; then
                     echo "ERROR: Failed to checkout 'main' branch. Please resolve manually." >&2
                     exit 1
                 fi
             # Check if 'origin/main' exists (remote tracking branch).
             elif git -C "$local_dotfiles_source_dir" rev-parse --verify origin/main >/dev/null 2>&1; then
                 # Create local 'main' tracking 'origin/main'.
-                git -C "$local_dotfiles_source_dir" checkout -b main --track origin/main >&2
-                 if [ $? -ne 0 ]; then
+                if ! git -C "$local_dotfiles_source_dir" checkout -b main --track origin/main >&2; then
                     echo "ERROR: Failed to create and checkout 'main' branch tracking 'origin/main'. Please resolve manually." >&2
                     exit 1
                 fi
@@ -92,9 +90,12 @@ determine_source_dir() {
         fi
         local_temp_clone_dir=$(mktemp -d -t "${REPO_NAME}_XXXXXX") # Create a temporary directory for cloning
         git clone --depth 1 "$GIT_REPO_URL" "$local_temp_clone_dir" # Clone with depth 1 for speed
-        if [ $? -ne 0 ]; then
-            echo "ERROR: Failed to clone $GIT_REPO_URL." >&2
-            rm -rf "$local_temp_clone_dir"
+        if ! git -C "$local_temp_clone_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then # A more robust check for successful clone
+            echo "ERROR: Failed to clone $GIT_REPO_URL into $local_temp_clone_dir." >&2
+            # Attempt to remove the potentially partially cloned directory
+            if [ -d "$local_temp_clone_dir" ]; then
+                rm -rf "$local_temp_clone_dir"
+            fi
             exit 1
         fi
         local_dotfiles_source_dir="$local_temp_clone_dir"

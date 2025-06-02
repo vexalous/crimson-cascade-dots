@@ -28,7 +28,6 @@ hypridle \
     timeout 600 'systemctl suspend' \
     before-sleep 'hyprlock && sleep 1' &
 EOF
-# The content for idle_config.sh generated above includes its own comments.
 
 # --- Generate brightness_notify.sh ---
 # This script handles brightness adjustment notifications using brightnessctl and notify-send.
@@ -87,8 +86,6 @@ main() {
 
 main
 EOF
-# The content for brightness_notify.sh generated above includes its own necessary logic and variables.
-# It uses notify-send directly for notifications.
 
 # --- Generate rofi_powermenu.sh ---
 # This script displays a power menu using Rofi.
@@ -134,7 +131,6 @@ main() {
 
 main
 EOF
-# The content for rofi_powermenu.sh generated above includes its own comments.
 
 # --- Generate volume_notify.sh ---
 # This script provides notifications for volume changes and microphone mute status using pactl and notify-send.
@@ -237,8 +233,6 @@ main() {
 
 main # Execute main with the first command-line argument (if any)
 EOF
-# The content for volume_notify.sh generated above includes its own necessary logic and variables.
-# It uses notify-send directly for notifications.
 
 # Finalize the script generation process for this directory.
 # This function (from common.sh) also makes the generated *.sh files executable.
