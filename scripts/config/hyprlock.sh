@@ -24,8 +24,14 @@ if ((BASH_VERSINFO[0] < 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 3) ));
 fi
 
 # declare -gr: Defines global read-only variables.
-declare -gr SCRIPT_NAME="$(basename "$0")" # Script's own name for messages
-declare -gr SCRIPT_ABSOLUTE_PATH="$(readlink -m "${BASH_SOURCE[0]}")" # Absolute path to this script
+# SC2155: For SCRIPT_NAME and SCRIPT_ABSOLUTE_PATH, splitting declare and assignment.
+declare -g SCRIPT_NAME
+SCRIPT_NAME="$(basename "$0")" # Script's own name for messages
+readonly SCRIPT_NAME
+
+declare -g SCRIPT_ABSOLUTE_PATH
+SCRIPT_ABSOLUTE_PATH="$(readlink -m "${BASH_SOURCE[0]}")" # Absolute path to this script
+readonly SCRIPT_ABSOLUTE_PATH
 
 # Developer Usage Notes for WALLPAPER_FILE:
 # This script (`hyprlock.sh`) is intended for developers to generate the
@@ -61,7 +67,9 @@ declare -gr SCRIPT_ABSOLUTE_PATH="$(readlink -m "${BASH_SOURCE[0]}")" # Absolute
 # is copied to the location expected by the generated `hyprlock.conf` on the
 # end-user's system.
 
-declare -gr REQUIRED_VARS=(
+# SC2155: For REQUIRED_VARS array, splitting declare and assignment.
+declare -g REQUIRED_VARS
+REQUIRED_VARS=(
     "HYPRLOCK_TARGET_FILE"
     "WALLPAPER_FILE"
     "HL_NEAR_BLACK_RGBA"
@@ -73,6 +81,7 @@ declare -gr REQUIRED_VARS=(
     "HL_OFF_WHITE_TEXT"
     "HL_LIGHT_GRAY_TEXT"
 ) # List of environment variables that must be set for the script to run.
+readonly REQUIRED_VARS
 
 # Centralized error handling function.
 # Prints a formatted error message to stderr and exits the script.
