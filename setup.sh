@@ -14,7 +14,7 @@ LOCK_FILE="/tmp/${SCRIPT_NAME}.lock"
 readonly LOCK_FILE
 DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
 readonly DEFAULT_SCRIPT_LOG_FILE
-readonly SCRIPT_VERSION="1.0.3-forceful-write-fixed-getopt"
+readonly SCRIPT_VERSION="2.0.0-UNCONDITIONALLY-FORCEFUL"
 
 # --- Configuration Constants ---
 declare -xr BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
@@ -22,7 +22,7 @@ declare -xr GIT_REPO_URL="https://github.com/vexalous/crimson-cascade-dots.git"
 declare -xr REPO_NAME="crimson-cascade-dots"
 
 readonly CONFIG_TARGET_DIR="${HOME}/.config"
-readonly DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png" # Assumed to be at the root of your dotfiles repo
+readonly DEFAULT_WALLPAPER_FILE="crimson_black_wallpaper.png"
 readonly USER_HYPR_SCRIPTS_DIR="${CONFIG_TARGET_DIR}/hypr/scripts"
 readonly WALLPAPER_CONFIG_DIR="${CONFIG_TARGET_DIR}/hypr/wallpaper"
 
@@ -37,7 +37,7 @@ SKIP_HYPR_ENV=false
 SCRIPT_LOG_FILE="${DEFAULT_SCRIPT_LOG_FILE}"
 OVERALL_SCRIPT_STATUS=0
 
-# --- Logging Framework ---
+# --- Logging Framework (for high-level steps) ---
 log_message() {
     local type="$1" message="$2" timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
@@ -71,19 +71,17 @@ acquire_lock() {
 }
 release_lock() { rm -f "${LOCK_FILE}" && debug_msg "Lock released: ${LOCK_FILE}"; }
 
-# --- Library Sourcing (fs_ops.sh role is diminished for core copy operations) ---
+# --- Library Sourcing ---
 source_libraries() {
     info_msg "Sourcing library scripts from '${SCRIPT_DIR}/scripts/setup_lib'..."
     local lib_dir="${SCRIPT_DIR}/scripts/setup_lib"
-    local SOURCED_SUCCESS=true
-    for lib in ui.sh dependencies.sh backup.sh fs_ops.sh git_ops.sh; do
+    for lib in ui.sh dependencies.sh backup.sh fs_ops.sh git_ops.sh; do # fs_ops may still be used by cleanup
         local lib_path="${lib_dir}/${lib}"
         if [[ ! -f "${lib_path}" ]]; then critical_exit "Lib not found: ${lib_path}"; fi
         # shellcheck source=/dev/null
-        source "${lib_path}" || { error_msg "Failed to source ${lib_path}"; SOURCED_SUCCESS=false; }
+        source "${lib_path}"
         debug_msg "Sourced library: ${lib_path}"
     done
-    [[ "${SOURCED_SUCCESS}" == "true" ]] || critical_exit "One or more libraries failed to source."
     info_msg "All library scripts sourced."
 }
 
@@ -92,140 +90,72 @@ source_libraries() {
 perform_backups() {
     if [[ "${SKIP_BACKUPS}" == "true" ]]; then info_msg "Skipping backups."; return 0; fi
     info_msg "Starting backup process..."
-    # handle_backup_process is from backup.sh
     handle_backup_process "hypr" "waybar" "alacritty" "rofi" || {
         warning_msg "Backup process encountered issues. Continuing."
-        return 1 # Non-critical failure
+        return 1 # Non-critical
     }
     info_msg "Backup process completed."; return 0
 }
 
 setup_target_directories() {
     info_msg "Ensuring base target configuration directory exists: ${CONFIG_TARGET_DIR}..."
-    if mkdir -p "${CONFIG_TARGET_DIR}"; then
-        info_msg "Base target directory ${CONFIG_TARGET_DIR} ensured."
-        return 0
-    else
-        error_msg "CRITICAL: Failed to create base target directory ${CONFIG_TARGET_DIR}."
-        return 1
-    fi
-}
-
-# --- FORCEFUL FILE/DIRECTORY COPY FUNCTIONS (INTERNAL TO THIS SCRIPT) ---
-
-overwrite_component_dir_forceful() {
-    local source_component_path="$1" # Full path to source component dir, e.g., ${DOTFILES_SOURCE_DIR}/hypr
-    local dest_component_path="$2"   # Full path to dest component dir, e.g., ${CONFIG_TARGET_DIR}/hypr
-    local display_name="$3"
-
-    info_msg "FORCEFULLY OVERWRITING component ${display_name}: '${source_component_path}' -> '${dest_component_path}'"
-
-    if [[ ! -d "${source_component_path}" ]]; then
-        error_msg "SOURCE DIR NOT FOUND for ${display_name}: ${source_component_path}. Skipping."
-        return 1
-    fi
-
-    local parent_dest_dir; parent_dest_dir=$(dirname "${dest_component_path}")
-    mkdir -p "${parent_dest_dir}" || { error_msg "Failed to create parent dir '${parent_dest_dir}'."; return 1; }
-    
-    if [[ -e "${dest_component_path}" ]]; then
-        info_msg "Removing existing target: '${dest_component_path}'"
-        rm -rf "${dest_component_path}" || { error_msg "Failed to remove '${dest_component_path}'."; return 1; }
-    fi
-
-    cp -rL "${source_component_path}" "${parent_dest_dir}/" || { error_msg "Failed to copy ${display_name}."; return 1; }
-    
-    info_msg "${display_name} component FORCEFULLY OVERWRITTEN."
+    # This is the ONLY mkdir the main script does before copy_configurations
+    mkdir -p "${CONFIG_TARGET_DIR}"
+    info_msg "Base target directory ${CONFIG_TARGET_DIR} ensured (or already existed)."
     return 0
 }
 
-copy_single_file_forceful() {
-    local source_file_path="$1" # Full path to source file
-    local dest_file_path="$2"   # Full path to destination file
-    local display_name="$3"
-
-    info_msg "FORCEFULLY copying file ${display_name}: '${source_file_path}' -> '${dest_file_path}'"
-
-    if [[ ! -f "${source_file_path}" ]]; then
-        error_msg "SOURCE FILE NOT FOUND for ${display_name}: ${source_file_path}. Skipping."
-        return 1
-    fi
-
-    local dest_dir; dest_dir=$(dirname "${dest_file_path}")
-    mkdir -p "${dest_dir}" || { error_msg "Failed to create dest dir '${dest_dir}'."; return 1; }
-
-    cp -f "${source_file_path}" "${dest_file_path}" || { error_msg "Failed to copy ${display_name}."; return 1; }
-    
-    if [[ "${dest_file_path}" == *scripts/*.sh || "${dest_file_path}" == *.sh ]]; then
-        chmod +x "${dest_file_path}" || warning_msg "Failed to chmod +x ${dest_file_path}"
-    fi
-    info_msg "${display_name} file FORCEFULLY copied."
-    return 0
-}
+# --- UNCONDITIONALLY FORCEFUL FILE/DIRECTORY OPERATIONS ---
 
 copy_configurations() {
-    info_msg "FORCEFULLY Copying configuration files from ${DOTFILES_SOURCE_DIR}..."
-    local all_ops_ok=true
-    
-    overwrite_component_dir_forceful \
-        "${DOTFILES_SOURCE_DIR}/hypr" \
-        "${CONFIG_TARGET_DIR}/hypr" \
-        "Hyprland" || all_ops_ok=false
+    info_msg ">>> UNCONDITIONALLY Force-Copying Configurations from ${DOTFILES_SOURCE_DIR} <<<"
+    info_msg ">>> This section has minimal checks. `set -o errexit` is active. <<<"
 
-    overwrite_component_dir_forceful \
-        "${DOTFILES_SOURCE_DIR}/waybar" \
-        "${CONFIG_TARGET_DIR}/waybar" \
-        "Waybar" || all_ops_ok=false
+    # Hyprland
+    info_msg "Force-processing Hyprland..."
+    rm -rf "${CONFIG_TARGET_DIR}/hypr"
+    cp -rL "${DOTFILES_SOURCE_DIR}/hypr" "${CONFIG_TARGET_DIR}/" # cp SRC_DIR DEST_PARENT_DIR
 
-    info_msg "Forcefully ensuring specific sub-directories exist post-component-overwrite..."
-    
-    mkdir -p "${USER_HYPR_SCRIPTS_DIR}" || { error_msg "CRIT: Failed to create ${USER_HYPR_SCRIPTS_DIR}"; all_ops_ok=false; }
-    info_msg "Forcefully ensured directory: ${USER_HYPR_SCRIPTS_DIR}"
-    
-    mkdir -p "${WALLPAPER_CONFIG_DIR}" || { error_msg "CRIT: Failed to create ${WALLPAPER_CONFIG_DIR}"; all_ops_ok=false; }
-    info_msg "Forcefully ensured directory: ${WALLPAPER_CONFIG_DIR}"
+    # Waybar
+    info_msg "Force-processing Waybar..."
+    rm -rf "${CONFIG_TARGET_DIR}/waybar"
+    cp -rL "${DOTFILES_SOURCE_DIR}/waybar" "${CONFIG_TARGET_DIR}/"
 
-    copy_single_file_forceful \
-        "${DOTFILES_SOURCE_DIR}/${DEFAULT_WALLPAPER_FILE}" \
-        "${WALLPAPER_CONFIG_DIR}/${DEFAULT_WALLPAPER_FILE}" \
-        "Default wallpaper" || all_ops_ok=false
+    # Ensure specific sub-directories for Hyprland files exist AFTER main component copy
+    info_msg "Force-creating Hyprland sub-directories..."
+    mkdir -p "${USER_HYPR_SCRIPTS_DIR}"  # e.g., ~/.config/hypr/scripts
+    mkdir -p "${WALLPAPER_CONFIG_DIR}" # e.g., ~/.config/hypr/wallpaper
 
-    copy_single_file_forceful \
-        "${DOTFILES_SOURCE_DIR}/scripts/config/hyprpaper.sh" \
-        "${USER_HYPR_SCRIPTS_DIR}/hyprpaper.sh" \
-        "Hyprpaper script" || all_ops_ok=false
-    
-    local target_alacritty_dir="${CONFIG_TARGET_DIR}/alacritty"
-    mkdir -p "${target_alacritty_dir}" || { error_msg "CRIT: Failed to create ${target_alacritty_dir}"; all_ops_ok=false; }
-    info_msg "Forcefully ensured directory: ${target_alacritty_dir}"
-    
-    if [[ "${all_ops_ok}" == true || -d "${target_alacritty_dir}" ]]; then # Check all_ops_ok before proceeding
-        copy_single_file_forceful \
-            "${DOTFILES_SOURCE_DIR}/alacritty/alacritty.toml" \
-            "${target_alacritty_dir}/alacritty.toml" \
-            "Alacritty configuration" || all_ops_ok=false
-    fi
-    
-    # Example for Rofi if it's a full component in your dotfiles:
-    # overwrite_component_dir_forceful \
-    #     "${DOTFILES_SOURCE_DIR}/rofi" \
-    #     "${CONFIG_TARGET_DIR}/rofi" \
-    #     "Rofi" || all_ops_ok=false
-    # Example for Rofi if it's just a single file:
-    # local target_rofi_dir="${CONFIG_TARGET_DIR}/rofi"
-    # mkdir -p "${target_rofi_dir}" || { error_msg "CRIT: Failed to create ${target_rofi_dir}"; all_ops_ok=false; }
-    # info_msg "Forcefully ensured directory: ${target_rofi_dir}"
-    # if [[ "${all_ops_ok}" == true || -d "${target_rofi_dir}" ]]; then
-    #    copy_single_file_forceful \
-    #        "${DOTFILES_SOURCE_DIR}/rofi/config.rasi" \
-    #        "${target_rofi_dir}/config.rasi" \
-    #        "Rofi config" || all_ops_ok=false
-    # fi
+    # Wallpaper
+    info_msg "Force-copying wallpaper..."
+    cp -f "${DOTFILES_SOURCE_DIR}/${DEFAULT_WALLPAPER_FILE}" \
+          "${WALLPAPER_CONFIG_DIR}/${DEFAULT_WALLPAPER_FILE}"
 
+    # Hyprpaper script
+    info_msg "Force-copying Hyprpaper script..."
+    cp -f "${DOTFILES_SOURCE_DIR}/scripts/config/hyprpaper.sh" \
+          "${USER_HYPR_SCRIPTS_DIR}/hyprpaper.sh"
+    chmod +x "${USER_HYPR_SCRIPTS_DIR}/hyprpaper.sh"
+    
+    # Alacritty (config file only)
+    info_msg "Force-processing Alacritty config file..."
+    mkdir -p "${CONFIG_TARGET_DIR}/alacritty" 
+    cp -f "${DOTFILES_SOURCE_DIR}/alacritty/alacritty.toml" \
+          "${CONFIG_TARGET_DIR}/alacritty/alacritty.toml"
+    
+    # Example for Rofi (if a full component)
+    # info_msg "Force-processing Rofi component..."
+    # rm -rf "${CONFIG_TARGET_DIR}/rofi"
+    # cp -rL "${DOTFILES_SOURCE_DIR}/rofi" "${CONFIG_TARGET_DIR}/"
 
-    [[ "${all_ops_ok}" == true ]] || return 1
-    info_msg "Configuration files FORCEFUL copy process completed."
-    return 0
+    # Example for Rofi (if a single config file)
+    # info_msg "Force-processing Rofi config file..."
+    # mkdir -p "${CONFIG_TARGET_DIR}/rofi"
+    # cp -f "${DOTFILES_SOURCE_DIR}/rofi/config.rasi" \
+    #       "${CONFIG_TARGET_DIR}/rofi/config.rasi"
+
+    info_msg ">>> UNCONDITIONALLY Force-Copying Configurations COMPLETED <<<"
+    return 0 # If any cp/rm failed, errexit would have stopped the script.
 }
 
 update_hyprland_env_config() {
@@ -234,13 +164,12 @@ update_hyprland_env_config() {
     local target_file="${CONFIG_TARGET_DIR}/hypr/conf/env.conf"
     info_msg "Checking/Updating Hyprland env config: ${target_file}"
 
-    mkdir -p "$(dirname "${target_file}")" || { error_msg "Failed to create dir for env.conf"; return 1; }
-    touch "${target_file}" || { error_msg "Failed to touch env.conf"; return 1; } 
+    mkdir -p "$(dirname "${target_file}")"; touch "${target_file}"
 
     local desired_scripts_line="env = HYPR_SCRIPTS_DIR,${USER_HYPR_SCRIPTS_DIR}"
     local desired_config_line="env = CONFIG_TARGET_DIR,${CONFIG_TARGET_DIR}"
     
-    local temp_file; temp_file=$(mktemp --tmpdir "${SCRIPT_NAME}_envconf.XXXXXX") || { error_msg "mktemp failed"; return 1; }
+    local temp_file; temp_file=$(mktemp --tmpdir "${SCRIPT_NAME}_envconf.XXXXXX")
     
     local original_content; original_content=$(<"${target_file}")
 
@@ -261,10 +190,10 @@ update_hyprland_env_config() {
     fi
 
     local backup_file="${target_file}.bak.$(date +%Y%m%d%H%M%S)"
-    cp "${target_file}" "${backup_file}" || { warning_msg "Failed to backup ${target_file}"; }
+    cp "${target_file}" "${backup_file}" || warning_msg "Failed to backup ${target_file}"
     info_msg "Backed up ${target_file} to ${backup_file}"
     
-    mv "${temp_file}" "${target_file}" || { error_msg "Failed to update ${target_file}"; rm -f "${temp_file}"; return 1; }
+    mv "${temp_file}" "${target_file}"
     info_msg "${target_file} updated successfully."
     return 0
 }
@@ -273,8 +202,8 @@ configure_hyprpaper_script() {
     info_msg "Configuring local hyprpaper script..."
     local script_path="${USER_HYPR_SCRIPTS_DIR}/hyprpaper.sh"
 
-    if [[ ! -f "${script_path}" ]]; then warning_msg "Hyprpaper script not found: ${script_path}"; return 1; fi
-    chmod +x "${script_path}" || { error_msg "Failed to chmod +x ${script_path}"; return 1; }
+    if [[ ! -f "${script_path}" ]]; then warning_msg "Hyprpaper script not found: ${script_path}"; return 1; fi # Keep this check
+    chmod +x "${script_path}"
 
     info_msg "Executing hyprpaper config script: ${script_path}"
     export CONFIG_TARGET_DIR 
@@ -295,7 +224,7 @@ manage_daemon() {
     info_msg "Managing daemon: ${process_name}..."
     if ! command -v "${process_name}" >/dev/null 2>&1; then
         warning_msg "Cmd '${process_name}' not found. Skipping."
-        return 1 # Indicate failure to manage this specific daemon
+        return 1
     fi
 
     if pgrep -x -u "$(id -u)" "${process_name}" >/dev/null; then
@@ -338,8 +267,7 @@ cleanup() {
     local exit_status=$?
     info_msg "Initiating cleanup (exit status: ${exit_status})..."
     if [[ -n "${TEMP_CLONE_DIR}" && -d "${TEMP_CLONE_DIR}" ]]; then
-        # cleanup_temp_dir is from fs_ops.sh
-        cleanup_temp_dir "${TEMP_CLONE_DIR}" || warning_msg "Failed to clean temp dir: ${TEMP_CLONE_DIR}"
+        cleanup_temp_dir "${TEMP_CLONE_DIR}" || warning_msg "Failed to clean temp dir: ${TEMP_CLONE_DIR}" # from fs_ops.sh
     fi
     release_lock
     if [[ "${OVERALL_SCRIPT_STATUS}" -ne 0 || "${exit_status}" -ne 0 ]]; then
@@ -354,7 +282,8 @@ cleanup() {
 print_help() {
     cat << EOF
 Usage: ${SCRIPT_NAME} [OPTIONS] (Version: ${SCRIPT_VERSION})
-Forcefully sets up Crimson Cascade Dotfiles, overwriting existing configs.
+UNCONDITIONALLY AND FORCEFULLY sets up Crimson Cascade Dotfiles, 
+overwriting existing configs. USE WITH EXTREME CAUTION.
 
 Options:
   --skip-backups         Skip configuration backups.
@@ -373,7 +302,6 @@ main() {
       critical_exit "Bash 4.4+ required."
     fi
 
-    # --- CORRECTED getopt CHECK ---
     if ! command -v getopt >/dev/null; then
         critical_exit "getopt command not found. Please install it (usually part of util-linux)."
     fi
@@ -386,14 +314,12 @@ main() {
     else
         debug_msg "getopt check passed (using $(getopt --version 2>/dev/null || echo "util-linux getopt"))."
     fi
-    # --- END CORRECTED getopt CHECK ---
 
     local short_opts="h"
     local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help,version"
     local parsed_opts
     if ! parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME// /_}" -- "$@"); then
-        print_help >&2
-        exit 1
+        print_help >&2; exit 1
     fi
     eval set -- "${parsed_opts}"
 
@@ -411,8 +337,7 @@ main() {
         esac
     done
 
-    mkdir -p "$(dirname "${SCRIPT_LOG_FILE}")" || critical_exit "Cannot create log dir."
-    touch "${SCRIPT_LOG_FILE}" || critical_exit "Cannot create/update log file."
+    mkdir -p "$(dirname "${SCRIPT_LOG_FILE}")"; touch "${SCRIPT_LOG_FILE}"
 
     info_msg "--- ${SCRIPT_NAME} v${SCRIPT_VERSION} execution started ---"
     [[ "${DEBUG_MODE}" == "true" ]] && info_msg "DEBUG mode enabled."
@@ -421,12 +346,14 @@ main() {
     acquire_lock || critical_exit "Failed to acquire script lock."
 
     initialize_script || { OVERALL_SCRIPT_STATUS=1; critical_exit "Initialization failed."; }
+    
+    # For process_configurations, if it returns non-zero (critical copy failure), set OVERALL_SCRIPT_STATUS
     process_configurations || OVERALL_SCRIPT_STATUS=1
     
-    if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
-        manage_services_phase || OVERALL_SCRIPT_STATUS=1
+    if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then # Only manage services if configs were OK
+        manage_services_phase || OVERALL_SCRIPT_STATUS=1 # Service failure is also an overall failure
     else
-        warning_msg "Skipping service management due to prior errors."
+        warning_msg "Skipping service management due to prior critical errors in configuration."
     fi
     
     exit "${OVERALL_SCRIPT_STATUS}"
@@ -438,48 +365,33 @@ initialize_script() {
     print_header   # From ui.sh
 
     local source_dirs_array=()
-    mapfile -d $'\0' -t source_dirs_array < <(determine_source_dir) || critical_exit "determine_source_dir failed."
+    mapfile -d $'\0' -t source_dirs_array < <(determine_source_dir) # From git_ops.sh
     
-    [[ "${#source_dirs_array[@]}" -eq 2 ]] || critical_exit "determine_source_dir: unexpected output count."
     DOTFILES_SOURCE_DIR="${source_dirs_array[0]}"
     TEMP_CLONE_DIR="${source_dirs_array[1]}"
 
-    [[ -n "${DOTFILES_SOURCE_DIR}" ]] || critical_exit "Dotfiles source dir is empty."
+    [[ -n "${DOTFILES_SOURCE_DIR}" ]] || critical_exit "Dotfiles source dir is empty (from determine_source_dir)."
     info_msg "Dotfiles source: ${DOTFILES_SOURCE_DIR}"
     [[ -n "${TEMP_CLONE_DIR}" ]] && info_msg "Temp clone dir: ${TEMP_CLONE_DIR}"
     
-    verify_core_dependencies || return 1 
+    verify_core_dependencies # From dependencies.sh
     info_msg "Initialization phase completed."; return 0
 }
 
 process_configurations() {
     info_msg "Phase: Processing Configurations..."
-    local phase_ok_for_services=true # Tracks if subsequent service phase should run
     
-    perform_backups || true # Backup failure is non-critical for proceeding with config copy
+    perform_backups # Backup failure is non-critical, does not return error code to stop this phase
 
-    # setup_target_directories is critical for CONFIG_TARGET_DIR itself
-    setup_target_directories || { error_msg "Base target dir setup FAILED. Halting config processing."; return 1; }
-    
-    # copy_configurations is critical. If it fails, we mark phase_ok_for_services as false.
-    copy_configurations || { error_msg "Core configuration copying FAILED."; phase_ok_for_services=false; }
-    
-    # These are important but if they fail, we might still want services if copy_configurations was OK.
-    # However, if copy_configurations failed, these might also fail or be irrelevant.
-    # We'll let them try, but their failure also sets OVERALL_SCRIPT_STATUS via the main loop.
-    if [[ "$phase_ok_for_services" == true ]]; then
-        update_hyprland_env_config || phase_ok_for_services=false
-        configure_hyprpaper_script || phase_ok_for_services=false
-    else
-        warning_msg "Skipping env.conf and hyprpaper script due to earlier critical copy failure."
-    fi
-    
-    if [[ "$phase_ok_for_services" == false ]]; then
-        # This indicates a critical failure in this phase that should prevent service management
-        # and result in a non-zero exit for the script.
-        warning_msg "Configuration processing phase encountered critical issues.";
-        return 1
-    fi
+    setup_target_directories # This is critical, will exit if fails due to errexit
+
+    # copy_configurations is critical. If it fails (e.g., source DOTFILES_SOURCE_DIR is wrong, cp fails),
+    # errexit will stop the script. If it completes, it returns 0.
+    copy_configurations
+
+    # These are run if copy_configurations succeeded. Their failure will set OVERALL_SCRIPT_STATUS via main loop logic.
+    update_hyprland_env_config || return 1 
+    configure_hyprpaper_script || return 1
 
     info_msg "Configuration processing phase completed."; return 0
 }
@@ -493,9 +405,8 @@ manage_services_phase() {
     manage_daemon "hyprpaper" "hyprpaper" || any_service_failed=true
     
     if [[ "$any_service_failed" == true ]]; then
-        warning_msg "Service management phase had issues with one or more daemons.";
-        # Return 1 to indicate this phase had problems, affecting OVERALL_SCRIPT_STATUS
-        return 1
+        warning_msg "Service management phase had issues with one or more daemons."
+        return 1 # Indicate this phase had problems
     fi
     
     info_msg "Service management phase completed successfully."
