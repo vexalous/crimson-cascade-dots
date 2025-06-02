@@ -111,7 +111,7 @@ window#waybar {
     --_effects-detail-multiplier-full: var(--_fx_level_is_0);
     --_effects-detail-multiplier-standard: var(--_fx_level_is_1);
     --_effects-detail-multiplier-reduced: var(--_fx_level_is_0);
-    --_effects-duration-scale: calc(1 + (var(--_fx_level_is_1) * 0.25) + (var(--_fx_level_is_2) * 0.5) );
+    --_effects-duration-scale: calc(1 + (var(--_fx_level_is_1) * 0.25) + (var(--_fx_level_is_2) * 0.5));
 
     /* --- Base Color Palette --- */
     --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
@@ -133,7 +133,7 @@ window#waybar {
     /* --- Accent Palette Selection (uses manual flags) --- */
     --accent-H-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-H)) + (var(--_is-palette-fire) * var(--palette-preset1-H)) + (var(--_is-palette-ocean) * var(--palette-preset2-H)) + (var(--_is-palette-forest) * var(--palette-preset3-H)) + (var(--_is-palette-monochrome) * 0) );
     --accent-S-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-S)) + (var(--_is-palette-fire) * var(--palette-preset1-S)) + (var(--_is-palette-ocean) * var(--palette-preset2-S)) + (var(--_is-palette-forest) * var(--palette-preset3-S)) + (var(--_is-palette-monochrome) * 0%) );
-    --_temp-mono-L-calc: calc( (var(--cfg-base-theme-mode) * 30%) + ( (1 - var(--cfg-base-theme-mode)) * 70% ) );
+    --_temp-mono-L-calc: calc( (var(--cfg-base-theme-mode) * 30%) + ( (1 - var(--cfg-base-theme-mode)) * 70% ));
     --accent-L-base-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-L)) + (var(--_is-palette-fire) * var(--palette-preset1-L)) + (var(--_is-palette-ocean) * var(--palette-preset2-L)) + (var(--_is-palette-forest) * var(--palette-preset3-L)) + (var(--_is-palette-monochrome) * var(--_temp-mono-L-calc)) );
 
     --accent-H: var(--accent-H-resolved);
@@ -267,7 +267,8 @@ window#waybar {
     /* --- Animations --- */
     --animation-name-bar-border-sweep: bar-border-sweep-animation;
     --animation-duration-bar-border-sweep: calc(10s * var(--_animation-speed-multiplier));
-    --animation-bar-border-actual: var(--_effective-animated-bar-border-enabled) var(--animation-name-bar-border-sweep) var(--animation-duration-bar-border-sweep) linear infinite;
+    /* Corrected: Removed var(--_effective-animated-bar-border-enabled) from start */
+    --animation-bar-border-actual: var(--animation-name-bar-border-sweep) var(--animation-duration-bar-border-sweep) linear infinite;
 
     --_enable-animation-urgent-pulse: 1;
     --_enable-animation-focused-glow: 1;
@@ -275,23 +276,34 @@ window#waybar {
 
     --animation-name-urgent-pulse: urgent-pulse-animation;
     --animation-duration-pulse: calc(1.4s * var(--_animation-speed-multiplier));
-    --animation-urgent-actual: var(--_enable-animation-urgent-pulse) var(--animation-name-urgent-pulse) var(--animation-duration-pulse) ease-in-out infinite alternate;
+    /* Added effective duration for toggle */
+    --_animation-duration-pulse-eff: calc(var(--animation-duration-pulse) * var(--_enable-animation-urgent-pulse));
+    /* Corrected: Used effective duration */
+    --animation-urgent-actual: var(--animation-name-urgent-pulse) var(--_animation-duration-pulse-eff) ease-in-out infinite alternate;
 
     --animation-name-focused-glow: focused-glow-animation;
     --animation-duration-glow: calc(2.2s * var(--_animation-speed-multiplier));
-    --animation-focused-glow-actual: var(--_enable-animation-focused-glow) var(--animation-name-focused-glow) var(--animation-duration-glow) ease-in-out infinite alternate;
+    /* Added effective duration for toggle */
+    --_animation-duration-glow-eff: calc(var(--animation-duration-glow) * var(--_enable-animation-focused-glow));
+    /* Corrected: Used effective duration */
+    --animation-focused-glow-actual: var(--animation-name-focused-glow) var(--_animation-duration-glow-eff) ease-in-out infinite alternate;
 
     --animation-name-state-feedback: state-feedback-animation;
     --animation-duration-state-feedback: calc(0.4s * var(--_animation-speed-multiplier));
-    --animation-state-feedback-actual: var(--_enable-animation-state-feedback) var(--animation-name-state-feedback) var(--animation-duration-state-feedback) var(--transition-timing-function-ui);
+    /* Added effective duration for toggle */
+    --_animation-duration-state-feedback-eff: calc(var(--animation-duration-state-feedback) * var(--_enable-animation-state-feedback));
+    /* Corrected: Used effective duration */
+    --animation-state-feedback-actual: var(--animation-name-state-feedback) var(--_animation-duration-state-feedback-eff) var(--transition-timing-function-ui);
 
     --animation-name-dynamic-border: dynamic-border-animation;
     --animation-duration-dynamic-border: calc(0.35s * var(--_animation-speed-multiplier));
     --transition-timing-function-snap: ease-out;
-    --animation-dynamic-ws-border-actual: var(--_effective-dynamic-ws-accents-enabled) var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
+    /* Corrected: Removed var(--_effective-dynamic-ws-accents-enabled) from start */
+    --animation-dynamic-ws-border-actual: var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
 
     /* --- Optional Noise Texture --- */
-    --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nFT)'/%3E%3C/svg%3E");
+    /* Corrected: Encoded % to %25 and # to %23 in SVG data URI */
+    --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%2525' height='100%2525' filter='url(%2523nFT)'/%3E%3C/svg%3E");
     --noise-texture-opacity: calc(0.015 * var(--_effective-noise-texture-enabled));
 
     /* --- Experimental: Glassmorphism --- */
@@ -322,7 +334,7 @@ window#waybar::after { /* Animated border */
         var(--theme-accent-primary-base), var(--theme-accent-highlight),
         var(--theme-accent-primary-grad-start));
     background-size: 400% 100%;
-    animation: var(--animation-bar-border-actual);
+    animation: var(--animation-bar-border-actual); /* Corrected variable usage */
     z-index: 0;
     opacity: var(--_effective-animated-bar-border-enabled);
     box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), calc(0.3 * var(--_effective-animated-bar-border-enabled)));
@@ -381,7 +393,7 @@ window#waybar::before { /* Noise Texture */
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: var(--color-background-module-default); /* Fallback */
-    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
+    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)));
 }
 :where(#mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window).visual-profile-enhanced {
     transition-timing-function: var(--transition-timing-function-enhanced);
@@ -415,7 +427,7 @@ window#waybar::before { /* Noise Texture */
     outline: var(--outline-high-contrast-focus-actual);
     border-color: var(--color-accent-highlight);
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
-    animation: var(--animation-focused-glow-actual);
+    animation: var(--animation-focused-glow-actual); /* Corrected variable usage */
     z-index: 15;
 }
 :is(#clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray).active:not(.disabled):not(.error) {
@@ -424,7 +436,7 @@ window#waybar::before { /* Noise Texture */
     border-color: var(--color-border-module-active);
     box-shadow: var(--effects-shadow-inner-pressed), var(--effects-focus-ring-shadow-actual);
     transform: var(--interaction-transform-active-press);
-    animation: var(--animation-state-feedback-actual);
+    animation: var(--animation-state-feedback-actual); /* Corrected variable usage */
     z-index: 20;
 }
 
@@ -510,7 +522,7 @@ window#waybar::before { /* Noise Texture */
     background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid));
     border-radius: var(--dimension-border-width-normal);
     transform-origin: center;
-    animation: var(--animation-dynamic-ws-border-actual);
+    animation: var(--animation-dynamic-ws-border-actual); /* Corrected variable usage */
     animation-play-state: paused;
     opacity: var(--_effective-dynamic-ws-accents-enabled);
 }
@@ -534,7 +546,7 @@ window#waybar::before { /* Noise Texture */
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
     font-weight: var(--typography-font-weight-bold);
     transform: var(--interaction-transform-hover-scale-actual);
-    animation: var(--animation-focused-glow-actual);
+    animation: var(--animation-focused-glow-actual); /* Corrected variable usage */
     z-index: 5;
 }
 #workspaces button.focused.gradients-enabled {
@@ -544,7 +556,7 @@ window#waybar::before { /* Noise Texture */
     color: var(--color-text-urgent, var(--theme-fg-primary));
     background: var(--color-background-urgent, var(--theme-accent-secondary-base));
     border: var(--dimension-border-width-thin) solid var(--color-border-urgent, var(--theme-accent-highlight));
-    animation: var(--animation-urgent-actual);
+    animation: var(--animation-urgent-actual); /* Corrected variable usage */
     font-weight: var(--typography-font-weight-bold);
     box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base));
     z-index: 5;
@@ -599,7 +611,7 @@ window#waybar::before { /* Noise Texture */
     letter-spacing: 0.075em;
     text-transform: uppercase;
     border-radius: var(--dimension-radius-module) 0 0 var(--dimension-radius-module);
-    clip-path: polygon(0 0, calc(100% - var(--spacing-unit)*2) 0, 100% 100%, 0% 100%);
+    clip-path: polygon(0 0, calc(100% - var(--spacing-unit) * 2) 0, 100% 100%, 0% 100%);
 }
 #hyprland-window {
     padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
@@ -626,13 +638,13 @@ window#waybar::before { /* Noise Texture */
     padding: var(--spacing-unit) calc(var(--spacing-unit)*2);
 }
 #network.disconnected {
-    animation: var(--animation-state-feedback-actual);
+    animation: var(--animation-state-feedback-actual); /* Corrected variable usage */
 }
 #battery.critical:not(.charging) {
     background: var(--theme-accent-primary-solid); /* Default to solid */
     color: var(--theme-fg-primary);
     font-weight: var(--typography-font-weight-bold);
-    animation: var(--animation-urgent-actual);
+    animation: var(--animation-urgent-actual); /* Corrected variable usage */
 }
 #battery.critical.gradients-enabled:not(.charging) {
     background: var(--color-accent-primary-gradient);
@@ -708,7 +720,7 @@ tooltip {
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
     background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Fallback */
-    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)) );
+    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)));
 }
 tooltip::before {
     content: '';
