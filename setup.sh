@@ -16,7 +16,7 @@ LOCK_FILE="/tmp/${SCRIPT_NAME}.lock" # Lockfile to prevent concurrent runs
 readonly LOCK_FILE
 DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
 readonly DEFAULT_SCRIPT_LOG_FILE
-readonly SCRIPT_VERSION="1.0.0-dev" # Example version; populate as needed
+readonly SCRIPT_VERSION="1.0.1-fixed-overwrite" # Example version; populate as needed
 
 # --- Configuration Constants ---
 # These constants are intended for use by sourced library scripts (e.g., backup.sh, git_ops.sh).
@@ -70,10 +70,6 @@ critical_exit() {
 
 # --- Lockfile Management ---
 acquire_lock() {
-    # Advanced consideration for very high-contention environments:
-    # Implement a retry loop with exponential backoff here if acquiring the lock
-    # after a stale lock removal frequently fails due to another instance immediately
-    # acquiring it. For typical dotfile script usage, this is usually not necessary.
     if (set -o noclobber; echo "$$" > "${LOCK_FILE}") 2>/dev/null; then
         debug_msg "Lock acquired: ${LOCK_FILE} (PID $$)"
         return 0
@@ -102,7 +98,6 @@ source_libraries() {
     info_msg "Sourcing library scripts from '${SCRIPT_DIR}/scripts/setup_lib'..."
     local lib_dir="${SCRIPT_DIR}/scripts/setup_lib"
 
-    # Unrolled loop for individual shellcheck directives
     local lib_path="${lib_dir}/ui.sh"
     if [[ ! -f "${lib_path}" ]]; then critical_exit "Required library file not found: ${lib_path}"; fi
     # shellcheck source=scripts/setup_lib/ui.sh
@@ -151,9 +146,16 @@ perform_backups() {
 
 setup_target_directories() {
     info_msg "Ensuring target configuration directories exist under ${CONFIG_TARGET_DIR}..."
+    # This function ensures the *base* directories. Specific sub-directories for single files
+    # within overwritten components will be handled in copy_configurations.
     local wallpaper_rel_path="${WALLPAPER_CONFIG_DIR#${CONFIG_TARGET_DIR}/}"
     [[ -z "${wallpaper_rel_path}" || "${wallpaper_rel_path}" == "/" ]] && wallpaper_rel_path="hypr/wallpaper"
-    local dirs_to_ensure=( "hypr/conf" "hypr/scripts" "${wallpaper_rel_path}" "waybar" "alacritty" "rofi" )
+    
+    # Define base directories to ensure. `hypr/wallpaper` is technically handled by `hypr` itself being ensured.
+    # The more specific ones like hypr/scripts, hypr/wallpaper will be handled post-component-overwrite
+    # if they are not part of the source component structure.
+    local dirs_to_ensure=( "hypr" "waybar" "alacritty" "rofi" ) 
+    # Example: ensure_target_dirs "${CONFIG_TARGET_DIR}" "hypr" "waybar" "alacritty" "rofi"
 
     if ensure_target_dirs "${CONFIG_TARGET_DIR}" "${dirs_to_ensure[@]}"; then # Provided by fs_ops.sh
         info_msg "Target directories ensured successfully."
@@ -164,8 +166,7 @@ setup_target_directories() {
     fi
 }
 
-# NEW HELPER FUNCTION to fully overwrite a component directory
-# This replaces the need for fs_ops.sh/copy_component for cases requiring full overwrite.
+# HELPER FUNCTION to fully overwrite a component directory
 overwrite_component_dir() {
     local source_base_dir="$1"     # e.g., ${DOTFILES_SOURCE_DIR}
     local dest_base_dir="$2"       # e.g., ${CONFIG_TARGET_DIR}
@@ -182,16 +183,13 @@ overwrite_component_dir() {
         return 1
     fi
 
-    # Ensure parent of destination component directory exists
-    # e.g., if dest_component_full_path is /home/user/.config/hypr, parent is /home/user/.config
     local parent_dest_dir
     parent_dest_dir=$(dirname "${dest_component_full_path}")
-    if ! mkdir -p "${parent_dest_dir}"; then
+    if ! mkdir -p "${parent_dest_dir}"; then # Ensures ~/.config exists
         error_msg "Failed to create parent directory for ${display_name} destination: ${parent_dest_dir}"
         return 1
     fi
     
-    # Remove existing destination directory or file if it exists to ensure a clean overwrite
     if [[ -e "${dest_component_full_path}" ]]; then
         info_msg "Removing existing configuration at '${dest_component_full_path}' for ${display_name}."
         if ! rm -rf "${dest_component_full_path}"; then
@@ -200,11 +198,9 @@ overwrite_component_dir() {
         fi
     fi
 
-    # Copy the source component directory to the parent of the intended destination path.
-    # cp -rL source_dir/component_name dest_base_dir/
+    # Copy the source component directory. -L follows symlinks from source.
     # e.g., cp -rL "${DOTFILES_SOURCE_DIR}/hypr" "${CONFIG_TARGET_DIR}/"
-    # This creates ${CONFIG_TARGET_DIR}/hypr
-    # -L: follow all symbolic links in SOURCE and copy the files and directories they point to.
+    # This will create ${CONFIG_TARGET_DIR}/hypr
     if cp -rL "${source_component_full_path}" "${parent_dest_dir}/"; then
         info_msg "${display_name} component force-overwritten successfully at ${dest_component_full_path}."
         return 0
@@ -219,52 +215,102 @@ copy_configurations() {
     info_msg "Copying configuration files from ${DOTFILES_SOURCE_DIR}..."
     local all_copied_successfully=true
     
-    # Note on overwrite strategy:
-    # - For component directories (hypr, waybar), we use `overwrite_component_dir`.
-    #   This function removes the target directory first, then copies the source.
-    #   This ensures that any user files in the target not present in the source are removed.
-    # - For single files, `copy_single_file` (from fs_ops.sh) is assumed to use `cp -f`,
-    #   which overwrites the destination file if it exists.
-    # - Order matters: Overwrite components first, then copy specific single files into them.
-    #   This prevents a single file copy from being erased by a subsequent component overwrite.
-
     # --- Component Directories (Full Overwrite) ---
-    # Overwrite Hyprland component
-    overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "hypr" "Hyprland" || all_copied_successfully=false
-    # Overwrite Waybar component
-    overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "waybar" "Waybar" || all_copied_successfully=false
-    # Add other components here if they need full overwrite, e.g.:
-    # overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "rofi" "Rofi" || all_copied_successfully=false
-    # overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "alacritty" "Alacritty" || all_copied_successfully=false
-    # N.B.: The original script copied alacritty.toml as a single file. If 'alacritty' is a full component
-    # directory in your dotfiles, use overwrite_component_dir. If it's just the .toml, keep copy_single_file.
-
-    # --- Single Files (Copied/Overwritten into place) ---
-    # These are copied *after* their parent components are established to ensure they are not wiped out.
+    # These functions remove the target directory first, then copy the source.
     
-    # Wallpaper (copied into the now-overwritten hypr component's wallpaper dir)
+    overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "hypr" "Hyprland" || all_copied_successfully=false
+    overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "waybar" "Waybar" || all_copied_successfully=false
+    
+    # Decide for alacritty and rofi:
+    # If DOTFILES_SOURCE_DIR/alacritty and DOTFILES_SOURCE_DIR/rofi are full component directories
+    # that you want to fully replace in ~/.config/, then use overwrite_component_dir:
+    # overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "alacritty" "Alacritty" || all_copied_successfully=false
+    # overwrite_component_dir "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "rofi" "Rofi" || all_copied_successfully=false
+    # If you only copy specific files (e.g., alacritty.toml), don't use overwrite_component_dir for them.
+
+    # --- Explicit Directory Creation for Single File Targets ---
+    # After overwriting components, we must ensure the specific target directories for
+    # individual files exist, as overwrite_component_dir might have removed them if
+    # they were not present in the source component's structure.
+
+    local hypr_wallpaper_dir="${CONFIG_TARGET_DIR}/hypr/wallpaper" # Same as WALLPAPER_CONFIG_DIR
+    local hypr_scripts_dir="${CONFIG_TARGET_DIR}/hypr/scripts"   # Same as USER_HYPR_SCRIPTS_DIR
+    local alacritty_dir="${CONFIG_TARGET_DIR}/alacritty"         # For alacritty.toml if alacritty is not a full component
+
+    info_msg "Ensuring target directories for specific single files exist post-component-overwrite..."
+    if ! mkdir -p "${hypr_wallpaper_dir}"; then
+        error_msg "Failed to create target directory: ${hypr_wallpaper_dir}"
+        all_copied_successfully=false
+    else
+        debug_msg "Ensured directory exists: ${hypr_wallpaper_dir}"
+    fi
+    if ! mkdir -p "${hypr_scripts_dir}"; then
+        error_msg "Failed to create target directory: ${hypr_scripts_dir}"
+        all_copied_successfully=false
+    else
+        debug_msg "Ensured directory exists: ${hypr_scripts_dir}"
+    fi
+    
+    # This 'mkdir -p' for alacritty_dir is only necessary if 'alacritty' is NOT 
+    # handled by `overwrite_component_dir` above. If you *are* using 
+    # `overwrite_component_dir` for "alacritty", then that function ensures
+    # `${CONFIG_TARGET_DIR}/alacritty` is created based on your source, and this `mkdir -p` is redundant
+    # or could conflict if the source `alacritty` is just a file.
+    # Assuming for now that 'alacritty' is NOT a fully overwritten component, and we only copy alacritty.toml into it.
+    # If DOTFILES_SOURCE_DIR/alacritty is a directory that is fully copied via overwrite_component_dir,
+    # then this explicit mkdir -p might not be needed or could be removed.
+    if ! overwrite_component_dir_was_used_for "alacritty"; then # Placeholder for your logic
+        if ! mkdir -p "${alacritty_dir}"; then
+            error_msg "Failed to create target directory: ${alacritty_dir}"
+            all_copied_successfully=false
+        else
+            debug_msg "Ensured directory exists: ${alacritty_dir}"
+        fi
+    fi
+
+    # --- Single Files (Copied/Overwritten into place using fs_ops.sh/copy_single_file) ---
+    # These are copied *after* their parent components are established AND specific target dirs are ensured.
+    
     local wallpaper_dest_rel_path="hypr/wallpaper/${DEFAULT_WALLPAPER_FILE}"
+    # copy_single_file <source_filename_in_repo_root_or_subdir> <dest_relative_to_config_target_dir> <source_base> <dest_base> <display_name>
     copy_single_file "${DEFAULT_WALLPAPER_FILE}" "${wallpaper_dest_rel_path}" \
         "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Default wallpaper" || all_copied_successfully=false
 
-    # Hyprpaper script (copied into the now-overwritten hypr component's scripts dir)
     copy_single_file "scripts/config/hyprpaper.sh" "hypr/scripts/hyprpaper.sh" \
         "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Hyprpaper script" || all_copied_successfully=false
 
-    # Alacritty config (if it's a single file and not a full component directory)
-    # If DOTFILES_SOURCE_DIR/alacritty is a directory with more than just alacritty.toml,
-    # consider using overwrite_component_dir for "alacritty" instead.
+    # Alacritty config:
+    # This assumes DOTFILES_SOURCE_DIR/alacritty/alacritty.toml exists.
+    # And that `~/.config/alacritty/` directory is now ensured (either by `overwrite_component_dir` or the explicit `mkdir -p` above).
     copy_single_file "alacritty/alacritty.toml" "alacritty/alacritty.toml" \
         "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Alacritty configuration" || all_copied_successfully=false
+    
+    # Example for Rofi if it's not a full component:
+    # if ! overwrite_component_dir_was_used_for "rofi"; then
+    #   if ! mkdir -p "${CONFIG_TARGET_DIR}/rofi"; then error_msg ...; all_copied_successfully=false; fi
+    # fi
+    # copy_single_file "rofi/config.rasi" "rofi/config.rasi" \
+    #    "${DOTFILES_SOURCE_DIR}" "${CONFIG_TARGET_DIR}" "Rofi configuration" || all_copied_successfully=false
+
 
     if [[ "${all_copied_successfully}" == true ]]; then
-        info_msg "Configuration files copy process completed successfully (with overwrites)."
+        info_msg "Configuration files copy process completed successfully (with overwrites and explicit directory creation)."
         return 0
     else
-        warning_msg "One or more configuration files may have failed to copy/overwrite. Review logs."
+        warning_msg "One or more configuration files/directories may have failed to copy/overwrite or create. Review logs."
         return 1
     fi
 }
+
+# Placeholder function - replace with your actual logic to determine if overwrite_component_dir was used
+overwrite_component_dir_was_used_for() {
+    local component_to_check="$1"
+    # Example: if you decide to always use overwrite_component_dir for 'alacritty', return 0 (true)
+    # if [[ "$component_to_check" == "alacritty" ]]; then return 0; fi
+    # For this example, assume it was NOT used, so mkdir -p will run.
+    return 1 # False, meaning it was not used.
+}
+
 
 update_hyprland_env_config() {
     if [[ "${SKIP_HYPR_ENV}" == "true" ]]; then
@@ -277,11 +323,7 @@ update_hyprland_env_config() {
     local desired_config_line="env = CONFIG_TARGET_DIR,${CONFIG_TARGET_DIR}"
 
     mkdir -p "$(dirname "${target_file}")"
-    # Create target_file if it doesn't exist.
-    # If it does exist, original_content will be read from it.
-    # If it doesn't, original_content remains empty.
     [[ ! -f "${target_file}" ]] && { info_msg "Creating empty ${target_file}."; touch "${target_file}"; }
-
 
     local temp_new_content_file
     temp_new_content_file=$(mktemp --tmpdir "${SCRIPT_NAME}_envconf.XXXXXX")
@@ -291,35 +333,25 @@ update_hyprland_env_config() {
     fi
 
     local original_content=""
-    # Only read original_content if target_file exists and is not empty
-    # This handles the case where target_file was just created by `touch`.
     if [[ -s "${target_file}" ]]; then
         original_content=$(<"${target_file}")
     fi
 
-
-    # Regex to match managed env lines, whether active or commented, with flexible spacing
     local hypr_scripts_regex="^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*HYPR_SCRIPTS_DIR,"
     local config_target_regex="^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*CONFIG_TARGET_DIR,"
     local combined_filter_regex="${hypr_scripts_regex}|${config_target_regex}"
 
-    # Rebuild content: filter original content from target_file directly, excluding managed lines.
-    if [[ -f "${target_file}" ]]; then # Check if target_file exists before grepping
-        grep -Ev -- "${combined_filter_regex}" "${target_file}" > "${temp_new_content_file}" || : # Allow no match / empty output
+    if [[ -f "${target_file}" ]]; then 
+        grep -Ev -- "${combined_filter_regex}" "${target_file}" > "${temp_new_content_file}" || : 
     else
-        # If target_file somehow doesn't exist (e.g. race after touch, or touch failed silently before errexit)
-        # ensure temp_new_content_file is empty.
         : > "${temp_new_content_file}"
     fi
 
-
-    # Append desired lines, ensuring proper newline if needed
     if [[ -s "${temp_new_content_file}" ]]; then
-        # Read only the last character to check for newline, more efficient than reading whole file
         local last_char_val=""
         last_char_val=$(tail -c1 "${temp_new_content_file}")
         if [[ "${last_char_val}" != "" && "${last_char_val}" != $'\n' ]]; then
-            echo "" >> "${temp_new_content_file}" # Explicitly echo "" for newline (SC2188 fix)
+            echo "" >> "${temp_new_content_file}"
         fi
     fi
     echo "${desired_scripts_line}" >> "${temp_new_content_file}"
@@ -328,8 +360,6 @@ update_hyprland_env_config() {
     local new_content
     new_content=$(<"${temp_new_content_file}")
 
-    # Compare new content with original. Only write if different.
-    # Note: original_content might be empty if the file was just touched or was empty.
     if [[ "${original_content}" == "${new_content}" ]]; then
         info_msg "${target_file} is already correctly configured. No changes needed."
         rm -f "${temp_new_content_file}"
@@ -337,9 +367,9 @@ update_hyprland_env_config() {
     fi
 
     info_msg "Updating ${target_file} as changes are required."
-    local backup_file # SC2155
+    local backup_file 
     backup_file="${target_file}.bak.$(date +%Y%m%d%H%M%S)"
-    cp "${target_file}" "${backup_file}" # Backup existing file before overwrite
+    cp "${target_file}" "${backup_file}" 
     info_msg "Backup of original ${target_file} created at ${backup_file}"
 
     if mv "${temp_new_content_file}" "${target_file}"; then
@@ -347,7 +377,7 @@ update_hyprland_env_config() {
         return 0
     else
         error_msg "Failed to move temporary content to ${target_file}. Original file might be unchanged or corrupted."
-        rm -f "${temp_new_content_file}" # Attempt to clean up
+        rm -f "${temp_new_content_file}" 
         return 1
     fi
 }
@@ -372,9 +402,8 @@ configure_hyprpaper_script() {
         error_msg "CRITICAL: CONFIG_TARGET_DIR env variable is not set. Cannot execute hyprpaper script reliably."
         return 1
     fi
-    export CONFIG_TARGET_DIR # Make available to the sub-script
+    export CONFIG_TARGET_DIR 
 
-    # Execute and capture exit status
     "${script_path}" || script_exit_status=$?
 
     if [[ "${script_exit_status}" -eq 0 ]]; then
@@ -388,7 +417,7 @@ configure_hyprpaper_script() {
 
 manage_daemon() {
     local process_name="$1" command_to_start="$2" log_file daemon_status=0
-    local -r sigterm_timeout_seconds=3 # Seconds to wait for SIGTERM
+    local -r sigterm_timeout_seconds=3 
     local nohup_pid
 
     info_msg "Managing daemon process: ${process_name}..."
@@ -397,7 +426,6 @@ manage_daemon() {
         return 1
     fi
 
-    # Using long options for pgrep/pkill for max clarity
     if pgrep --exact --uid "$(id -u)" "${process_name}" >/dev/null; then
         info_msg "Attempting graceful shutdown (SIGTERM) of existing ${process_name} process(es)..."
         if pkill --exact --signal SIGTERM --uid "$(id -u)" "${process_name}"; then
@@ -413,7 +441,7 @@ manage_daemon() {
             if [[ "${count}" -ge "${sigterm_timeout_seconds}" ]] && pgrep --exact --uid "$(id -u)" "${process_name}" >/dev/null; then
                 warning_msg "${process_name} did not terminate via SIGTERM after ${sigterm_timeout_seconds}s. Sending SIGKILL..."
                 if pkill --exact --signal SIGKILL --uid "$(id -u)" "${process_name}"; then
-                    sleep 0.5 # Give SIGKILL a moment
+                    sleep 0.5 
                     info_msg "${process_name} terminated via SIGKILL."
                 else
                     warning_msg "SIGKILL command for ${process_name} failed (process might have just exited or other issue)."
@@ -429,10 +457,10 @@ manage_daemon() {
     log_file=$(mktemp --tmpdir "${process_name}_${SCRIPT_NAME}.XXXXXX.log")
     info_msg "Starting ${process_name} in background. Log: ${log_file}"
     if nohup "${command_to_start}" >"${log_file}" 2>&1 & then
-        nohup_pid=$! # Get PID of the nohup process itself
-        disown "${nohup_pid}" # Decouple from script's job table
+        nohup_pid=$! 
+        disown "${nohup_pid}" 
         debug_msg "${process_name} (via nohup PID ${nohup_pid}) disowned."
-        sleep 0.5 # Allow process to initialize or fail fast
+        sleep 0.5 
         if pgrep --exact --uid "$(id -u)" "${process_name}" >/dev/null; then
             info_msg "${process_name} started successfully in background."
         else
@@ -450,7 +478,7 @@ manage_daemon() {
 
 # --- Cleanup ---
 cleanup() {
-    local script_exit_status=$? # Capture the exit status of the script (how trap EXIT was triggered)
+    local script_exit_status=$? 
     info_msg "Initiating cleanup sequence (Script is exiting with status: ${script_exit_status})..."
     if [[ -n "${TEMP_CLONE_DIR}" && -d "${TEMP_CLONE_DIR}" ]]; then
         info_msg "Cleaning temporary clone directory: ${TEMP_CLONE_DIR}"
@@ -463,7 +491,6 @@ cleanup() {
     fi
     release_lock
 
-    # Final summary message reflecting the outcome
     if [[ "${script_exit_status}" -eq 0 && "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
         info_msg "Script completed all operations successfully and exited cleanly (status 0)."
     elif [[ "${script_exit_status}" -eq 1 && "${OVERALL_SCRIPT_STATUS}" -ne 0 ]]; then
@@ -495,34 +522,27 @@ Options:
   --version              Display script version and exit.
   -h, --help             Display this help message and exit.
 
-Note: This script uses GNU getopt for argument parsing, which is standard on most Linux
-      systems. For macOS or other systems without GNU getopt by default, you may need
-      to install 'gnu-getopt' (e.g., via Homebrew) and ensure it's in your PATH,
-      or modify the script to use POSIX getopts (short options only).
-      This script also requires Bash version 4.4+ for certain features (NUL-delimited mapfile).
+Note: This script uses GNU getopt for argument parsing. Bash version 4.4+ is required.
+      Ensure 'gnu-getopt' is installed and in PATH if not on a standard Linux system.
 EOF
 }
 
 # --- Main Script Orchestration ---
 main() {
-    # Check for Bash version (Bash 4.4+ for mapfile -d)
     if ((BASH_VERSINFO[0] < 4)) || ((BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 4)); then
-      critical_exit "This script requires Bash version 4.4 or newer (for NUL-delimited mapfile support)."
+      critical_exit "This script requires Bash version 4.4 or newer."
     fi
 
-    # Check for GNU getopt
     if ! command -v getopt >/dev/null || ! getopt -T >/dev/null 2>&1; then
-        local getopt_output # Check if it's GNU getopt specifically
+        local getopt_output 
         getopt_output=$(getopt -T 2>&1)
         if [[ -z "${getopt_output}" && $? -eq 4 ]]; then
              debug_msg "GNU getopt detected."
         else
-             critical_exit "GNU getopt is required for long option parsing but not found or not the GNU version. Please install 'gnu-getopt' or ensure GNU getopt is in your PATH."
+             critical_exit "GNU getopt is required. Please install 'gnu-getopt'."
         fi
     fi
 
-
-    # Argument Parsing with GNU getopt:
     local short_opts="h"
     local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help,version"
     local parsed_opts
@@ -547,9 +567,7 @@ main() {
     done
 
     mkdir -p "$(dirname "${SCRIPT_LOG_FILE}")" || critical_exit "Cannot create log directory: $(dirname "${SCRIPT_LOG_FILE}")"
-    # Touch also creates if not exists, or updates timestamp if it does.
     touch "${SCRIPT_LOG_FILE}" || critical_exit "Cannot create or update log file: ${SCRIPT_LOG_FILE}"
-
 
     info_msg "--- ${SCRIPT_NAME} execution started (Version: ${SCRIPT_VERSION}) ---"
     info_msg "Using script log file: ${SCRIPT_LOG_FILE}"
@@ -564,17 +582,17 @@ main() {
         if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
              manage_services_phase || OVERALL_SCRIPT_STATUS=1
         else
-            warning_msg "Skipping service management due to issues encountered in configuration processing."
+            warning_msg "Skipping service management due to issues in configuration processing."
         fi
     else
-         warning_msg "Skipping configuration and service management due to issues encountered in initialization."
+         warning_msg "Skipping configuration and service management due to issues in initialization."
     fi
 
     if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
         info_msg "--- ${SCRIPT_NAME} execution concluded successfully. ---"
         exit 0
     else
-        warning_msg "--- ${SCRIPT_NAME} execution concluded, but one or more non-critical errors occurred. Review log. ---"
+        warning_msg "--- ${SCRIPT_NAME} execution concluded, but one or more non-critical errors occurred. ---"
         exit 1
     fi
 }
@@ -586,46 +604,25 @@ initialize_script() {
     print_header # Assumed from ui.sh
 
     DOTFILES_SOURCE_DIR="" TEMP_CLONE_DIR=""
-    # IMPORTANT ASSUMPTION: determine_source_dir (from git_ops.sh) must output
-    # two NUL-terminated strings for DOTFILES_SOURCE_DIR and TEMP_CLONE_DIR respectively
-    # to handle potential spaces in paths correctly. This requires Bash 4.4+.
     local source_dirs_array=()
-    # The command substitution `determine_source_dir` is run. Its stdout is piped to mapfile.
-    if ! mapfile -d $'\0' -t source_dirs_array < <(determine_source_dir); then
-        error_msg "Failed to read output from determine_source_dir."
-        error_msg "Ensure git_ops.sh/determine_source_dir provides two NUL-delimited paths."
-        critical_exit "Could not determine source directories due to read failure."
+    if ! mapfile -d $'\0' -t source_dirs_array < <(determine_source_dir); then # From git_ops.sh
+        critical_exit "Failed to determine source directories from determine_source_dir."
     fi
 
-    # Ensure we received exactly two elements from determine_source_dir
     if [[ "${#source_dirs_array[@]}" -ne 2 ]]; then
-        error_msg "determine_source_dir provided an unexpected number of paths."
-        error_msg "Expected 2 NUL-delimited paths, received ${#source_dirs_array[@]}."
-        critical_exit "Invalid output format from determine_source_dir."
+        critical_exit "determine_source_dir provided an unexpected number of paths (${#source_dirs_array[@]}). Expected 2."
     fi
 
     DOTFILES_SOURCE_DIR="${source_dirs_array[0]}"
     TEMP_CLONE_DIR="${source_dirs_array[1]}"
 
-
     if [[ -z "${DOTFILES_SOURCE_DIR}" ]]; then
-        critical_exit "Dotfiles source directory was determined to be empty. Cannot proceed."
+        critical_exit "Dotfiles source directory is empty. Cannot proceed."
     fi
-    info_msg "Dotfiles source directory identified as: ${DOTFILES_SOURCE_DIR}"
-    if [[ -n "${TEMP_CLONE_DIR}" ]]; then
-        info_msg "Using temporary clone directory: ${TEMP_CLONE_DIR}"
-    fi
-    # verify_core_dependencies might be called here or within determine_source_dir context
-    # Original script had it after TEMP_CLONE_DIR check, so keeping it if it's relevant
-    # if [[ -n "${TEMP_CLONE_DIR}" ]]; then
-    #    verify_core_dependencies || phase_status=1 # verify_core_dependencies usually from dependencies.sh
-    # fi
-    # Assuming verify_core_dependencies is general or handled correctly by sourced scripts.
-    # If it's meant to check deps for cloning and the repo is local, it might be skipped.
-    # For now, let's assume it's correctly handled by the original logic if needed.
-    # A general dependency check is good practice anyway.
-    verify_core_dependencies || phase_status=1
-
+    info_msg "Dotfiles source directory: ${DOTFILES_SOURCE_DIR}"
+    [[ -n "${TEMP_CLONE_DIR}" ]] && info_msg "Using temporary clone directory: ${TEMP_CLONE_DIR}"
+    
+    verify_core_dependencies || phase_status=1 # From dependencies.sh
 
     if [[ "${phase_status}" -eq 0 ]]; then info_msg "Initialization phase completed with no issues reported.";
     else warning_msg "Initialization phase completed with some issues reported."; fi
@@ -638,10 +635,11 @@ process_configurations() {
 
     perform_backups || phase_status=1
 
+    # setup_target_directories ensures base dirs like ~/.config/hypr exist.
+    # copy_configurations will handle more specific subdirs post-overwrite.
     if ! setup_target_directories; then
-        error_msg "Critical failure during target directory setup. Aborting configuration processing phase."
-        return 1 # This return will be caught by `|| OVERALL_SCRIPT_STATUS=1` in main.
-                 # but for clarity, we set phase_status and let the main flow handle OVERALL_SCRIPT_STATUS.
+        error_msg "Critical failure during target directory setup. Aborting."
+        return 1 
     fi
 
     copy_configurations || phase_status=1
@@ -667,7 +665,7 @@ manage_services_phase() {
     if [[ "${phase_status}" -eq 0 ]]; then info_msg "Service management phase completed with no issues reported.";
     else warning_msg "Service management phase completed with some issues reported."; fi
 
-    info_msg "" # Consistent logging for blank line
+    info_msg "" 
     info_msg "--------------------------------------------------------------------"
     info_msg "Relevant services have been (re)started (if installed and not skipped)."
     info_msg "If you are running this script outside of an active Hyprland session,"
