@@ -24,8 +24,8 @@ cat << EOF > "$TARGET_FILE"
 # Cursor theme and size settings
 # XCURSOR_SIZE and XCURSOR_THEME are for XWayland applications.
 # HYPRCURSOR_THEME and HYPRCURSOR_SIZE are for Hyprland's native cursor.
-env = XCURSOR_SIZE,${TARGET_CURSOR_SIZE:-24}
-env = HYPRCURSOR_THEME,${TARGET_CURSOR_THEME:-Bibata-Modern-Classic}
+env = XCURSOR_SIZE,${TARGET_CURSOR_SIZE:-24} # Uses TARGET_CURSOR_SIZE if set, otherwise defaults to 24.
+env = HYPRCURSOR_THEME,${TARGET_CURSOR_THEME:-Bibata-Modern-Classic} # Uses TARGET_CURSOR_THEME if set, otherwise defaults to Bibata-Modern-Classic.
 env = HYPRCURSOR_SIZE,${TARGET_CURSOR_SIZE:-24}
 env = XCURSOR_THEME,${TARGET_CURSOR_THEME:-Bibata-Modern-Classic}
 
