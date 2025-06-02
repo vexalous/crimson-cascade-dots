@@ -14,7 +14,7 @@ LOCK_FILE="/tmp/${SCRIPT_NAME}.lock"
 readonly LOCK_FILE
 DEFAULT_SCRIPT_LOG_FILE="/tmp/${SCRIPT_NAME}.$(date +%Y%m%d).log"
 readonly DEFAULT_SCRIPT_LOG_FILE
-readonly SCRIPT_VERSION="1.0.2-forceful-write"
+readonly SCRIPT_VERSION="1.0.3-forceful-write-fixed-getopt"
 
 # --- Configuration Constants ---
 declare -xr BACKUP_DIR_BASE="${HOME}/config_backups_crimson_cascade"
@@ -95,13 +95,11 @@ perform_backups() {
     # handle_backup_process is from backup.sh
     handle_backup_process "hypr" "waybar" "alacritty" "rofi" || {
         warning_msg "Backup process encountered issues. Continuing."
-        return 1
+        return 1 # Non-critical failure
     }
     info_msg "Backup process completed."; return 0
 }
 
-# SIMPLIFIED setup_target_directories: Only ensures the main ~/.config exists.
-# Specific subdirs are handled forcefully by copy_configurations.
 setup_target_directories() {
     info_msg "Ensuring base target configuration directory exists: ${CONFIG_TARGET_DIR}..."
     if mkdir -p "${CONFIG_TARGET_DIR}"; then
@@ -109,7 +107,7 @@ setup_target_directories() {
         return 0
     else
         error_msg "CRITICAL: Failed to create base target directory ${CONFIG_TARGET_DIR}."
-        return 1 # This will cause script to halt if it fails early
+        return 1
     fi
 }
 
@@ -135,8 +133,6 @@ overwrite_component_dir_forceful() {
         rm -rf "${dest_component_path}" || { error_msg "Failed to remove '${dest_component_path}'."; return 1; }
     fi
 
-    # Copy source component (e.g. .../dots/hypr) INTO parent of dest (e.g. .../.config/)
-    # This creates .../.config/hypr
     cp -rL "${source_component_path}" "${parent_dest_dir}/" || { error_msg "Failed to copy ${display_name}."; return 1; }
     
     info_msg "${display_name} component FORCEFULLY OVERWRITTEN."
@@ -160,7 +156,6 @@ copy_single_file_forceful() {
 
     cp -f "${source_file_path}" "${dest_file_path}" || { error_msg "Failed to copy ${display_name}."; return 1; }
     
-    # Make scripts executable
     if [[ "${dest_file_path}" == *scripts/*.sh || "${dest_file_path}" == *.sh ]]; then
         chmod +x "${dest_file_path}" || warning_msg "Failed to chmod +x ${dest_file_path}"
     fi
@@ -172,7 +167,6 @@ copy_configurations() {
     info_msg "FORCEFULLY Copying configuration files from ${DOTFILES_SOURCE_DIR}..."
     local all_ops_ok=true
     
-    # --- Component Directories (Full Overwrite) ---
     overwrite_component_dir_forceful \
         "${DOTFILES_SOURCE_DIR}/hypr" \
         "${CONFIG_TARGET_DIR}/hypr" \
@@ -183,44 +177,35 @@ copy_configurations() {
         "${CONFIG_TARGET_DIR}/waybar" \
         "Waybar" || all_ops_ok=false
 
-    # --- Explicit Directory Creation for specific sub-targets AFTER component overwrite ---
-    # This is CRITICAL if your source ${DOTFILES_SOURCE_DIR}/hypr does NOT contain these subdirs.
     info_msg "Forcefully ensuring specific sub-directories exist post-component-overwrite..."
     
-    # These use the global constants for user scripts and wallpaper target
     mkdir -p "${USER_HYPR_SCRIPTS_DIR}" || { error_msg "CRIT: Failed to create ${USER_HYPR_SCRIPTS_DIR}"; all_ops_ok=false; }
     info_msg "Forcefully ensured directory: ${USER_HYPR_SCRIPTS_DIR}"
     
     mkdir -p "${WALLPAPER_CONFIG_DIR}" || { error_msg "CRIT: Failed to create ${WALLPAPER_CONFIG_DIR}"; all_ops_ok=false; }
     info_msg "Forcefully ensured directory: ${WALLPAPER_CONFIG_DIR}"
 
-    # --- Single Files ---
-    # Wallpaper (source is assumed to be at the root of DOTFILES_SOURCE_DIR)
     copy_single_file_forceful \
         "${DOTFILES_SOURCE_DIR}/${DEFAULT_WALLPAPER_FILE}" \
         "${WALLPAPER_CONFIG_DIR}/${DEFAULT_WALLPAPER_FILE}" \
         "Default wallpaper" || all_ops_ok=false
 
-    # Hyprpaper script (source is DOTFILES_SOURCE_DIR/scripts/config/hyprpaper.sh)
     copy_single_file_forceful \
         "${DOTFILES_SOURCE_DIR}/scripts/config/hyprpaper.sh" \
         "${USER_HYPR_SCRIPTS_DIR}/hyprpaper.sh" \
         "Hyprpaper script" || all_ops_ok=false
     
-    # Alacritty (assuming only alacritty.toml, and 'alacritty' is not a full component dir in your dots)
     local target_alacritty_dir="${CONFIG_TARGET_DIR}/alacritty"
     mkdir -p "${target_alacritty_dir}" || { error_msg "CRIT: Failed to create ${target_alacritty_dir}"; all_ops_ok=false; }
     info_msg "Forcefully ensured directory: ${target_alacritty_dir}"
     
-    # Only attempt copy if directory was ensured (or already existed)
-    if [[ "${all_ops_ok}" == true || -d "${target_alacritty_dir}" ]]; then
+    if [[ "${all_ops_ok}" == true || -d "${target_alacritty_dir}" ]]; then # Check all_ops_ok before proceeding
         copy_single_file_forceful \
             "${DOTFILES_SOURCE_DIR}/alacritty/alacritty.toml" \
             "${target_alacritty_dir}/alacritty.toml" \
             "Alacritty configuration" || all_ops_ok=false
     fi
     
-    # Add other components/files here using overwrite_component_dir_forceful or copy_single_file_forceful
     # Example for Rofi if it's a full component in your dotfiles:
     # overwrite_component_dir_forceful \
     #     "${DOTFILES_SOURCE_DIR}/rofi" \
@@ -237,20 +222,20 @@ copy_configurations() {
     #        "Rofi config" || all_ops_ok=false
     # fi
 
+
     [[ "${all_ops_ok}" == true ]] || return 1
     info_msg "Configuration files FORCEFUL copy process completed."
     return 0
 }
 
 update_hyprland_env_config() {
-    # This function seems mostly fine, let's keep its logic but ensure robustness
     if [[ "${SKIP_HYPR_ENV}" == "true" ]]; then info_msg "Skipping Hyprland env.conf update."; return 0; fi
     
     local target_file="${CONFIG_TARGET_DIR}/hypr/conf/env.conf"
     info_msg "Checking/Updating Hyprland env config: ${target_file}"
 
     mkdir -p "$(dirname "${target_file}")" || { error_msg "Failed to create dir for env.conf"; return 1; }
-    touch "${target_file}" || { error_msg "Failed to touch env.conf"; return 1; } # Ensure it exists
+    touch "${target_file}" || { error_msg "Failed to touch env.conf"; return 1; } 
 
     local desired_scripts_line="env = HYPR_SCRIPTS_DIR,${USER_HYPR_SCRIPTS_DIR}"
     local desired_config_line="env = CONFIG_TARGET_DIR,${CONFIG_TARGET_DIR}"
@@ -259,10 +244,8 @@ update_hyprland_env_config() {
     
     local original_content; original_content=$(<"${target_file}")
 
-    # Filter out old managed lines
-    grep -Ev "^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*(HYPR_SCRIPTS_DIR|CONFIG_TARGET_DIR)," "${target_file}" > "${temp_file}" || true # Allow no match
+    grep -Ev "^[[:space:]]*#*[[:space:]]*env[[:space:]]*=[[:space:]]*(HYPR_SCRIPTS_DIR|CONFIG_TARGET_DIR)," "${target_file}" > "${temp_file}" || true 
 
-    # Append desired lines, ensuring newline if temp_file is not empty and lacks one
     if [[ -s "${temp_file}" ]] && [[ "$(tail -c1 "${temp_file}")" != $'\n' ]]; then
         echo "" >> "${temp_file}"
     fi
@@ -294,7 +277,7 @@ configure_hyprpaper_script() {
     chmod +x "${script_path}" || { error_msg "Failed to chmod +x ${script_path}"; return 1; }
 
     info_msg "Executing hyprpaper config script: ${script_path}"
-    export CONFIG_TARGET_DIR # Ensure available to sub-script
+    export CONFIG_TARGET_DIR 
     if "${script_path}"; then
         info_msg "Hyprpaper script executed successfully."
         return 0
@@ -312,7 +295,7 @@ manage_daemon() {
     info_msg "Managing daemon: ${process_name}..."
     if ! command -v "${process_name}" >/dev/null 2>&1; then
         warning_msg "Cmd '${process_name}' not found. Skipping."
-        return 1
+        return 1 # Indicate failure to manage this specific daemon
     fi
 
     if pgrep -x -u "$(id -u)" "${process_name}" >/dev/null; then
@@ -336,7 +319,7 @@ manage_daemon() {
     info_msg "Starting ${process_name}. Log: ${log_file}"
     if nohup "${command_to_start}" >"${log_file}" 2>&1 & then
         disown "$!"
-        sleep 0.5 # Give it a moment to start or fail
+        sleep 0.5 
         if pgrep -x -u "$(id -u)" "${process_name}" >/dev/null; then
             info_msg "${process_name} started successfully."
         else
@@ -389,12 +372,29 @@ main() {
     if ((BASH_VERSINFO[0] < 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 4) )); then
       critical_exit "Bash 4.4+ required."
     fi
-    command -v getopt >/dev/null && getopt -T >/dev/null 2>&1 || critical_exit "GNU getopt required."
+
+    # --- CORRECTED getopt CHECK ---
+    if ! command -v getopt >/dev/null; then
+        critical_exit "getopt command not found. Please install it (usually part of util-linux)."
+    fi
+    if ! getopt -o "" --long "test-option" -n "getopt-test" -- --test-option > /dev/null 2>&1; then
+        local getopt_version_output
+        getopt_version_output=$(getopt --version 2>&1 || echo "Version unknown") 
+        error_msg "getopt found, but it may not support long options correctly or is not behaving as expected."
+        error_msg "getopt version/output: ${getopt_version_output}"
+        critical_exit "A getopt implementation that supports standard long options is required."
+    else
+        debug_msg "getopt check passed (using $(getopt --version 2>/dev/null || echo "util-linux getopt"))."
+    fi
+    # --- END CORRECTED getopt CHECK ---
 
     local short_opts="h"
     local long_opts="skip-backups,skip-services,skip-hypr-env,debug,log-file:,help,version"
     local parsed_opts
-    parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME}" -- "$@") || { print_help >&2; exit 1; }
+    if ! parsed_opts=$(getopt -o "${short_opts}" --long "${long_opts}" -n "${SCRIPT_NAME// /_}" -- "$@"); then
+        print_help >&2
+        exit 1
+    fi
     eval set -- "${parsed_opts}"
 
     while true; do
@@ -420,31 +420,24 @@ main() {
     trap cleanup EXIT HUP INT QUIT TERM
     acquire_lock || critical_exit "Failed to acquire script lock."
 
-    # Phase 1: Initialization (determine source, source libs)
     initialize_script || { OVERALL_SCRIPT_STATUS=1; critical_exit "Initialization failed."; }
-    
-    # Phase 2: Configuration (backup, copy, env update)
     process_configurations || OVERALL_SCRIPT_STATUS=1
     
-    # Phase 3: Services (only if configs were okay)
     if [[ "${OVERALL_SCRIPT_STATUS}" -eq 0 ]]; then
         manage_services_phase || OVERALL_SCRIPT_STATUS=1
     else
         warning_msg "Skipping service management due to prior errors."
     fi
     
-    # Exit status is determined by OVERALL_SCRIPT_STATUS
-    # The cleanup trap will provide the final log messages.
     exit "${OVERALL_SCRIPT_STATUS}"
 }
 
 initialize_script() {
     info_msg "Phase: Initializing Script..."
-    source_libraries # Sources ui.sh, dependencies.sh, git_ops.sh etc.
+    source_libraries 
     print_header   # From ui.sh
 
     local source_dirs_array=()
-    # determine_source_dir is from git_ops.sh
     mapfile -d $'\0' -t source_dirs_array < <(determine_source_dir) || critical_exit "determine_source_dir failed."
     
     [[ "${#source_dirs_array[@]}" -eq 2 ]] || critical_exit "determine_source_dir: unexpected output count."
@@ -455,37 +448,57 @@ initialize_script() {
     info_msg "Dotfiles source: ${DOTFILES_SOURCE_DIR}"
     [[ -n "${TEMP_CLONE_DIR}" ]] && info_msg "Temp clone dir: ${TEMP_CLONE_DIR}"
     
-    verify_core_dependencies || return 1 # From dependencies.sh
+    verify_core_dependencies || return 1 
     info_msg "Initialization phase completed."; return 0
 }
 
 process_configurations() {
     info_msg "Phase: Processing Configurations..."
-    local phase_ok=true
+    local phase_ok_for_services=true # Tracks if subsequent service phase should run
     
-    perform_backups || phase_ok=false # Non-critical if backup fails
-    
+    perform_backups || true # Backup failure is non-critical for proceeding with config copy
+
+    # setup_target_directories is critical for CONFIG_TARGET_DIR itself
     setup_target_directories || { error_msg "Base target dir setup FAILED. Halting config processing."; return 1; }
     
-    copy_configurations || { error_msg "Core configuration copying FAILED."; return 1; } # Critical
-    update_hyprland_env_config || phase_ok=false
-    configure_hyprpaper_script || phase_ok=false
+    # copy_configurations is critical. If it fails, we mark phase_ok_for_services as false.
+    copy_configurations || { error_msg "Core configuration copying FAILED."; phase_ok_for_services=false; }
+    
+    # These are important but if they fail, we might still want services if copy_configurations was OK.
+    # However, if copy_configurations failed, these might also fail or be irrelevant.
+    # We'll let them try, but their failure also sets OVERALL_SCRIPT_STATUS via the main loop.
+    if [[ "$phase_ok_for_services" == true ]]; then
+        update_hyprland_env_config || phase_ok_for_services=false
+        configure_hyprpaper_script || phase_ok_for_services=false
+    else
+        warning_msg "Skipping env.conf and hyprpaper script due to earlier critical copy failure."
+    fi
+    
+    if [[ "$phase_ok_for_services" == false ]]; then
+        # This indicates a critical failure in this phase that should prevent service management
+        # and result in a non-zero exit for the script.
+        warning_msg "Configuration processing phase encountered critical issues.";
+        return 1
+    fi
 
-    [[ "${phase_ok}" == true ]] || { warning_msg "Config processing phase had non-critical issues."; return 1; }
     info_msg "Configuration processing phase completed."; return 0
 }
 
 manage_services_phase() {
     if [[ "${SKIP_SERVICES}" == "true" ]]; then info_msg "Skipping service management."; return 0; fi
     info_msg "Phase: Managing Services..."
-    local phase_ok=true
+    local any_service_failed=false
 
-    manage_daemon "waybar" "waybar" || phase_ok=false
-    manage_daemon "hyprpaper" "hyprpaper" || phase_ok=false
+    manage_daemon "waybar" "waybar" || any_service_failed=true
+    manage_daemon "hyprpaper" "hyprpaper" || any_service_failed=true
     
-    [[ "${phase_ok}" == true ]] || { warning_msg "Service management phase had issues."; return 1; }
+    if [[ "$any_service_failed" == true ]]; then
+        warning_msg "Service management phase had issues with one or more daemons.";
+        # Return 1 to indicate this phase had problems, affecting OVERALL_SCRIPT_STATUS
+        return 1
+    fi
     
-    info_msg "Service management phase completed."
+    info_msg "Service management phase completed successfully."
     info_msg ""
     info_msg "--------------------------------------------------------------------"
     info_msg "Services (re)started. LOG OUT and LOG BACK IN for all changes."
