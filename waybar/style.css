@@ -1,310 +1,190 @@
+/* Global Resets - Simplified */
 * {
     border: none;
     border-radius: 0;
     min-height: 0;
     padding: 0;
     margin: 0;
-    font-family: sans-serif;
+    font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif; /* Default UI font */
     font-size: 14px;
-    font-weight: normal;
+    font-weight: 400; /* Normal */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-window#waybar {
-    --cfg-base-theme-mode: 0;
-    --cfg-custom-accent-H: 348;
-    --cfg-custom-accent-S: 100%;
-    --cfg-custom-accent-L: 57%;
-    --palette-preset1-H: 15;
-    --palette-preset1-S: 95%;
-    --palette-preset1-L: 55%;
-    --palette-preset2-H: 200;
-    --palette-preset2-S: 85%;
-    --palette-preset2-L: 60%;
-    --palette-preset3-H: 100;
-    --palette-preset3-S: 60%;
-    --palette-preset3-L: 45%;
-    --cfg-density-scale: 1;
-    --enable-shadows-master: 1;
-    --enable-gradients-master: 1;
-    --enable-animations-master: 1;
-    --enable-animated-bar-border: 1;
-    --enable-dynamic-workspace-accents: 1;
-    --enable-subtle-noise-texture: 0;
-    --enable-experimental-glassmorphism: 0;
-    --enable-high-contrast-focus-outline: 0;
-    --enable-force-minimalism: 0;
-    --font-stack-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
-    --font-stack-mono: "JetBrainsMono Nerd Font", "Fira Code", "Hack", monospace;
-    --font-stack-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
-    --_is-visual-profile-standard: 1;
-    --_is-visual-profile-enhanced: 0;
-    --_is-visual-profile-minimalist: 0;
-    --_is-palette-custom: 1;
-    --_is-palette-fire: 0;
-    --_is-palette-ocean: 0;
-    --_is-palette-forest: 0;
-    --_is-palette-monochrome: 0;
-    --_fx_level_is_0: 1;
-    --_fx_level_is_1: 0;
-    --_fx_level_is_2: 0;
-    --_minimal-mode-active: calc(1 - (1 - var(--enable-force-minimalism)) * (1 - var(--_is-visual-profile-minimalist)));
-    --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
-    --_effective-gradients-enabled: calc(var(--enable-gradients-master) * (1 - var(--_minimal-mode-active)));
-    --_effective-cosmetic-animations-enabled: calc(var(--enable-animations-master) * (1 - var(--_minimal-mode-active)));
-    --_effective-animated-bar-border-enabled: calc(var(--enable-animated-bar-border) * var(--_effective-cosmetic-animations-enabled));
-    --_effective-dynamic-ws-accents-enabled: calc(var(--enable-dynamic-workspace-accents) * var(--_effective-cosmetic-animations-enabled));
-    --_effective-noise-texture-enabled: calc(var(--enable-subtle-noise-texture) * (1 - var(--_minimal-mode-active)));
-    --_effective-glassmorphism-enabled: calc(var(--enable-experimental-glassmorphism) * (1 - var(--_minimal-mode-active)));
-    --_effects-detail-multiplier-full: var(--_fx_level_is_0);
-    --_effects-detail-multiplier-standard: var(--_fx_level_is_1);
-    --_effects-detail-multiplier-reduced: var(--_fx_level_is_0);
-    --_effects-duration-scale: calc(1 + (var(--_fx_level_is_1) * 0.25) + (var(--_fx_level_is_2) * 0.5));
-    --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
-    --L-bg-secondary: calc(var(--cfg-base-theme-mode) * 92% + (1 - var(--cfg-base-theme-mode)) * 8%);
-    --L-bg-tertiary: calc(var(--cfg-base-theme-mode) * 88% + (1 - var(--cfg-base-theme-mode)) * 12%);
-    --L-fg-primary: calc(var(--cfg-base-theme-mode) * 8% + (1 - var(--cfg-base-theme-mode)) * 92%);
-    --L-fg-secondary: calc(var(--cfg-base-theme-mode) * 25% + (1 - var(--cfg-base-theme-mode)) * 75%);
-    --L-fg-tertiary: calc(var(--cfg-base-theme-mode) * 45% + (1 - var(--cfg-base-theme-mode)) * 55%);
-    --L-border-default: calc(var(--cfg-base-theme-mode) * 85% + (1 - var(--cfg-base-theme-mode)) * 18%);
-    --theme-bg-primary: hsl(0, 0%, var(--L-bg-primary));
-    --theme-bg-secondary: hsl(0, 0%, var(--L-bg-secondary));
-    --theme-bg-tertiary: hsl(0, 0%, var(--L-bg-tertiary));
-    --theme-fg-primary: hsl(0, 0%, var(--L-fg-primary));
-    --theme-fg-secondary: hsl(0, 0%, var(--L-fg-secondary));
-    --theme-fg-tertiary: hsl(0, 0%, var(--L-fg-tertiary));
-    --theme-border-default: hsl(0, 0%, var(--L-border-default));
-    --accent-H-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-H)) + (var(--_is-palette-fire) * var(--palette-preset1-H)) + (var(--_is-palette-ocean) * var(--palette-preset2-H)) + (var(--_is-palette-forest) * var(--palette-preset3-H)) + (var(--_is-palette-monochrome) * 0) );
-    --accent-S-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-S)) + (var(--_is-palette-fire) * var(--palette-preset1-S)) + (var(--_is-palette-ocean) * var(--palette-preset2-S)) + (var(--_is-palette-forest) * var(--palette-preset3-S)) + (var(--_is-palette-monochrome) * 0%) );
-    --_temp-mono-L-calc: calc( (var(--cfg-base-theme-mode) * 30%) + ( (1 - var(--cfg-base-theme-mode)) * 70% ));
-    --accent-L-base-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-L)) + (var(--_is-palette-fire) * var(--palette-preset1-L)) + (var(--_is-palette-ocean) * var(--palette-preset2-L)) + (var(--_is-palette-forest) * var(--palette-preset3-L)) + (var(--_is-palette-monochrome) * var(--_temp-mono-L-calc)) );
-    --accent-H: var(--accent-H-resolved);
-    --accent-S: var(--accent-S-resolved);
-    --accent-L-base: var(--accent-L-base-resolved);
-    --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--_is-palette-monochrome))));
-    --accent-L-lighter: calc(var(--accent-L-base) + (12% * (1 - var(--_is-palette-monochrome))));
-    --accent-L-highlight: calc(var(--accent-L-base) + (18% * (1 - var(--_is-palette-monochrome))));
-    --theme-accent-primary-base: hsl(var(--accent-H), var(--accent-S), var(--accent-L-base));
-    --theme-accent-primary-grad-start: hsl(var(--accent-H), var(--accent-S), var(--accent-L-lighter));
-    --theme-accent-primary-grad-end: hsl(var(--accent-H), var(--accent-S), var(--accent-L-darker));
-    --theme-accent-secondary-base: hsl(var(--accent-H), calc(var(--accent-S) * 0.9), var(--accent-L-darker));
-    --theme-accent-highlight: hsl(var(--accent-H), var(--accent-S), var(--accent-L-highlight));
-    --_density-scale-factor: var(--cfg-density-scale);
-    --spacing-unit: calc(4px * var(--_density-scale-factor));
-    --radius-unit: calc(6px * var(--_density-scale-factor));
-    --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
-    --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
-    --_effective-border-style: solid;
-    --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
-    --color-background-bar: var(--theme-bg-primary);
-    --color-text-bar-default: var(--theme-fg-primary);
-    --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
-    --color-accent-primary-actual: var(--theme-accent-primary-base);
-    --color-accent-primary-solid: var(--theme-accent-primary-base);
-    --color-accent-secondary: var(--theme-accent-secondary-base);
-    --color-accent-highlight: var(--theme-accent-highlight);
-    --color-background-module-default: var(--theme-bg-secondary);
-    --color-background-module-alternate: var(--theme-bg-tertiary);
-    --color-border-module-default: var(--theme-border-default);
-    --color-background-module-hover: var(--theme-bg-tertiary);
-    --color-text-module-hover: var(--theme-fg-primary);
-    --color-border-module-hover: var(--color-accent-highlight);
-    --color-background-module-active: var(--color-accent-secondary);
-    --color-text-module-active: var(--theme-fg-primary);
-    --color-border-module-active: var(--color-accent-primary-solid);
-    --typography-font-family-main: var(--font-stack-ui);
-    --typography-font-family-monospace: var(--font-stack-mono);
-    --typography-font-family-icons: var(--font-stack-icons);
-    --typography-font-variant-numeric: tabular-nums;
-    --typography-font-feature-settings: "liga" 1, "clig" 1;
-    --theme-font-size-base: 14px;
-    --typography-font-size-default: calc(var(--theme-font-size-base) * var(--_density-scale-factor));
-    --typography-font-size-small: calc(var(--typography-font-size-default) * 0.85);
-    --typography-font-size-large: calc(var(--typography-font-size-default) * 1.15);
-    --typography-font-weight-normal: 400;
-    --typography-font-weight-medium: 500;
-    --typography-font-weight-bold: calc(600 + var(--_is-visual-profile-enhanced) * 100);
-    --typography-letter-spacing-normal: normal;
-    --_alpha-text-shadow-subtle: calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
-    --_alpha-text-shadow-header: calc(0.15 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
-    --_alpha-inner-shadow: 0.2;
-    --_alpha-icon-hover-shadow: 0.4;
-    --_alpha-icon-active-shadow: 0.5;
-    --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, var(--_alpha-text-shadow-subtle));
-    --typography-text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, var(--_alpha-text-shadow-header));
-    --dimension-bar-border-height: calc(3px * var(--_density-scale-factor));
-    --dimension-module-padding-vertical: calc(var(--spacing-unit) * 1.25);
-    --dimension-module-padding-horizontal: calc(var(--spacing-unit) * 2.5);
-    --dimension-module-margin-vertical: var(--spacing-unit);
-    --dimension-module-margin-horizontal: calc(var(--spacing-unit) * 1.25);
-    --dimension-radius-base: calc(var(--radius-unit) * var(--_border-radius-multiplier));
-    --dimension-radius-module: var(--dimension-radius-base);
-    --dimension-radius-button: calc(var(--dimension-radius-base) * 0.8);
-    --dimension-radius-tooltip: var(--dimension-radius-base);
-    --dimension-border-width-thin: 1px;
-    --dimension-border-width-normal: 2px;
-    --dimension-border-style-default: var(--_effective-border-style);
-    --transition-duration-base: calc(0.2s * var(--_animation-speed-multiplier) * var(--_effects-duration-scale));
-    --transition-duration-fast: calc(var(--transition-duration-base) * 0.6);
+
+/* Resolved Theme Variables (Dark Theme with Custom Accent) */
+:root {
+    /* Base Colors (Dark Theme) */
+    --bg-primary: hsl(0, 0%, 4%);
+    --bg-secondary: hsl(0, 0%, 8%);
+    --bg-tertiary: hsl(0, 0%, 12%);
+    --fg-primary: hsl(0, 0%, 92%);
+    --fg-secondary: hsl(0, 0%, 75%);
+    --fg-tertiary: hsl(0, 0%, 55%);
+    --border-default: hsl(0, 0%, 18%);
+
+    /* Accent Color (Custom: H:348, S:100%, L:57%) */
+    --accent-h: 348;
+    --accent-s: 100%;
+    --accent-l-base: 57%;
+    --accent-l-darker: 45%;   /* 57% - 12% */
+    --accent-l-lighter: 69%;  /* 57% + 12% */
+    --accent-l-highlight: 75%;/* 57% + 18% */
+
+    --accent-primary: hsl(var(--accent-h), var(--accent-s), var(--accent-l-base));
+    --accent-primary-grad-start: hsl(var(--accent-h), var(--accent-s), var(--accent-l-lighter));
+    --accent-primary-grad-end: hsl(var(--accent-h), var(--accent-s), var(--accent-l-darker));
+    --accent-secondary: hsl(var(--accent-h), calc(var(--accent-s) * 0.9), var(--accent-l-darker)); /* e.g., 90% Saturation */
+    --accent-highlight: hsl(var(--accent-h), var(--accent-s), var(--accent-l-highlight));
+    --accent-gradient: linear-gradient(135deg, var(--accent-primary-grad-start) 0%, var(--accent-primary) 50%, var(--accent-primary-grad-end) 100%);
+
+    /* Typography */
+    --font-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
+    --font-mono: "JetBrainsMono Nerd Font", "Fira Code", "Hack", monospace;
+    --font-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
+    --font-size-base: 14px;
+    --font-size-small: calc(var(--font-size-base) * 0.85); /* 11.9px */
+    --font-size-large: calc(var(--font-size-base) * 1.15); /* 16.1px */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600; /* Standard profile */
+
+    /* Spacing & Sizing (Density Scale: 1, Border Radius Multiplier for Standard Profile: 0.7) */
+    --spacing-unit: 4px;
+    --radius-base: calc(6px * 0.7); /* 4.2px */
+    --module-padding-v: calc(var(--spacing-unit) * 1.25); /* 5px */
+    --module-padding-h: calc(var(--spacing-unit) * 2.5); /* 10px */
+    --module-margin-v: var(--spacing-unit); /* 4px */
+    --module-margin-h: calc(var(--spacing-unit) * 1.25); /* 5px */
+    --radius-module: var(--radius-base);
+    --radius-button: calc(var(--radius-base) * 0.8); /* ~3.36px */
+    --radius-tooltip: var(--radius-base);
+    --bar-border-height: 3px;
+    --border-width-thin: 1px;
+    --border-width-normal: 2px;
+
+    /* Transitions & Animations (Speed Multiplier for Standard Profile: 0.7, FX Duration Scale: 1) */
+    --transition-duration-base: calc(0.2s * 0.7 * 1); /* 0.14s */
+    --transition-duration-fast: calc(var(--transition-duration-base) * 0.6); /* ~0.084s */
     --transition-duration-normal: var(--transition-duration-base);
-    --transition-duration-slow: calc(var(--transition-duration-base) * 1.5);
-    --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-timing-function-ui: var(--transition-timing-function-standard);
+    --transition-duration-slow: calc(var(--transition-duration-base) * 1.5); /* 0.21s */
+    --transition-timing-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
-    --_transform-scale-factor: calc(0.03 * var(--_transform-intensity-multiplier));
-    --interaction-transform-hover-lift-actual: translateY(calc(-2px * var(--_transform-intensity-multiplier) * var(--_effective-cosmetic-animations-enabled)));
-    --interaction-transform-hover-scale-actual: scale(calc(1 + var(--_transform-scale-factor) * var(--_effective-cosmetic-animations-enabled)));
-    --interaction-transform-active-press: scale(calc(0.97 * (1 - var(--_transform-scale-factor) / 2)));
-    --_shadow-opacity-base: calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
-    --_shadow-L-offset: calc(var(--cfg-base-theme-mode) * 20% + (1 - var(--cfg-base-theme-mode)) * 0%);
-    --_alpha-effects-shadow-ambient: calc(var(--_shadow-opacity-base) * 0.8);
-    --_alpha-effects-shadow-direct: calc(var(--_shadow-opacity-base) * 1.2);
-    --effects-shadow-color-ambient: hsla(0, 0%, var(--_shadow-L-offset), var(--_alpha-effects-shadow-ambient));
-    --effects-shadow-color-direct: hsla(0, 0%, var(--_shadow-L-offset), var(--_alpha-effects-shadow-direct));
-    --effects-shadow-module-actual: 0 2px 5px -1px var(--effects-shadow-color-ambient), 0 4px 8px -2px var(--effects-shadow-color-direct);
-    --effects-shadow-module-hover-actual: 0 5px 10px -2px var(--effects-shadow-color-ambient), 0 8px 16px -3px var(--effects-shadow-color-direct);
-    --effects-shadow-tooltip-actual: 0 8px 24px -4px var(--effects-shadow-color-direct);
-    --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), var(--_alpha-inner-shadow));
-    --effects-focus-ring-color: var(--color-accent-highlight);
-    --effects-focus-ring-width-base: 2px;
-    --_hc-outline-style-keyword: dashed;
-    --_hc-outline-width-actual: calc(var(--enable-high-contrast-focus-outline) * var(--effects-focus-ring-width-base));
-    --outline-high-contrast-focus-actual: var(--_hc-outline-width-actual) var(--_hc-outline-style-keyword) var(--effects-focus-ring-color);
-    --effects-focus-ring-offset: 2px;
-    --_enable-focus-ring-shadow-effect: var(--enable-high-contrast-focus-outline);
-    --_hc-shadow-h-offset: 0px;
-    --_hc-shadow-v-offset: 0px;
-    --_hc-shadow-blur: 0px;
-    --_hc-shadow-spread1: calc(var(--_enable-focus-ring-shadow-effect) * var(--effects-focus-ring-offset));
-    --_hc-shadow-spread2: calc(var(--_enable-focus-ring-shadow-effect) * (var(--effects-focus-ring-offset) + var(--effects-focus-ring-width-base)));
-    --effects-focus-ring-shadow-actual:
-        var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread1) var(--color-background-bar),
-        var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread2) var(--effects-focus-ring-color);
-    --_alpha-effects-glow-color-actual: calc(0.35 * var(--_effective-cosmetic-animations-enabled) * var(--_effects-detail-multiplier-reduced));
-    --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), var(--_alpha-effects-glow-color-actual));
-    --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
-    --animation-name-bar-border-sweep: bar-border-sweep-animation;
-    --animation-duration-bar-border-sweep: calc(10s * var(--_animation-speed-multiplier));
-    --animation-bar-border-actual: var(--animation-name-bar-border-sweep) var(--animation-duration-bar-border-sweep) linear infinite;
-    --_enable-animation-urgent-pulse: 1;
-    --_enable-animation-focused-glow: 1;
-    --_enable-animation-state-feedback: 1;
-    --animation-name-urgent-pulse: urgent-pulse-animation;
-    --animation-duration-pulse: calc(1.4s * var(--_animation-speed-multiplier));
-    --_animation-duration-pulse-eff: calc(var(--animation-duration-pulse) * var(--_enable-animation-urgent-pulse));
-    --animation-urgent-actual: var(--animation-name-urgent-pulse) var(--_animation-duration-pulse-eff) ease-in-out infinite alternate;
-    --animation-name-focused-glow: focused-glow-animation;
-    --animation-duration-glow: calc(2.2s * var(--_animation-speed-multiplier));
-    --_animation-duration-glow-eff: calc(var(--animation-duration-glow) * var(--_enable-animation-focused-glow));
-    --animation-focused-glow-actual: var(--animation-name-focused-glow) var(--_animation-duration-glow-eff) ease-in-out infinite alternate;
-    --animation-name-state-feedback: state-feedback-animation;
-    --animation-duration-state-feedback: calc(0.4s * var(--_animation-speed-multiplier));
-    --_animation-duration-state-feedback-eff: calc(var(--animation-duration-state-feedback) * var(--_enable-animation-state-feedback));
-    --animation-state-feedback-actual: var(--animation-name-state-feedback) var(--_animation-duration-state-feedback-eff) var(--transition-timing-function-ui);
-    --animation-name-dynamic-border: dynamic-border-animation;
-    --animation-duration-dynamic-border: calc(0.35s * var(--_animation-speed-multiplier));
-    --transition-timing-function-snap: ease-out;
-    --animation-dynamic-ws-border-actual: var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
-    --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nFT)'/%3E%3C/svg%3E");
-    --noise-texture-opacity: calc(0.015 * var(--_effective-noise-texture-enabled));
-    --glass-blur-radius-actual: calc(12px * var(--_effective-glassmorphism-enabled));
-    --glass-background-color-actual: hsla(0, 0%, calc(var(--cfg-base-theme-mode) * 100% + (1 - var(--cfg-base-theme-mode)) * 20%), calc(0.15 * var(--_effective-glassmorphism-enabled)));
-    font-family: var(--typography-font-family-main);
-    font-size: var(--typography-font-size-default);
-    font-weight: var(--typography-font-weight-normal);
-    background: var(--color-background-bar);
-    color: var(--color-text-bar-default);
+
+    /* Shadows (Enabled, Dark Theme L-offset 0%, FX Detail Full) */
+    --shadow-opacity-base: 0.1;
+    --shadow-color-ambient: hsla(0, 0%, 0%, calc(var(--shadow-opacity-base) * 0.8)); /* hsla(0,0%,0%,0.08) */
+    --shadow-color-direct: hsla(0, 0%, 0%, calc(var(--shadow-opacity-base) * 1.2));  /* hsla(0,0%,0%,0.12) */
+    --shadow-module: 0 2px 5px -1px var(--shadow-color-ambient), 0 4px 8px -2px var(--shadow-color-direct);
+    --shadow-module-hover: 0 5px 10px -2px var(--shadow-color-ambient), 0 8px 16px -3px var(--shadow-color-direct);
+    --shadow-tooltip: 0 8px 24px -4px var(--shadow-color-direct);
+    --shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, 0%, 0.2); /* Alpha fixed at 0.2 */
+    --text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, calc(0.1 * 1 * 1)); /* hsla(0,0%,0%,0.1) */
+    --text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, calc(0.15 * 1 * 1)); /* hsla(0,0%,0%,0.15) */
+
+    /* Interactions (Transform Intensity: 1, Animations: On) */
+    --transform-scale-factor: 0.03;
+    --interaction-transform-hover-lift: translateY(-2px);
+    --interaction-transform-hover-scale: scale(1.03);
+    --interaction-transform-active-press: scale(0.95545); /* scale(calc(0.97 * (1 - 0.03 / 2))) */
+
+    /* Glow (Animations: On, FX Detail: Full) */
+    --alpha-glow: 0.35;
+    --glow-color: hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l-base) + 8%), var(--alpha-glow));
+    --glow-focused: 0 0 15px 3px var(--glow-color);
+
+    /* Disabled/Error states (from original) */
+    --opacity-disabled: 0.5;
+    --cursor-disabled: not-allowed;
+    --cursor-pointer: pointer;
+    --bg-disabled: hsl(0, 0%, 50%);
+    --fg-disabled: hsl(0, 0%, 30%);
+    --filter-disabled: grayscale(50%);
+    --grey-700: hsl(0, 0%, 40%);
+    --bg-error: hsl(0, 70%, 50%);
+    --fg-error: hsl(0, 0%, 100%);
+    --border-error: hsl(0, 80%, 60%);
+    --border-style-dashed: dashed;
+}
+
+window#waybar {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    background: var(--bg-primary);
+    color: var(--fg-primary);
     position: relative;
-    border-bottom: none;
+    border-bottom: none; /* Original had this, though ::after adds a border-like effect */
 }
-window#waybar::after {
+
+window#waybar::after { /* Animated bar border is ON */
     content: '';
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    height: var(--dimension-bar-border-height);
+    height: var(--bar-border-height);
     background: linear-gradient(90deg,
-        var(--theme-accent-primary-grad-start), var(--theme-accent-highlight),
-        var(--theme-accent-primary-base), var(--theme-accent-highlight),
-        var(--theme-accent-primary-grad-end), var(--theme-accent-highlight),
-        var(--theme-accent-primary-base), var(--theme-accent-highlight),
-        var(--theme-accent-primary-grad-start));
+        var(--accent-primary-grad-start), var(--accent-highlight),
+        var(--accent-primary), var(--accent-highlight),
+        var(--accent-primary-grad-end), var(--accent-highlight),
+        var(--accent-primary), var(--accent-highlight),
+        var(--accent-primary-grad-start));
     background-size: 400% 100%;
-    animation: var(--animation-bar-border-actual);
+    animation: bar-border-sweep-animation calc(10s * 0.7) linear infinite; /* Animation speed factor applied */
     z-index: 0;
-    opacity: var(--_effective-animated-bar-border-enabled);
-    box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), calc(0.3 * var(--_effective-animated-bar-border-enabled)));
+    opacity: 1; /* Was conditional, now fixed to 1 */
+    box-shadow: 0 -2px 8px -2px hsla(var(--accent-h), var(--accent-s), var(--accent-l-base), calc(0.3 * 1)); /* opacity fixed to 1 */
 }
-window#waybar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: var(--noise-texture-svg);
-    opacity: var(--noise-texture-opacity);
-    pointer-events: none;
-    z-index: -1;
-}
+
+/* Noise texture is OFF, so window#waybar::before and module::before are removed */
+
 @keyframes bar-border-sweep-animation {
     0% {background-position: 0% 50%;}
     100% {background-position: 400% 50%;}
 }
-@keyframes urgent-pulse-animation {
-    0% {transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
-    50% {transform: scale(1.05); box-shadow: 0 0 15px 2px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-hover-actual); opacity: 0.8;}
-    100% {transform: scale(1); box-shadow: 0 0 5px -1px var(--color-background-urgent, var(--theme-accent-primary-base)), var(--effects-shadow-module-actual); opacity: 1;}
+
+@keyframes urgent-pulse-animation { /* Using --accent-primary as fallback for --color-background-urgent */
+    0% {transform: scale(1); box-shadow: 0 0 5px -1px var(--accent-primary), var(--shadow-module); opacity: 1;}
+    50% {transform: scale(1.05); box-shadow: 0 0 15px 2px var(--accent-primary), var(--shadow-module-hover); opacity: 0.8;}
+    100% {transform: scale(1); box-shadow: 0 0 5px -1px var(--accent-primary), var(--shadow-module); opacity: 1;}
 }
-@keyframes focused-glow-animation {
-    from {box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual); transform: scale(1.01);}
-    to {box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 20px 5px var(--effects-glow-color-actual); transform: scale(1.02);}
+
+@keyframes focused-glow-animation { /* HC focus shadow is 0, so removed from here */
+    from {box-shadow: var(--shadow-module-hover), var(--glow-focused); transform: scale(1.01);}
+    to {box-shadow: var(--shadow-module-hover), 0 0 20px 5px var(--glow-color); transform: scale(1.02);}
 }
+
 @keyframes state-feedback-animation {
     0% {transform: scale(0.92); opacity: 0.6;}
     50% {transform: scale(1.04); opacity: 1;}
     100% {transform: scale(1); opacity: 1;}
 }
+
 @keyframes dynamic-border-animation {
     from {transform: scaleX(0) translateX(-50%); opacity: 0.5;}
     to {transform: scaleX(1) translateX(-50%); opacity: 1;}
 }
+
+/* Common Module Styling */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window {
-    padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
-    margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
-    color: var(--color-text-bar-default);
-    border: var(--dimension-border-width-thin) var(--dimension-border-style-default) var(--color-border-module-default);
-    border-radius: var(--dimension-radius-module);
-    box-shadow: var(--effects-shadow-module-actual);
+    padding: var(--module-padding-v) var(--module-padding-h);
+    margin: var(--module-margin-v) var(--module-margin-h);
+    color: var(--fg-primary);
+    border: var(--border-width-thin) solid var(--border-default);
+    border-radius: var(--radius-module);
+    box-shadow: var(--shadow-module);
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-standard);
+    transition-timing-function: var(--transition-timing-standard);
     position: relative;
     z-index: 1;
     overflow: hidden;
-    -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
-    backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: var(--color-background-module-default);
-    background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)));
+    background-color: var(--bg-secondary); /* Glassmorphism is OFF */
+    /* backdrop-filter: blur(0px); effectively no blur */
 }
-#mode.visual-profile-enhanced, #clock.visual-profile-enhanced, #battery.visual-profile-enhanced, #cpu.visual-profile-enhanced, #memory.visual-profile-enhanced, #network.visual-profile-enhanced, #pulseaudio.visual-profile-enhanced, #tray.visual-profile-enhanced, #custom-power.visual-profile-enhanced, #hyprland-window.visual-profile-enhanced {
-    transition-timing-function: var(--transition-timing-function-enhanced);
-}
-#mode::before, #clock::before, #battery::before, #cpu::before, #memory::before, #network::before, #pulseaudio::before, #tray::before, #custom-power::before, #hyprland-window::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: var(--noise-texture-svg);
-    opacity: var(--noise-texture-opacity);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: inherit;
-}
+
+/* Module Hover (Non-Active) */
 #clock:not(.disabled):not(.error):not(.active):hover,
 #battery:not(.disabled):not(.error):not(.active):hover,
 #cpu:not(.disabled):not(.error):not(.active):hover,
@@ -312,14 +192,16 @@ window#waybar::before {
 #network:not(.disabled):not(.error):not(.active):hover,
 #pulseaudio:not(.disabled):not(.error):not(.active):hover,
 #tray:not(.disabled):not(.error):not(.active):hover {
-    background: var(--color-background-module-hover);
-    color: var(--color-text-module-hover);
-    border-color: var(--color-border-module-hover);
-    box-shadow: var(--effects-shadow-module-hover-actual);
-    transform: var(--interaction-transform-hover-lift-actual) var(--interaction-transform-hover-scale-actual);
+    background: var(--bg-tertiary);
+    color: var(--fg-primary);
+    border-color: var(--accent-highlight);
+    box-shadow: var(--shadow-module-hover);
+    transform: var(--interaction-transform-hover-lift) var(--interaction-transform-hover-scale);
     transition-duration: var(--transition-duration-fast);
     z-index: 10;
 }
+
+/* Module Focus (Non-Active) */
 #clock:not(.disabled):not(.error):focus, #clock:not(.disabled):not(.error):focus-within,
 #battery:not(.disabled):not(.error):focus, #battery:not(.disabled):not(.error):focus-within,
 #cpu:not(.disabled):not(.error):focus, #cpu:not(.disabled):not(.error):focus-within,
@@ -327,12 +209,14 @@ window#waybar::before {
 #network:not(.disabled):not(.error):focus, #network:not(.disabled):not(.error):focus-within,
 #pulseaudio:not(.disabled):not(.error):focus, #pulseaudio:not(.disabled):not(.error):focus-within,
 #tray:not(.disabled):not(.error):focus, #tray:not(.disabled):not(.error):focus-within {
-    outline: var(--outline-high-contrast-focus-actual);
-    border-color: var(--color-accent-highlight);
-    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual);
-    animation: var(--animation-focused-glow-actual);
+    /* outline: 0px dashed var(--accent-highlight); HC Focus Outline OFF */
+    border-color: var(--accent-highlight);
+    box-shadow: var(--shadow-module-hover); /* HC Focus Ring Shadow is 0 */
+    animation: focused-glow-animation calc(2.2s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
     z-index: 15;
 }
+
+/* Module Active */
 #clock.active:not(.disabled):not(.error),
 #battery.active:not(.disabled):not(.error),
 #cpu.active:not(.disabled):not(.error),
@@ -340,352 +224,294 @@ window#waybar::before {
 #network.active:not(.disabled):not(.error),
 #pulseaudio.active:not(.disabled):not(.error),
 #tray.active:not(.disabled):not(.error) {
-    background: var(--color-background-module-active);
-    color: var(--color-text-module-active);
-    border-color: var(--color-border-module-active);
-    box-shadow: var(--effects-shadow-inner-pressed), var(--effects-focus-ring-shadow-actual);
+    background: var(--accent-secondary);
+    color: var(--fg-primary);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-inner-pressed); /* HC Focus Ring Shadow is 0 */
     transform: var(--interaction-transform-active-press);
-    animation: var(--animation-state-feedback-actual);
+    animation: state-feedback-animation calc(0.4s * 0.7) var(--transition-timing-standard); /* Speed factor applied */
     z-index: 20;
 }
-:root {
-    --opacity-disabled: 0.5;
-    --interaction-cursor-disabled: not-allowed;
-    --interaction-cursor-pointer: pointer;
-    --color-background-disabled: hsl(0, 0%, 50%);
-    --color-text-disabled: hsl(0, 0%, 30%);
-    --filter-disabled: grayscale(50%);
-    --theme-grey-700: hsl(0, 0%, 40%);
-    --color-background-error: hsl(0, 70%, 50%);
-    --color-text-error: hsl(0, 0%, 100%);
-    --color-border-error: hsl(0, 80%, 60%);
-    --dimension-border-style-dashed: dashed;
-}
-.disabled,
-:disabled,
-.error {
-    opacity: var(--opacity-disabled, 0.6) !important;
-    cursor: var(--interaction-cursor-disabled, default) !important;
+
+/* Disabled and Error States */
+.disabled, :disabled, .error {
+    opacity: var(--opacity-disabled) !important;
+    cursor: var(--cursor-disabled) !important;
     transform: none !important;
     animation: none !important;
     box-shadow: none !important;
     transition: none !important;
 }
-.disabled,
-:disabled {
-    background: var(--color-background-disabled, #ccc) !important;
-    color: var(--color-text-disabled, #777) !important;
-    filter: var(--filter-disabled, none) !important;
-    border-color: var(--theme-grey-700, #aaa) !important;
+.disabled, :disabled {
+    background: var(--bg-disabled) !important;
+    color: var(--fg-disabled) !important;
+    filter: var(--filter-disabled) !important;
+    border-color: var(--grey-700) !important;
 }
 .error {
-    background: var(--color-background-error, red) !important;
-    color: var(--color-text-error, white) !important;
-    border: var(--dimension-border-width-normal) var(--dimension-border-style-dashed, dashed) var(--color-border-error, darkred) !important;
-    font-weight: var(--typography-font-weight-bold);
+    background: var(--bg-error) !important;
+    color: var(--fg-error) !important;
+    border: var(--border-width-normal) var(--border-style-dashed) var(--border-error) !important;
+    font-weight: var(--font-weight-bold);
 }
+
+/* Workspaces */
 #workspaces {
     padding: 0 calc(var(--spacing-unit) * 0.5);
-    margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
-    background: var(--color-background-module-alternate);
-    border: var(--dimension-border-width-thin) solid var(--color-border-module-default);
-    border-radius: var(--dimension-radius-module);
-    box-shadow: var(--effects-shadow-module-actual);
+    margin: var(--module-margin-v) var(--module-margin-h);
+    background: var(--bg-tertiary); /* Was module-alternate */
+    border: var(--border-width-thin) solid var(--border-default);
+    border-radius: var(--radius-module);
+    box-shadow: var(--shadow-module);
 }
 #workspaces button {
     padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75);
     margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5);
-    color: var(--color-text-workspace-default, var(--color-text-bar-default));
+    color: var(--fg-primary); /* Default text bar color */
     background: transparent;
-    border: var(--dimension-border-width-thin) solid transparent;
-    border-radius: var(--dimension-radius-button);
-    font-weight: var(--typography-font-weight-medium);
+    border: var(--border-width-thin) solid transparent;
+    border-radius: var(--radius-button);
+    font-weight: var(--font-weight-medium);
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-fast);
-    transition-timing-function: var(--transition-timing-function-standard);
-    cursor: var(--interaction-cursor-pointer, pointer);
+    transition-timing-function: var(--transition-timing-standard);
+    cursor: var(--cursor-pointer);
     position: relative;
     overflow: visible;
-    text-shadow: var(--typography-text-shadow-subtle);
-    font-feature-settings: var(--typography-font-feature-settings);
-}
-#workspaces button.visual-profile-enhanced {
-    transition-timing-function: var(--transition-timing-function-enhanced);
+    text-shadow: var(--text-shadow-subtle);
+    font-feature-settings: "liga" 1, "clig" 1;
 }
 #workspaces button:focus,
 #workspaces button:focus-visible {
-    outline: var(--outline-high-contrast-focus-actual);
-    box-shadow: var(--effects-focus-ring-shadow-actual);
+    /* outline: 0px dashed var(--accent-highlight); HC Focus Outline OFF */
+    /* box-shadow: none; HC Focus Ring Shadow is 0 */
 }
-#workspaces button:not(.focused):not(.urgent)::after {
+#workspaces button:not(.focused):not(.urgent)::after { /* Dynamic WS Accents ON */
     content: '';
     position: absolute;
     left: 50%;
     bottom: calc(var(--spacing-unit) * -0.25);
-    height: var(--dimension-border-width-normal);
+    height: var(--border-width-normal);
     width: 0%;
-    background: var(--color-border-workspace-hover-animated, var(--color-accent-primary-solid));
-    border-radius: var(--dimension-border-width-normal);
+    background: var(--accent-primary); /* Animated border color */
+    border-radius: var(--border-width-normal);
     transform-origin: center;
-    animation: var(--animation-dynamic-ws-border-actual);
+    animation: dynamic-border-animation calc(0.35s * 0.7) ease-out forwards; /* Speed factor applied */
     animation-play-state: paused;
-    opacity: var(--_effective-dynamic-ws-accents-enabled);
+    opacity: 1; /* Was conditional, now 1 */
 }
 #workspaces button:not(.focused):not(.urgent):hover::after {
     animation-play-state: running;
     width: 70%;
 }
 #workspaces button.persistent {
-    color: var(--color-text-workspace-persistent, var(--theme-fg-tertiary));
+    color: var(--fg-tertiary);
     font-style: italic;
     opacity: 0.8;
 }
 #workspaces button.visible {
-    color: var(--color-text-workspace-visible, var(--theme-fg-primary));
-    background: var(--color-background-workspace-visible, var(--theme-bg-tertiary));
+    color: var(--fg-primary);
+    background: var(--bg-tertiary);
 }
-#workspaces button.focused {
-    color: var(--color-text-workspace-focused, var(--theme-fg-primary));
-    background: var(--theme-accent-primary-solid);
+#workspaces button.focused { /* Gradients are ON */
+    color: var(--fg-primary);
+    background: var(--accent-gradient); /* Using gradient as gradients-enabled is true */
     border-color: transparent;
-    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
-    font-weight: var(--typography-font-weight-bold);
-    transform: var(--interaction-transform-hover-scale-actual);
-    animation: var(--animation-focused-glow-actual);
+    box-shadow: var(--shadow-module-hover), var(--glow-focused); /* HC Focus Ring Shadow is 0 */
+    font-weight: var(--font-weight-bold);
+    transform: var(--interaction-transform-hover-scale);
+    animation: focused-glow-animation calc(2.2s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
     z-index: 5;
 }
-#workspaces button.focused.gradients-enabled {
-    background: var(--color-accent-primary-gradient);
-}
 #workspaces button.urgent {
-    color: var(--color-text-urgent, var(--theme-fg-primary));
-    background: var(--color-background-urgent, var(--theme-accent-secondary-base));
-    border: var(--dimension-border-width-thin) solid var(--color-border-urgent, var(--theme-accent-highlight));
-    animation: var(--animation-urgent-actual);
-    font-weight: var(--typography-font-weight-bold);
-    box-shadow: 0 0 10px -2px var(--color-background-urgent, var(--theme-accent-secondary-base));
+    color: var(--fg-primary);
+    background: var(--accent-secondary);
+    border: var(--border-width-thin) solid var(--accent-highlight);
+    animation: urgent-pulse-animation calc(1.4s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
+    font-weight: var(--font-weight-bold);
+    box-shadow: 0 0 10px -2px var(--accent-secondary);
     z-index: 5;
 }
 #workspaces button:hover:not(.focused):not(.urgent) {
-    color: var(--color-text-workspace-hover, var(--color-text-module-hover));
-    background: var(--color-background-module-hover);
-    transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
+    color: var(--fg-primary);
+    background: var(--bg-tertiary);
+    transform: var(--interaction-transform-hover-scale) var(--interaction-transform-hover-lift);
     z-index: 1;
 }
 #workspaces button.visible:hover:not(.focused) {
-    color: var(--color-text-workspace-hover, var(--color-text-module-hover));
-    background: var(--color-background-module-hover);
-    background: color-mix(in srgb, var(--color-background-workspace-visible, var(--theme-bg-tertiary)) 60%, var(--color-background-module-hover) 40%);
-    transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
+    color: var(--fg-primary);
+    background: color-mix(in srgb, var(--bg-tertiary) 60%, var(--bg-tertiary) 40%); /* Simplified mix */
+    transform: var(--interaction-transform-hover-scale) var(--interaction-transform-hover-lift);
     z-index: 1;
 }
-#workspaces button.focused:hover {
-    background: var(--theme-accent-primary-solid);
-    box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual);
+#workspaces button.focused:hover { /* Gradients are ON */
+    background: var(--accent-gradient);
+    box-shadow: var(--shadow-module-hover), 0 0 25px -1px var(--glow-color); /* HC Focus Ring Shadow is 0 */
     transform: scale(1.06);
 }
-#workspaces button.focused.gradients-enabled:hover {
-    background: var(--color-accent-primary-gradient);
-}
 #workspaces button.urgent:hover {
-    color: var(--color-text-urgent, var(--theme-fg-primary));
-    background: var(--color-background-urgent-hover, var(--color-accent-secondary));
-    border-color: var(--color-accent-highlight);
+    color: var(--fg-primary);
+    background: var(--accent-secondary);
+    border-color: var(--accent-highlight);
     animation-play-state: paused;
-    transform: var(--interaction-transform-hover-scale-actual);
+    transform: var(--interaction-transform-hover-scale);
 }
+
+/* Specific Module Styles */
 #clock {
-    font-family: var(--typography-font-family-monospace);
-    font-variant-numeric: var(--typography-font-variant-numeric);
-    color: var(--color-text-module-clock, var(--color-text-bar-default));
-    font-weight: var(--typography-font-weight-medium);
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--fg-primary);
+    font-weight: var(--font-weight-medium);
     letter-spacing: 0.1em;
-    text-shadow: var(--typography-text-shadow-header);
-    font-size: calc(var(--typography-font-size-default) * 1.05);
+    text-shadow: var(--text-shadow-header);
+    font-size: calc(var(--font-size-base) * 1.05);
 }
 #clock:hover {
-    color: var(--color-accent-highlight);
-    transform: var(--interaction-transform-hover-lift-actual) scale(1.02);
+    color: var(--accent-highlight);
+    transform: var(--interaction-transform-hover-lift) scale(1.02);
 }
+
 #mode {
-    padding: var(--dimension-module-padding-vertical) calc(var(--dimension-module-padding-horizontal) * 1.3);
-    color: var(--theme-fg-primary);
-    background: var(--color-accent-secondary);
-    font-weight: var(--typography-font-weight-bold);
+    padding: var(--module-padding-v) calc(var(--module-padding-h) * 1.3);
+    color: var(--fg-primary);
+    background: var(--accent-secondary);
+    font-weight: var(--font-weight-bold);
     letter-spacing: 0.075em;
     text-transform: uppercase;
-    border-radius: var(--dimension-radius-module) 0 0 var(--dimension-radius-module);
+    border-radius: var(--radius-module) 0 0 var(--radius-module);
     clip-path: polygon(0 0, calc(100% - var(--spacing-unit) * 2) 0, 100% 100%, 0% 100%);
 }
+
 #hyprland-window {
-    padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
-    color: var(--color-text-module-windowtitle, var(--color-text-bar-default));
+    padding: var(--module-padding-v) var(--module-padding-h);
+    color: var(--fg-primary);
     background: transparent;
     border-color: transparent;
     box-shadow: none;
-    font-weight: var(--typography-font-weight-medium);
+    font-weight: var(--font-weight-medium);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 300px;
     font-style: italic;
 }
-#pulseaudio,
-#network,
-#cpu,
-#memory {
-    background-color: var(--color-background-module-alternate);
-    font-family: var(--typography-font-family-monospace);
-    font-variant-numeric: var(--typography-font-variant-numeric);
-    color: var(--color-text-module-stats, var(--color-text-bar-default));
-    border-radius: var(--dimension-radius-button);
+
+#pulseaudio, #network, #cpu, #memory {
+    background-color: var(--bg-tertiary); /* Was module-alternate */
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--fg-primary);
+    border-radius: var(--radius-button);
     padding: var(--spacing-unit) calc(var(--spacing-unit)*2);
 }
+
 #network.disconnected {
-    animation: var(--animation-state-feedback-actual);
+    animation: state-feedback-animation calc(0.4s * 0.7) var(--transition-timing-standard); /* Speed factor applied */
 }
-#battery.critical:not(.charging) {
-    background: var(--theme-accent-primary-solid);
-    color: var(--theme-fg-primary);
-    font-weight: var(--typography-font-weight-bold);
-    animation: var(--animation-urgent-actual);
+
+#battery.critical:not(.charging) { /* Gradients are ON */
+    background: var(--accent-gradient);
+    color: var(--fg-primary);
+    font-weight: var(--font-weight-bold);
+    animation: urgent-pulse-animation calc(1.4s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
 }
-#battery.critical.gradients-enabled:not(.charging) {
-    background: var(--color-accent-primary-gradient);
-}
+
 #tray {
     padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
-    background: var(--color-background-module-alternate);
+    background: var(--bg-tertiary); /* Was module-alternate */
 }
 #tray > widget {
     margin: 0 var(--spacing-unit);
     opacity: 0.75;
     transition-property: opacity, transform;
-    transition-duration: 0.25s;
-    transition-timing-function: var(--transition-timing-function-standard);
-    filter: drop-shadow(var(--typography-text-shadow-subtle));
-}
-#tray > widget.visual-profile-enhanced {
-    transition-timing-function: var(--transition-timing-function-enhanced);
+    transition-duration: 0.25s; /* Fixed duration */
+    transition-timing-function: var(--transition-timing-standard);
+    filter: drop-shadow(var(--text-shadow-subtle));
 }
 #tray > widget:hover {
     opacity: 1;
     transform: scale(1.15) translateY(-1px);
 }
+
 #custom-power {
     padding: 0;
-    color: var(--color-text-module-power, var(--color-text-bar-default));
-    font-size: calc(var(--typography-font-size-large) * 1.1);
-    font-weight: var(--typography-font-weight-bold);
-    cursor: var(--interaction-cursor-pointer, pointer);
+    color: var(--fg-primary);
+    font-size: calc(var(--font-size-large) * 1.1);
+    font-weight: var(--font-weight-bold);
+    cursor: var(--cursor-pointer);
     background: transparent;
-    border: var(--dimension-border-width-normal) solid transparent;
+    border: var(--border-width-normal) solid transparent;
     border-radius: 50%;
-    width: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
-    height: calc(var(--typography-font-size-large) * 2.5 * var(--_density-scale-factor));
+    width: calc(var(--font-size-large) * 2.5); /* Density scale 1 */
+    height: calc(var(--font-size-large) * 2.5);/* Density scale 1 */
     display: flex;
     align-items: center;
     justify-content: center;
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-snap, ease-out);
-}
-#custom-power.visual-profile-enhanced {
-    transition-timing-function: var(--transition-timing-function-enhanced);
+    transition-timing-function: ease-out; /* Was var(--transition-timing-function-snap, ease-out) */
 }
 #custom-power:hover {
-    background: var(--color-accent-secondary);
-    color: var(--theme-fg-primary);
-    border-color: var(--color-accent-highlight);
-    box-shadow: var(--effects-shadow-module-hover-actual), 0 0 20px -3px var(--color-accent-secondary);
+    background: var(--accent-secondary);
+    color: var(--fg-primary);
+    border-color: var(--accent-highlight);
+    box-shadow: var(--shadow-module-hover), 0 0 20px -3px var(--accent-secondary);
     transform: scale(1.2) rotate(-20deg);
 }
 #custom-power:active {
     transform: var(--interaction-transform-active-press) rotate(-15deg) scale(1.1);
-    box-shadow: var(--effects-shadow-inner-pressed);
-    background: var(--color-accent-primary-solid);
+    box-shadow: var(--shadow-inner-pressed);
+    background: var(--accent-primary);
 }
+
+/* Tooltip */
 tooltip {
     padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3.5);
-    color: var(--color-text-bar-default);
-    border: var(--dimension-border-width-thin) solid var(--color-accent-primary-solid);
-    border-radius: var(--dimension-radius-tooltip);
-    box-shadow: var(--effects-shadow-tooltip-actual);
-    font-family: var(--typography-font-family-main);
-    font-size: var(--typography-font-size-small);
+    color: var(--fg-primary);
+    border: var(--border-width-thin) solid var(--accent-primary);
+    border-radius: var(--radius-tooltip);
+    box-shadow: var(--shadow-tooltip);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-small);
     line-height: 1.6;
     max-width: 380px;
-    -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
-    backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: var(--theme-bg-secondary);
-    background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%);
-    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)));
+    /* backdrop-filter: blur(0px); Glassmorphism OFF */
+    background-color: var(--bg-secondary); /* Simplified from color-mix as glassmorphism is off */
 }
-tooltip::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: var(--noise-texture-svg);
-    opacity: var(--noise-texture-opacity);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: inherit;
-}
+/* Tooltip noise is OFF */
 tooltip label {
     color: inherit;
 }
-:root {
-    --dimension-icon-size-default: 1em;
-    --color-icon-default: inherit;
-    --text-shadow-icon-default: none;
-    --color-icon-hover: var(--theme-accent-highlight);
-    --color-icon-active: var(--theme-accent-primary-solid);
-}
-.icon,
-[class*="fa-"],
-[class*="mdi-"],
-[class*="nf-"] {
-    font-family: var(--typography-font-family-icons) !important;
-    font-size: var(--dimension-icon-size-default, 1em);
-    color: var(--color-icon-default, inherit);
+
+/* Icons */
+.icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
+    font-family: var(--font-icons) !important;
+    font-size: 1em; /* Was --dimension-icon-size-default */
+    color: inherit; /* Was --color-icon-default */
     margin-right: calc(var(--spacing-unit) * 0.85);
     vertical-align: -0.15em;
     transition-property: color, transform, text-shadow;
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-standard);
-    text-shadow: var(--text-shadow-icon-default, none);
+    transition-timing-function: var(--transition-timing-standard);
+    text-shadow: none; /* Was --text-shadow-icon-default */
     display: inline-block;
     font-style: normal !important;
-}
-.icon.visual-profile-enhanced,
-[class*="fa-"].visual-profile-enhanced,
-[class*="mdi-"].visual-profile-enhanced,
-[class*="nf-"].visual-profile-enhanced {
-    transition-timing-function: var(--transition-timing-function-enhanced);
 }
 *:hover > .icon, *:hover > [class*="fa-"], *:hover > [class*="mdi-"], *:hover > [class*="nf-"],
 *:focus > .icon, *:focus > [class*="fa-"], *:focus > [class*="mdi-"], *:focus > [class*="nf-"],
 *:focus-within > .icon, *:focus-within > [class*="fa-"], *:focus-within > [class*="mdi-"], *:focus-within > [class*="nf-"] {
-    color: var(--color-icon-hover, var(--color-accent-highlight));
-    transform: scale(1.18) translateY(-1.5px) rotate(calc(var(--_is-visual-profile-enhanced) * -5deg));
-    text-shadow: 0 2px 4px hsla(var(--accent-H), var(--accent-S), var(--accent-L-highlight), var(--_alpha-icon-hover-shadow));
+    color: var(--accent-highlight); /* Was --color-icon-hover */
+    transform: scale(1.18) translateY(-1.5px); /* rotate(0deg) removed as visual profile enhanced is off */
+    text-shadow: 0 2px 4px hsla(var(--accent-h), var(--accent-s), var(--accent-l-highlight), 0.4); /* Fixed alpha */
 }
-.active .icon,
-.active [class*="fa-"],
-.active [class*="mdi-"],
-.active [class*="nf-"] {
-    color: var(--color-icon-active, var(--color-accent-primary-solid));
+.active .icon, .active [class*="fa-"], .active [class*="mdi-"], .active [class*="nf-"] {
+    color: var(--accent-primary); /* Was --color-icon-active */
     transform: scale(1.1);
-    text-shadow: 0 1px 3px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), var(--_alpha-icon-active-shadow));
+    text-shadow: 0 1px 3px hsla(var(--accent-h), var(--accent-s), var(--accent-l-base), 0.5); /* Fixed alpha */
 }
-.error .icon,
-.error [class*="fa-"],
-.error [class*="mdi-"],
-.error [class*="nf-"] {
-    color: var(--color-text-error, red) !important;
+.error .icon, .error [class*="fa-"], .error [class*="mdi-"], .error [class*="nf-"] {
+    color: var(--fg-error) !important;
     transform: none !important;
     text-shadow: none !important;
 }
