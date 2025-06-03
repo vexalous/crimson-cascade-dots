@@ -73,7 +73,7 @@ window#waybar {
     padding: 3px 10px;
 }
 
-.icon { /* Simplified from the complex multi-selector with [class*=...] */
+.icon {
     font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font" !important;
     font-size: 1.1em;
     margin-right: 4px;
