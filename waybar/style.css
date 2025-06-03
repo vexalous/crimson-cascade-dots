@@ -1,32 +1,76 @@
+/* ===== Root Variables ===== */
+:root {
+    --main-bg-color: #0A0A0A;
+    --main-fg-color: #EBEBEB;
+    --module-bg-color: #141414;
+    --module-border-color: #2E2E2E;
+    --workspaces-bg-color: #1F1F1F;
+    --focused-bg-color: #FF235A;
+    --focused-fg-color: #EBEBEB;
+    --urgent-bg-color: #C30F42;
+    --urgent-fg-color: #EBEBEB;
+    --critical-bg-color: #FF235A;
+    --critical-fg-color: #EBEBEB;
+    --warning-bg-color: #FFB300;
+    --warning-fg-color: #0A0A0A;
+    --mode-bg-color: #C30F42;
+    --mode-fg-color: #EBEBEB;
+    --disabled-bg-color: #808080;
+    --disabled-fg-color: #4D4D4D;
+    --error-bg-color: #DB2A2A;
+    --error-fg-color: #FFFFFF;
+    --custom-power-color: #FF235A;
+    --workspace-button-color: #BFBFBF;
+    --workspace-persistent-color: #8C8C8C;
+
+    --default-font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
+    --monospace-font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
+    --icon-font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
+
+    --default-font-size: 14px;
+    --default-font-weight: 400;
+    --module-padding: 3px 8px;
+    --module-margin: 3px 4px;
+    --module-border-radius: 4px;
+}
+
+/* ===== Global Styles ===== */
 * {
-    border: none; border-radius: 0; min-height: 0;
-    padding: 0; margin: 0;
-    font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
-    font-size: 14px; font-weight: 400;
-    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    font-family: var(--default-font-family);
+    font-size: var(--default-font-size);
+    font-weight: var(--default-font-weight);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 window#waybar {
-    background-color: #0A0A0A;
-    color: #EBEBEB;
-    font-family: "Inter", "Noto Sans", sans-serif;
+    background-color: var(--main-bg-color);
+    color: var(--main-fg-color);
+    font-family: var(--default-font-family); /* Explicitly set for Waybar window if needed */
 }
 
+/* ===== Default Module Styling ===== */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray,
 #custom-power, #hyprland-window, #workspaces {
-    background-color: #141414;
-    border: 1px solid #2E2E2E;
-    padding: 3px 8px;
-    margin: 3px 4px;
-    border-radius: 4px;
+    background-color: var(--module-bg-color);
+    border: 1px solid var(--module-border-color);
+    padding: var(--module-padding);
+    margin: var(--module-margin);
+    border-radius: var(--module-border-radius);
 }
 
+/* ===== Workspace Styling ===== */
 #workspaces {
-    background-color: #1F1F1F;
+    background-color: var(--workspaces-bg-color);
 }
 
 #workspaces button {
-    color: #BFBFBF;
+    color: var(--workspace-button-color);
     background-color: transparent;
     padding: 2px 6px;
     margin: 2px;
@@ -35,69 +79,71 @@ window#waybar {
 }
 
 #workspaces button.focused {
-    background-color: #FF235A;
-    color: #EBEBEB;
+    background-color: var(--focused-bg-color);
+    color: var(--focused-fg-color);
 }
 
 #workspaces button.urgent {
-    background-color: #C30F42;
-    color: #EBEBEB;
+    background-color: var(--urgent-bg-color);
+    color: var(--urgent-fg-color);
 }
 
 #workspaces button.persistent {
-    color: #8C8C8C;
+    color: var(--workspace-persistent-color);
     font-style: italic;
 }
 
+/* ===== Specific Module Styling ===== */
 #battery.critical:not(.charging) {
-    background-color: #FF235A;
-    color: #EBEBEB;
+    background-color: var(--critical-bg-color);
+    color: var(--critical-fg-color);
     font-weight: 600;
 }
 
 #battery.warning:not(.charging) {
-    background-color: #FFB300;
-    color: #0A0A0A;
+    background-color: var(--warning-bg-color);
+    color: var(--warning-fg-color);
 }
 
 #clock {
-    font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
+    font-family: var(--monospace-font-family);
     letter-spacing: 0.05em;
     font-weight: 500;
 }
 
 #mode {
-    background-color: #C30F42;
-    color: #EBEBEB;
+    background-color: var(--mode-bg-color);
+    color: var(--mode-fg-color);
     font-weight: 600;
-    padding: 3px 10px;
+    padding: 3px 10px; /* Keep specific padding if different from default module */
 }
 
+#custom-power {
+    color: var(--custom-power-color);
+    font-size: 1.2em;
+    padding: 2px 5px; /* Keep specific padding */
+}
+
+/* ===== Utility & State Styling ===== */
 .icon {
-    font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
+    font-family: var(--icon-font-family);
     font-size: 1.1em;
     margin-right: 4px;
 }
 
 .disabled {
-    background-color: #808080;
-    color: #4D4D4D;
+    background-color: var(--disabled-bg-color);
+    color: var(--disabled-fg-color);
     opacity: 0.6;
 }
 
 .error {
-    background-color: #DB2A2A;
-    color: #FFFFFF;
+    background-color: var(--error-bg-color);
+    color: var(--error-fg-color);
     font-weight: 600;
 }
 
-#tray > widget {
+#tray > widget { /* Consider if this needs to be more specific if you have other widgets */
     margin: 0 3px;
     opacity: 0.8;
-}
-
-#custom-power {
-    color: #FF235A;
-    font-size: 1.2em;
-    padding: 2px 5px;
 }
