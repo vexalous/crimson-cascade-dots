@@ -7,27 +7,26 @@
 }
 
 window#waybar {
-    background-color: #0A0A0A; /* Dark background */
-    color: #EBEBEB; /* Light text */
+    background-color: #0A0A0A;
+    color: #EBEBEB;
     font-family: "Inter", "Noto Sans", sans-serif;
 }
 
-/* Common style for most modules */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray,
 #custom-power, #hyprland-window, #workspaces {
-    background-color: #141414; /* Slightly lighter module background */
-    border: 1px solid #2E2E2E; /* Subtle border */
+    background-color: #141414;
+    border: 1px solid #2E2E2E;
     padding: 3px 8px;
     margin: 3px 4px;
     border-radius: 4px;
 }
 
 #workspaces {
-    background-color: #1F1F1F; /* Different background for workspaces container */
+    background-color: #1F1F1F;
 }
 
 #workspaces button {
-    color: #BFBFBF; /* Secondary text color */
+    color: #BFBFBF;
     background-color: transparent;
     padding: 2px 6px;
     margin: 2px;
@@ -36,12 +35,12 @@ window#waybar {
 }
 
 #workspaces button.focused {
-    background-color: #FF235A; /* Accent color */
-    color: #EBEBEB; /* Light text for contrast */
+    background-color: #FF235A;
+    color: #EBEBEB;
 }
 
 #workspaces button.urgent {
-    background-color: #C30F42; /* Darker, urgent accent */
+    background-color: #C30F42;
     color: #EBEBEB;
 }
 
@@ -51,14 +50,14 @@ window#waybar {
 }
 
 #battery.critical:not(.charging) {
-    background-color: #FF235A; /* Accent color for critical battery */
+    background-color: #FF235A;
     color: #EBEBEB;
     font-weight: 600;
 }
 
 #battery.warning:not(.charging) {
-    background-color: #FFB300; /* Orange for warning */
-    color: #0A0A0A; /* Dark text for contrast */
+    background-color: #FFB300;
+    color: #0A0A0A;
 }
 
 #clock {
@@ -68,13 +67,12 @@ window#waybar {
 }
 
 #mode {
-    background-color: #C30F42; /* Accent for mode */
+    background-color: #C30F42;
     color: #EBEBEB;
     font-weight: 600;
     padding: 3px 10px;
 }
 
-/* Basic icon styling */
 .icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
     font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font" !important;
     font-size: 1.1em;
@@ -82,15 +80,14 @@ window#waybar {
     vertical-align: -0.1em;
 }
 
-/* Basic styling for disabled/error states */
-.disabled, :disabled {
+.disabled { /* Changed from ".disabled, :disabled" */
     background-color: #808080 !important;
     color: #4D4D4D !important;
     opacity: 0.6 !important;
 }
 
 .error {
-    background-color: #DB2A2A !important; /* Red for errors */
+    background-color: #DB2A2A !important;
     color: #FFFFFF !important;
     font-weight: 600;
 }
@@ -101,7 +98,7 @@ window#waybar {
 }
 
 #custom-power {
-    color: #FF235A; /* Accent color */
+    color: #FF235A;
     font-size: 1.2em;
     padding: 2px 5px;
 }
