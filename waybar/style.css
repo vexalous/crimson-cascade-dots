@@ -1,5 +1,4 @@
-/* ===== Root Variables ===== */
-:root {
+{
     --main-bg-color: #0A0A0A;
     --main-fg-color: #EBEBEB;
     --module-bg-color: #141414;
@@ -51,10 +50,9 @@
 window#waybar {
     background-color: var(--main-bg-color);
     color: var(--main-fg-color);
-    font-family: var(--default-font-family); /* Explicitly set for Waybar window if needed */
+    font-family: var(--default-font-family);
 }
 
-/* ===== Default Module Styling ===== */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray,
 #custom-power, #hyprland-window, #workspaces {
     background-color: var(--module-bg-color);
