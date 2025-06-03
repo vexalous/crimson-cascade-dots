@@ -11,7 +11,7 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-:root {
+window#waybar {
     --bg-primary: hsl(0, 0%, 4%);
     --bg-secondary: hsl(0, 0%, 8%);
     --bg-tertiary: hsl(0, 0%, 12%);
@@ -94,9 +94,7 @@
     --fg-error: hsl(0, 0%, 100%);
     --border-error: hsl(0, 80%, 60%);
     --border-style-dashed: dashed;
-}
 
-window#waybar {
     font-family: var(--font-ui);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-normal);
