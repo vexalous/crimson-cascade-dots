@@ -74,7 +74,7 @@ window#waybar {
 }
 
 .icon {
-    font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font" !important;
+    font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font"; /* Removed !important */
     font-size: 1.1em;
     margin-right: 4px;
     vertical-align: -0.1em;
