@@ -74,20 +74,20 @@ window#waybar {
 }
 
 .icon {
-    font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font"; /* Removed !important */
+    font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
     font-size: 1.1em;
     margin-right: 4px;
 }
 
 .disabled {
-    background-color: #808080 !important;
-    color: #4D4D4D !important;
-    opacity: 0.6 !important;
+    background-color: #808080;
+    color: #4D4D4D;
+    opacity: 0.6;
 }
 
 .error {
-    background-color: #DB2A2A !important;
-    color: #FFFFFF !important;
+    background-color: #DB2A2A;
+    color: #FFFFFF;
     font-weight: 600;
 }
 
