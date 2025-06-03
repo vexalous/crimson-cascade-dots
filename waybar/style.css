@@ -1,8 +1,3 @@
-/*
- * Waybar Configuration Stylesheet (v1.4 - Extreme Separation & Parser Safety)
- */
-
-/* --- GLOBAL RESET & BASE STYLES --- */
 * {
     border: none;
     border-radius: 0;
@@ -15,33 +10,21 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
-/* --- WAYBAR MAIN STYLING & CSS VARIABLES --- */
 window#waybar {
     --cfg-base-theme-mode: 0;
-    /* 0: Dark, 1: Light */
-
     --cfg-custom-accent-H: 348;
     --cfg-custom-accent-S: 100%;
     --cfg-custom-accent-L: 57%;
-
     --palette-preset1-H: 15;
     --palette-preset1-S: 95%;
     --palette-preset1-L: 55%;
-
     --palette-preset2-H: 200;
     --palette-preset2-S: 85%;
     --palette-preset2-L: 60%;
-
     --palette-preset3-H: 100;
     --palette-preset3-S: 60%;
     --palette-preset3-L: 45%;
-
-    /* Visual Style & Effects Detail - User sets corresponding --_is-* flags below */
-
     --cfg-density-scale: 1;
-
-    /* --- Global Feature Toggles --- */
     --enable-shadows-master: 1;
     --enable-gradients-master: 1;
     --enable-animations-master: 1;
@@ -51,47 +34,21 @@ window#waybar {
     --enable-experimental-glassmorphism: 0;
     --enable-high-contrast-focus-outline: 0;
     --enable-force-minimalism: 0;
-
-    /* --- Font Stack Configuration --- */
     --font-stack-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
     --font-stack-mono: "JetBrainsMono Nerd Font", "Fira Code", "Hack", monospace;
     --font-stack-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
-
-    /*
-     * ==========================================================================
-     * --- USER-SET DERIVED THEME FLAGS ---
-     * ==========================================================================
-     * Set ONE of each group to 1 and others in that group to 0.
-     */
-
-    /* Visual Style Profile Flags (Choose one, set to 1) */
     --_is-visual-profile-standard: 1;
     --_is-visual-profile-enhanced: 0;
     --_is-visual-profile-minimalist: 0;
-
-    /* Accent Palette Flags (Choose one, set to 1) */
     --_is-palette-custom: 1;
     --_is-palette-fire: 0;
     --_is-palette-ocean: 0;
     --_is-palette-forest: 0;
     --_is-palette-monochrome: 0;
-
-    /* Effects Detail Level Flags (Choose one, set to 1) */
-    --_fx_level_is_0: 1; /* Full */
-    --_fx_level_is_1: 0; /* Standard */
-    --_fx_level_is_2: 0; /* Minimal */
-
-    /*
-     * ==========================================================================
-     * --- DERIVED THEME PROPERTIES (Simplified, using manual flags) ---
-     * ==========================================================================
-     */
-
-    /* --- Minimalist Override Logic --- */
-    /* --_minimal-mode-active is 1 if EITHER --enable-force-minimalism OR --_is-visual-profile-minimalist is 1 */
+    --_fx_level_is_0: 1;
+    --_fx_level_is_1: 0;
+    --_fx_level_is_2: 0;
     --_minimal-mode-active: calc(1 - (1 - var(--enable-force-minimalism)) * (1 - var(--_is-visual-profile-minimalist)));
-
-    /* --- Effective Toggles --- */
     --_effective-shadows-enabled: calc(var(--enable-shadows-master) * (1 - var(--_minimal-mode-active)));
     --_effective-gradients-enabled: calc(var(--enable-gradients-master) * (1 - var(--_minimal-mode-active)));
     --_effective-cosmetic-animations-enabled: calc(var(--enable-animations-master) * (1 - var(--_minimal-mode-active)));
@@ -99,14 +56,10 @@ window#waybar {
     --_effective-dynamic-ws-accents-enabled: calc(var(--enable-dynamic-workspace-accents) * var(--_effective-cosmetic-animations-enabled));
     --_effective-noise-texture-enabled: calc(var(--enable-subtle-noise-texture) * (1 - var(--_minimal-mode-active)));
     --_effective-glassmorphism-enabled: calc(var(--enable-experimental-glassmorphism) * (1 - var(--_minimal-mode-active)));
-
-    /* --- Effects Detail Adjustments --- */
     --_effects-detail-multiplier-full: var(--_fx_level_is_0);
     --_effects-detail-multiplier-standard: var(--_fx_level_is_1);
     --_effects-detail-multiplier-reduced: var(--_fx_level_is_0);
     --_effects-duration-scale: calc(1 + (var(--_fx_level_is_1) * 0.25) + (var(--_fx_level_is_2) * 0.5));
-
-    /* --- Base Color Palette --- */
     --L-bg-primary: calc(var(--cfg-base-theme-mode) * 96% + (1 - var(--cfg-base-theme-mode)) * 4%);
     --L-bg-secondary: calc(var(--cfg-base-theme-mode) * 92% + (1 - var(--cfg-base-theme-mode)) * 8%);
     --L-bg-tertiary: calc(var(--cfg-base-theme-mode) * 88% + (1 - var(--cfg-base-theme-mode)) * 12%);
@@ -114,7 +67,6 @@ window#waybar {
     --L-fg-secondary: calc(var(--cfg-base-theme-mode) * 25% + (1 - var(--cfg-base-theme-mode)) * 75%);
     --L-fg-tertiary: calc(var(--cfg-base-theme-mode) * 45% + (1 - var(--cfg-base-theme-mode)) * 55%);
     --L-border-default: calc(var(--cfg-base-theme-mode) * 85% + (1 - var(--cfg-base-theme-mode)) * 18%);
-
     --theme-bg-primary: hsl(0, 0%, var(--L-bg-primary));
     --theme-bg-secondary: hsl(0, 0%, var(--L-bg-secondary));
     --theme-bg-tertiary: hsl(0, 0%, var(--L-bg-tertiary));
@@ -122,41 +74,28 @@ window#waybar {
     --theme-fg-secondary: hsl(0, 0%, var(--L-fg-secondary));
     --theme-fg-tertiary: hsl(0, 0%, var(--L-fg-tertiary));
     --theme-border-default: hsl(0, 0%, var(--L-border-default));
-
-    /* --- Accent Palette Selection (uses manual flags) --- */
     --accent-H-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-H)) + (var(--_is-palette-fire) * var(--palette-preset1-H)) + (var(--_is-palette-ocean) * var(--palette-preset2-H)) + (var(--_is-palette-forest) * var(--palette-preset3-H)) + (var(--_is-palette-monochrome) * 0) );
     --accent-S-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-S)) + (var(--_is-palette-fire) * var(--palette-preset1-S)) + (var(--_is-palette-ocean) * var(--palette-preset2-S)) + (var(--_is-palette-forest) * var(--palette-preset3-S)) + (var(--_is-palette-monochrome) * 0%) );
     --_temp-mono-L-calc: calc( (var(--cfg-base-theme-mode) * 30%) + ( (1 - var(--cfg-base-theme-mode)) * 70% ));
     --accent-L-base-resolved: calc( (var(--_is-palette-custom) * var(--cfg-custom-accent-L)) + (var(--_is-palette-fire) * var(--palette-preset1-L)) + (var(--_is-palette-ocean) * var(--palette-preset2-L)) + (var(--_is-palette-forest) * var(--palette-preset3-L)) + (var(--_is-palette-monochrome) * var(--_temp-mono-L-calc)) );
-
     --accent-H: var(--accent-H-resolved);
     --accent-S: var(--accent-S-resolved);
     --accent-L-base: var(--accent-L-base-resolved);
-
     --accent-L-darker: calc(var(--accent-L-base) - (12% * (1 - var(--_is-palette-monochrome))));
     --accent-L-lighter: calc(var(--accent-L-base) + (12% * (1 - var(--_is-palette-monochrome))));
     --accent-L-highlight: calc(var(--accent-L-base) + (18% * (1 - var(--_is-palette-monochrome))));
-
     --theme-accent-primary-base: hsl(var(--accent-H), var(--accent-S), var(--accent-L-base));
     --theme-accent-primary-grad-start: hsl(var(--accent-H), var(--accent-S), var(--accent-L-lighter));
     --theme-accent-primary-grad-end: hsl(var(--accent-H), var(--accent-S), var(--accent-L-darker));
     --theme-accent-secondary-base: hsl(var(--accent-H), calc(var(--accent-S) * 0.9), var(--accent-L-darker));
     --theme-accent-highlight: hsl(var(--accent-H), var(--accent-S), var(--accent-L-highlight));
-
-    /* --- Spacing & Sizing --- */
     --_density-scale-factor: var(--cfg-density-scale);
     --spacing-unit: calc(4px * var(--_density-scale-factor));
     --radius-unit: calc(6px * var(--_density-scale-factor));
-
-    /* --- Visual Style Adjustments (uses manual flags) --- */
     --_animation-speed-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) - (var(--_minimal-mode-active) * 0.7));
     --_transform-intensity-multiplier: calc(1 + (var(--_is-visual-profile-enhanced) * 0.3) - (var(--_minimal-mode-active) * 0.8));
     --_effective-border-style: solid;
     --_border-radius-multiplier: calc(1 - (var(--_is-visual-profile-standard) * 0.3) + (var(--_is-visual-profile-enhanced) * 0.2) - (var(--_minimal-mode-active) * 0.5));
-
-    /* === Detailed Design Tokens (Consume the simplified variables) === */
-
-    /* --- Core Palette & Accents --- */
     --color-background-bar: var(--theme-bg-primary);
     --color-text-bar-default: var(--theme-fg-primary);
     --color-accent-primary-gradient: linear-gradient(calc(135deg + var(--_is-visual-profile-enhanced) * 20deg), var(--theme-accent-primary-grad-start) 0%, var(--theme-accent-primary-base) 50%, var(--theme-accent-primary-grad-end) 100%);
@@ -164,21 +103,15 @@ window#waybar {
     --color-accent-primary-solid: var(--theme-accent-primary-base);
     --color-accent-secondary: var(--theme-accent-secondary-base);
     --color-accent-highlight: var(--theme-accent-highlight);
-
-    /* --- UI Element Colors --- */
     --color-background-module-default: var(--theme-bg-secondary);
     --color-background-module-alternate: var(--theme-bg-tertiary);
     --color-border-module-default: var(--theme-border-default);
-
     --color-background-module-hover: var(--theme-bg-tertiary);
     --color-text-module-hover: var(--theme-fg-primary);
     --color-border-module-hover: var(--color-accent-highlight);
-
     --color-background-module-active: var(--color-accent-secondary);
     --color-text-module-active: var(--theme-fg-primary);
     --color-border-module-active: var(--color-accent-primary-solid);
-
-    /* --- Typography --- */
     --typography-font-family-main: var(--font-stack-ui);
     --typography-font-family-monospace: var(--font-stack-mono);
     --typography-font-family-icons: var(--font-stack-icons);
@@ -192,19 +125,13 @@ window#waybar {
     --typography-font-weight-medium: 500;
     --typography-font-weight-bold: calc(600 + var(--_is-visual-profile-enhanced) * 100);
     --typography-letter-spacing-normal: normal;
-
-    /* Pre-calculate alpha values for hsla() that use calc() or for consistency */
     --_alpha-text-shadow-subtle: calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
     --_alpha-text-shadow-header: calc(0.15 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
     --_alpha-inner-shadow: 0.2;
     --_alpha-icon-hover-shadow: 0.4;
     --_alpha-icon-active-shadow: 0.5;
-
-
     --typography-text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, var(--_alpha-text-shadow-subtle));
     --typography-text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, var(--_alpha-text-shadow-header));
-
-    /* --- Dimensions & Spacing --- */
     --dimension-bar-border-height: calc(3px * var(--_density-scale-factor));
     --dimension-module-padding-vertical: calc(var(--spacing-unit) * 1.25);
     --dimension-module-padding-horizontal: calc(var(--spacing-unit) * 2.5);
@@ -217,46 +144,33 @@ window#waybar {
     --dimension-border-width-thin: 1px;
     --dimension-border-width-normal: 2px;
     --dimension-border-style-default: var(--_effective-border-style);
-
-    /* --- Transitions & Animations --- */
     --transition-duration-base: calc(0.2s * var(--_animation-speed-multiplier) * var(--_effects-duration-scale));
     --transition-duration-fast: calc(var(--transition-duration-base) * 0.6);
     --transition-duration-normal: var(--transition-duration-base);
     --transition-duration-slow: calc(var(--transition-duration-base) * 1.5);
-
     --transition-timing-function-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-timing-function-enhanced: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-timing-function-ui: var(--transition-timing-function-standard); /* Default. Enhanced applied by class */
-
+    --transition-timing-function-ui: var(--transition-timing-function-standard);
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
-
-    /* --- Interaction Feedback --- */
     --_transform-scale-factor: calc(0.03 * var(--_transform-intensity-multiplier));
     --interaction-transform-hover-lift-actual: translateY(calc(-2px * var(--_transform-intensity-multiplier) * var(--_effective-cosmetic-animations-enabled)));
     --interaction-transform-hover-scale-actual: scale(calc(1 + var(--_transform-scale-factor) * var(--_effective-cosmetic-animations-enabled)));
     --interaction-transform-active-press: scale(calc(0.97 * (1 - var(--_transform-scale-factor) / 2)));
-
-    /* --- Effects: Shadows, Focus, Glow --- */
     --_shadow-opacity-base: calc(0.1 * var(--_effective-shadows-enabled) * var(--_effects-detail-multiplier-reduced));
     --_shadow-L-offset: calc(var(--cfg-base-theme-mode) * 20% + (1 - var(--cfg-base-theme-mode)) * 0%);
-
-    /* Pre-calculate alpha values for hsla() that use calc() */
     --_alpha-effects-shadow-ambient: calc(var(--_shadow-opacity-base) * 0.8);
     --_alpha-effects-shadow-direct: calc(var(--_shadow-opacity-base) * 1.2);
-
     --effects-shadow-color-ambient: hsla(0, 0%, var(--_shadow-L-offset), var(--_alpha-effects-shadow-ambient));
     --effects-shadow-color-direct: hsla(0, 0%, var(--_shadow-L-offset), var(--_alpha-effects-shadow-direct));
     --effects-shadow-module-actual: 0 2px 5px -1px var(--effects-shadow-color-ambient), 0 4px 8px -2px var(--effects-shadow-color-direct);
     --effects-shadow-module-hover-actual: 0 5px 10px -2px var(--effects-shadow-color-ambient), 0 8px 16px -3px var(--effects-shadow-color-direct);
     --effects-shadow-tooltip-actual: 0 8px 24px -4px var(--effects-shadow-color-direct);
     --effects-shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, var(--_shadow-L-offset), var(--_alpha-inner-shadow));
-
     --effects-focus-ring-color: var(--color-accent-highlight);
     --effects-focus-ring-width-base: 2px;
     --_hc-outline-style-keyword: dashed;
     --_hc-outline-width-actual: calc(var(--enable-high-contrast-focus-outline) * var(--effects-focus-ring-width-base));
     --outline-high-contrast-focus-actual: var(--_hc-outline-width-actual) var(--_hc-outline-style-keyword) var(--effects-focus-ring-color);
-
     --effects-focus-ring-offset: 2px;
     --_enable-focus-ring-shadow-effect: var(--enable-high-contrast-focus-outline);
     --_hc-shadow-h-offset: 0px;
@@ -267,50 +181,35 @@ window#waybar {
     --effects-focus-ring-shadow-actual:
         var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread1) var(--color-background-bar),
         var(--_hc-shadow-h-offset) var(--_hc-shadow-v-offset) var(--_hc-shadow-blur) var(--_hc-shadow-spread2) var(--effects-focus-ring-color);
-
-    /* Pre-calculate alpha values for hsla() that use calc() */
     --_alpha-effects-glow-color-actual: calc(0.35 * var(--_effective-cosmetic-animations-enabled) * var(--_effects-detail-multiplier-reduced));
     --effects-glow-color-actual: hsla(var(--accent-H), var(--accent-S), calc(var(--accent-L-base) + 8%), var(--_alpha-effects-glow-color-actual));
     --effects-glow-focused-actual: 0 0 15px 3px var(--effects-glow-color-actual);
-
-    /* --- Animations --- */
     --animation-name-bar-border-sweep: bar-border-sweep-animation;
     --animation-duration-bar-border-sweep: calc(10s * var(--_animation-speed-multiplier));
     --animation-bar-border-actual: var(--animation-name-bar-border-sweep) var(--animation-duration-bar-border-sweep) linear infinite;
-
     --_enable-animation-urgent-pulse: 1;
     --_enable-animation-focused-glow: 1;
     --_enable-animation-state-feedback: 1;
-
     --animation-name-urgent-pulse: urgent-pulse-animation;
     --animation-duration-pulse: calc(1.4s * var(--_animation-speed-multiplier));
     --_animation-duration-pulse-eff: calc(var(--animation-duration-pulse) * var(--_enable-animation-urgent-pulse));
     --animation-urgent-actual: var(--animation-name-urgent-pulse) var(--_animation-duration-pulse-eff) ease-in-out infinite alternate;
-
     --animation-name-focused-glow: focused-glow-animation;
     --animation-duration-glow: calc(2.2s * var(--_animation-speed-multiplier));
     --_animation-duration-glow-eff: calc(var(--animation-duration-glow) * var(--_enable-animation-focused-glow));
     --animation-focused-glow-actual: var(--animation-name-focused-glow) var(--_animation-duration-glow-eff) ease-in-out infinite alternate;
-
     --animation-name-state-feedback: state-feedback-animation;
     --animation-duration-state-feedback: calc(0.4s * var(--_animation-speed-multiplier));
     --_animation-duration-state-feedback-eff: calc(var(--animation-duration-state-feedback) * var(--_enable-animation-state-feedback));
     --animation-state-feedback-actual: var(--animation-name-state-feedback) var(--_animation-duration-state-feedback-eff) var(--transition-timing-function-ui);
-
     --animation-name-dynamic-border: dynamic-border-animation;
     --animation-duration-dynamic-border: calc(0.35s * var(--_animation-speed-multiplier));
     --transition-timing-function-snap: ease-out;
     --animation-dynamic-ws-border-actual: var(--animation-name-dynamic-border) var(--animation-duration-dynamic-border) var(--transition-timing-function-snap, ease-out) forwards;
-
-    /* --- Optional Noise Texture (Corrected SVG Encoding) --- */
     --noise-texture-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cfilter id='nFT'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nFT)'/%3E%3C/svg%3E");
     --noise-texture-opacity: calc(0.015 * var(--_effective-noise-texture-enabled));
-
-    /* --- Experimental: Glassmorphism --- */
     --glass-blur-radius-actual: calc(12px * var(--_effective-glassmorphism-enabled));
     --glass-background-color-actual: hsla(0, 0%, calc(var(--cfg-base-theme-mode) * 100% + (1 - var(--cfg-base-theme-mode)) * 20%), calc(0.15 * var(--_effective-glassmorphism-enabled)));
-
-    /* --- Bar Properties --- */
     font-family: var(--typography-font-family-main);
     font-size: var(--typography-font-size-default);
     font-weight: var(--typography-font-weight-normal);
@@ -319,8 +218,7 @@ window#waybar {
     position: relative;
     border-bottom: none;
 }
-
-window#waybar::after { /* Animated border */
+window#waybar::after {
     content: '';
     position: absolute;
     left: 0;
@@ -339,7 +237,7 @@ window#waybar::after { /* Animated border */
     opacity: var(--_effective-animated-bar-border-enabled);
     box-shadow: 0 -2px 8px -2px hsla(var(--accent-H), var(--accent-S), var(--accent-L-base), calc(0.3 * var(--_effective-animated-bar-border-enabled)));
 }
-window#waybar::before { /* Noise Texture */
+window#waybar::before {
     content: '';
     position: absolute;
     top: 0;
@@ -351,8 +249,6 @@ window#waybar::before { /* Noise Texture */
     pointer-events: none;
     z-index: -1;
 }
-
-/* Keyframes */
 @keyframes bar-border-sweep-animation {
     0% {background-position: 0% 50%;}
     100% {background-position: 400% 50%;}
@@ -375,22 +271,6 @@ window#waybar::before { /* Noise Texture */
     from {transform: scaleX(0) translateX(-50%); opacity: 0.5;}
     to {transform: scaleX(1) translateX(-50%); opacity: 1;}
 }
-
-/*
- * Regarding Module Selectors:
- * The following grouped ID selectors (e.g., #clock, #cpu, #memory, ...) might appear verbose.
- * This approach is intentional for the following reasons:
- * 1. Waybar modules are identified by unique HTML IDs (e.g., #clock), not common classes
- *    that can be targeted broadly by default. We cannot modify Waybar's HTML output to add such classes.
- * 2. Using explicit comma-separated ID lists is the most direct and compatible way to apply
- *    shared styles across a specific set of modules.
- * 3. Advanced CSS pseudo-classes like :is() or :where(), which could shorten these lists,
- *    were previously removed to ensure broader compatibility with Waybar's GTK CSS parser.
- * Therefore, these explicit lists represent the most robust and maintainable solution
- * under the given constraints.
- */
-
-/* General Module Styling (Replaced :where with simple list) */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window {
     padding: var(--dimension-module-padding-vertical) var(--dimension-module-padding-horizontal);
     margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
@@ -400,13 +280,13 @@ window#waybar::before { /* Noise Texture */
     box-shadow: var(--effects-shadow-module-actual);
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-standard); /* Default */
+    transition-timing-function: var(--transition-timing-function-standard);
     position: relative;
     z-index: 1;
     overflow: hidden;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
-    background-color: var(--color-background-module-default); /* Fallback */
+    background-color: var(--color-background-module-default);
     background-color: color-mix(in srgb, var(--color-background-module-default) calc(100% - (90% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)));
 }
 #mode.visual-profile-enhanced, #clock.visual-profile-enhanced, #battery.visual-profile-enhanced, #cpu.visual-profile-enhanced, #memory.visual-profile-enhanced, #network.visual-profile-enhanced, #pulseaudio.visual-profile-enhanced, #tray.visual-profile-enhanced, #custom-power.visual-profile-enhanced, #hyprland-window.visual-profile-enhanced {
@@ -425,8 +305,6 @@ window#waybar::before { /* Noise Texture */
     z-index: -1;
     border-radius: inherit;
 }
-
-/* General Module Interaction & States (Replaced :is with expanded selectors) */
 #clock:not(.disabled):not(.error):not(.active):hover,
 #battery:not(.disabled):not(.error):not(.active):hover,
 #cpu:not(.disabled):not(.error):not(.active):hover,
@@ -470,8 +348,6 @@ window#waybar::before { /* Noise Texture */
     animation: var(--animation-state-feedback-actual);
     z-index: 20;
 }
-
-/* Disabled & Error States */
 :root {
     --opacity-disabled: 0.5;
     --interaction-cursor-disabled: not-allowed;
@@ -508,8 +384,6 @@ window#waybar::before { /* Noise Texture */
     border: var(--dimension-border-width-normal) var(--dimension-border-style-dashed, dashed) var(--color-border-error, darkred) !important;
     font-weight: var(--typography-font-weight-bold);
 }
-
-/* Workspaces Module */
 #workspaces {
     padding: 0 calc(var(--spacing-unit) * 0.5);
     margin: var(--dimension-module-margin-vertical) var(--dimension-module-margin-horizontal);
@@ -528,7 +402,7 @@ window#waybar::before { /* Noise Texture */
     font-weight: var(--typography-font-weight-medium);
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-fast);
-    transition-timing-function: var(--transition-timing-function-standard); /* Default */
+    transition-timing-function: var(--transition-timing-function-standard);
     cursor: var(--interaction-cursor-pointer, pointer);
     position: relative;
     overflow: visible;
@@ -572,7 +446,7 @@ window#waybar::before { /* Noise Texture */
 }
 #workspaces button.focused {
     color: var(--color-text-workspace-focused, var(--theme-fg-primary));
-    background: var(--theme-accent-primary-solid); /* Default to solid */
+    background: var(--theme-accent-primary-solid);
     border-color: transparent;
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), var(--effects-glow-focused-actual);
     font-weight: var(--typography-font-weight-bold);
@@ -600,14 +474,13 @@ window#waybar::before { /* Noise Texture */
 }
 #workspaces button.visible:hover:not(.focused) {
     color: var(--color-text-workspace-hover, var(--color-text-module-hover));
-    /* Added simple fallback before color-mix */
-    background: var(--color-background-module-hover); /* Fallback */
+    background: var(--color-background-module-hover);
     background: color-mix(in srgb, var(--color-background-workspace-visible, var(--theme-bg-tertiary)) 60%, var(--color-background-module-hover) 40%);
     transform: var(--interaction-transform-hover-scale-actual) var(--interaction-transform-hover-lift-actual);
     z-index: 1;
 }
 #workspaces button.focused:hover {
-    background: var(--theme-accent-primary-solid); /* Default to solid */
+    background: var(--theme-accent-primary-solid);
     box-shadow: var(--effects-shadow-module-hover-actual), var(--effects-focus-ring-shadow-actual), 0 0 25px -1px var(--effects-glow-color-actual);
     transform: scale(1.06);
 }
@@ -621,8 +494,6 @@ window#waybar::before { /* Noise Texture */
     animation-play-state: paused;
     transform: var(--interaction-transform-hover-scale-actual);
 }
-
-/* Individual Module Styling */
 #clock {
     font-family: var(--typography-font-family-monospace);
     font-variant-numeric: var(--typography-font-variant-numeric);
@@ -674,7 +545,7 @@ window#waybar::before { /* Noise Texture */
     animation: var(--animation-state-feedback-actual);
 }
 #battery.critical:not(.charging) {
-    background: var(--theme-accent-primary-solid); /* Default to solid */
+    background: var(--theme-accent-primary-solid);
     color: var(--theme-fg-primary);
     font-weight: var(--typography-font-weight-bold);
     animation: var(--animation-urgent-actual);
@@ -682,8 +553,6 @@ window#waybar::before { /* Noise Texture */
 #battery.critical.gradients-enabled:not(.charging) {
     background: var(--color-accent-primary-gradient);
 }
-
-/* Tray */
 #tray {
     padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
     background: var(--color-background-module-alternate);
@@ -693,7 +562,7 @@ window#waybar::before { /* Noise Texture */
     opacity: 0.75;
     transition-property: opacity, transform;
     transition-duration: 0.25s;
-    transition-timing-function: var(--transition-timing-function-standard); /* Default */
+    transition-timing-function: var(--transition-timing-function-standard);
     filter: drop-shadow(var(--typography-text-shadow-subtle));
 }
 #tray > widget.visual-profile-enhanced {
@@ -703,8 +572,6 @@ window#waybar::before { /* Noise Texture */
     opacity: 1;
     transform: scale(1.15) translateY(-1px);
 }
-
-/* Custom Power */
 #custom-power {
     padding: 0;
     color: var(--color-text-module-power, var(--color-text-bar-default));
@@ -721,7 +588,7 @@ window#waybar::before { /* Noise Texture */
     justify-content: center;
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-snap, ease-out); /* Default */
+    transition-timing-function: var(--transition-timing-function-snap, ease-out);
 }
 #custom-power.visual-profile-enhanced {
     transition-timing-function: var(--transition-timing-function-enhanced);
@@ -738,8 +605,6 @@ window#waybar::before { /* Noise Texture */
     box-shadow: var(--effects-shadow-inner-pressed);
     background: var(--color-accent-primary-solid);
 }
-
-/* Tooltips */
 tooltip {
     padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3.5);
     color: var(--color-text-bar-default);
@@ -752,10 +617,9 @@ tooltip {
     max-width: 380px;
     -webkit-backdrop-filter: blur(var(--glass-blur-radius-actual));
     backdrop-filter: blur(var(--glass-blur-radius-actual));
-    /* Added simple fallback before color-mix attempts */
-    background-color: var(--theme-bg-secondary); /* Simple fallback */
-    background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%); /* Standard appearance */
-    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled))); /* Glass appearance */
+    background-color: var(--theme-bg-secondary);
+    background-color: color-mix(in srgb, var(--color-background-bar) 90%, var(--theme-bg-secondary) 10%);
+    background-color: color-mix(in srgb, var(--theme-bg-primary) calc(100% - (95% * var(--_effective-glassmorphism-enabled))), var(--glass-background-color-actual) calc(100% * var(--_effective-glassmorphism-enabled)));
 }
 tooltip::before {
     content: '';
@@ -773,8 +637,6 @@ tooltip::before {
 tooltip label {
     color: inherit;
 }
-
-/* Universal Icon Styling */
 :root {
     --dimension-icon-size-default: 1em;
     --color-icon-default: inherit;
@@ -793,7 +655,7 @@ tooltip label {
     vertical-align: -0.15em;
     transition-property: color, transform, text-shadow;
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: var(--transition-timing-function-standard); /* Default */
+    transition-timing-function: var(--transition-timing-function-standard);
     text-shadow: var(--text-shadow-icon-default, none);
     display: inline-block;
     font-style: normal !important;
@@ -827,5 +689,3 @@ tooltip label {
     transform: none !important;
     text-shadow: none !important;
 }
-
-/* --- END OF STYLESHEET --- */
