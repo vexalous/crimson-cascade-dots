@@ -1,37 +1,26 @@
-{
-    --main-bg-color: #0A0A0A;
-    --main-fg-color: #EBEBEB;
-    --module-bg-color: #141414;
-    --module-border-color: #2E2E2E;
-    --workspaces-bg-color: #1F1F1F;
-    --focused-bg-color: #FF235A;
-    --focused-fg-color: #EBEBEB;
-    --urgent-bg-color: #C30F42;
-    --urgent-fg-color: #EBEBEB;
-    --critical-bg-color: #FF235A;
-    --critical-fg-color: #EBEBEB;
-    --warning-bg-color: #FFB300;
-    --warning-fg-color: #0A0A0A;
-    --mode-bg-color: #C30F42;
-    --mode-fg-color: #EBEBEB;
-    --disabled-bg-color: #808080;
-    --disabled-fg-color: #4D4D4D;
-    --error-bg-color: #DB2A2A;
-    --error-fg-color: #FFFFFF;
-    --custom-power-color: #FF235A;
-    --workspace-button-color: #BFBFBF;
-    --workspace-persistent-color: #8C8C8C;
-
-    --default-font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
-    --monospace-font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
-    --icon-font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
-
-    --default-font-size: 14px;
-    --default-font-weight: 400;
-    --module-padding: 3px 8px;
-    --module-margin: 3px 4px;
-    --module-border-radius: 4px;
-}
+/* ===== Defined Colors ===== */
+@define-color main_bg_color #0A0A0A;
+@define-color main_fg_color #EBEBEB;
+@define-color module_bg_color #141414;
+@define-color module_border_color #2E2E2E;
+@define-color workspaces_bg_color #1F1F1F;
+@define-color focused_bg_color #FF235A;
+@define-color focused_fg_color #EBEBEB;
+@define-color urgent_bg_color #C30F42;
+@define-color urgent_fg_color #EBEBEB;
+@define-color critical_bg_color #FF235A;
+@define-color critical_fg_color #EBEBEB;
+@define-color warning_bg_color #FFB300;
+@define-color warning_fg_color #0A0A0A; /* Dark color for light warning background */
+@define-color mode_bg_color #C30F42;
+@define-color mode_fg_color #EBEBEB;
+@define-color disabled_bg_color #808080;
+@define-color disabled_fg_color #4D4D4D;
+@define-color error_bg_color #DB2A2A;
+@define-color error_fg_color #FFFFFF;
+@define-color custom_power_color #FF235A;
+@define-color workspace_button_color #BFBFBF;
+@define-color workspace_persistent_color #8C8C8C;
 
 /* ===== Global Styles ===== */
 * {
@@ -40,35 +29,36 @@
     min-height: 0;
     padding: 0;
     margin: 0;
-    font-family: var(--default-font-family);
-    font-size: var(--default-font-size);
-    font-weight: var(--default-font-weight);
+    font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 window#waybar {
-    background-color: var(--main-bg-color);
-    color: var(--main-fg-color);
-    font-family: var(--default-font-family);
+    background-color: @main_bg_color;
+    color: @main_fg_color;
+    font-family: "Inter", "Noto Sans", sans-serif; /* Can be more specific if different from global */
 }
 
+/* ===== Default Module Styling ===== */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray,
 #custom-power, #hyprland-window, #workspaces {
-    background-color: var(--module-bg-color);
-    border: 1px solid var(--module-border-color);
-    padding: var(--module-padding);
-    margin: var(--module-margin);
-    border-radius: var(--module-border-radius);
+    background-color: @module_bg_color;
+    border: 1px solid @module_border_color;
+    padding: 3px 8px;
+    margin: 3px 4px;
+    border-radius: 4px;
 }
 
 /* ===== Workspace Styling ===== */
 #workspaces {
-    background-color: var(--workspaces-bg-color);
+    background-color: @workspaces_bg_color;
 }
 
 #workspaces button {
-    color: var(--workspace-button-color);
+    color: @workspace_button_color;
     background-color: transparent;
     padding: 2px 6px;
     margin: 2px;
@@ -77,71 +67,71 @@ window#waybar {
 }
 
 #workspaces button.focused {
-    background-color: var(--focused-bg-color);
-    color: var(--focused-fg-color);
+    background-color: @focused_bg_color;
+    color: @focused_fg_color;
 }
 
 #workspaces button.urgent {
-    background-color: var(--urgent-bg-color);
-    color: var(--urgent-fg-color);
+    background-color: @urgent_bg_color;
+    color: @urgent_fg_color;
 }
 
 #workspaces button.persistent {
-    color: var(--workspace-persistent-color);
+    color: @workspace_persistent_color;
     font-style: italic;
 }
 
 /* ===== Specific Module Styling ===== */
 #battery.critical:not(.charging) {
-    background-color: var(--critical-bg-color);
-    color: var(--critical-fg-color);
+    background-color: @critical_bg_color;
+    color: @critical_fg_color;
     font-weight: 600;
 }
 
 #battery.warning:not(.charging) {
-    background-color: var(--warning-bg-color);
-    color: var(--warning-fg-color);
+    background-color: @warning_bg_color;
+    color: @warning_fg_color;
 }
 
 #clock {
-    font-family: var(--monospace-font-family);
+    font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
     letter-spacing: 0.05em;
     font-weight: 500;
 }
 
 #mode {
-    background-color: var(--mode-bg-color);
-    color: var(--mode-fg-color);
+    background-color: @mode_bg_color;
+    color: @mode_fg_color;
     font-weight: 600;
-    padding: 3px 10px; /* Keep specific padding if different from default module */
+    padding: 3px 10px; /* Specific padding */
 }
 
 #custom-power {
-    color: var(--custom-power-color);
+    color: @custom_power_color;
     font-size: 1.2em;
-    padding: 2px 5px; /* Keep specific padding */
+    padding: 2px 5px; /* Specific padding */
 }
 
 /* ===== Utility & State Styling ===== */
 .icon {
-    font-family: var(--icon-font-family);
+    font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
     font-size: 1.1em;
     margin-right: 4px;
 }
 
 .disabled {
-    background-color: var(--disabled-bg-color);
-    color: var(--disabled-fg-color);
+    background-color: @disabled_bg_color;
+    color: @disabled_fg_color;
     opacity: 0.6;
 }
 
 .error {
-    background-color: var(--error-bg-color);
-    color: var(--error-fg-color);
+    background-color: @error_bg_color;
+    color: @error_fg_color;
     font-weight: 600;
 }
 
-#tray > widget { /* Consider if this needs to be more specific if you have other widgets */
+#tray > widget {
     margin: 0 3px;
     opacity: 0.8;
 }
