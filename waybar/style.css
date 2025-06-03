@@ -1,20 +1,17 @@
-/* Global Resets - Simplified */
 * {
     border: none;
     border-radius: 0;
     min-height: 0;
     padding: 0;
     margin: 0;
-    font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif; /* Default UI font */
+    font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
     font-size: 14px;
-    font-weight: 400; /* Normal */
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Resolved Theme Variables (Dark Theme with Custom Accent) */
 :root {
-    /* Base Colors (Dark Theme) */
     --bg-primary: hsl(0, 0%, 4%);
     --bg-secondary: hsl(0, 0%, 8%);
     --bg-tertiary: hsl(0, 0%, 12%);
@@ -23,77 +20,69 @@
     --fg-tertiary: hsl(0, 0%, 55%);
     --border-default: hsl(0, 0%, 18%);
 
-    /* Accent Color (Custom: H:348, S:100%, L:57%) */
     --accent-h: 348;
     --accent-s: 100%;
     --accent-l-base: 57%;
-    --accent-l-darker: 45%;   /* 57% - 12% */
-    --accent-l-lighter: 69%;  /* 57% + 12% */
-    --accent-l-highlight: 75%;/* 57% + 18% */
+    --accent-l-darker: 45%;
+    --accent-l-lighter: 69%;
+    --accent-l-highlight: 75%;
 
     --accent-primary: hsl(var(--accent-h), var(--accent-s), var(--accent-l-base));
     --accent-primary-grad-start: hsl(var(--accent-h), var(--accent-s), var(--accent-l-lighter));
     --accent-primary-grad-end: hsl(var(--accent-h), var(--accent-s), var(--accent-l-darker));
-    --accent-secondary: hsl(var(--accent-h), calc(var(--accent-s) * 0.9), var(--accent-l-darker)); /* e.g., 90% Saturation */
+    --accent-secondary: hsl(var(--accent-h), calc(var(--accent-s) * 0.9), var(--accent-l-darker));
     --accent-highlight: hsl(var(--accent-h), var(--accent-s), var(--accent-l-highlight));
     --accent-gradient: linear-gradient(135deg, var(--accent-primary-grad-start) 0%, var(--accent-primary) 50%, var(--accent-primary-grad-end) 100%);
 
-    /* Typography */
     --font-ui: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
     --font-mono: "JetBrainsMono Nerd Font", "Fira Code", "Hack", monospace;
     --font-icons: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
     --font-size-base: 14px;
-    --font-size-small: calc(var(--font-size-base) * 0.85); /* 11.9px */
-    --font-size-large: calc(var(--font-size-base) * 1.15); /* 16.1px */
+    --font-size-small: calc(var(--font-size-base) * 0.85);
+    --font-size-large: calc(var(--font-size-base) * 1.15);
     --font-weight-normal: 400;
     --font-weight-medium: 500;
-    --font-weight-bold: 600; /* Standard profile */
+    --font-weight-bold: 600;
 
-    /* Spacing & Sizing (Density Scale: 1, Border Radius Multiplier for Standard Profile: 0.7) */
     --spacing-unit: 4px;
-    --radius-base: calc(6px * 0.7); /* 4.2px */
-    --module-padding-v: calc(var(--spacing-unit) * 1.25); /* 5px */
-    --module-padding-h: calc(var(--spacing-unit) * 2.5); /* 10px */
-    --module-margin-v: var(--spacing-unit); /* 4px */
-    --module-margin-h: calc(var(--spacing-unit) * 1.25); /* 5px */
+    --radius-base: calc(6px * 0.7);
+    --module-padding-v: calc(var(--spacing-unit) * 1.25);
+    --module-padding-h: calc(var(--spacing-unit) * 2.5);
+    --module-margin-v: var(--spacing-unit);
+    --module-margin-h: calc(var(--spacing-unit) * 1.25);
     --radius-module: var(--radius-base);
-    --radius-button: calc(var(--radius-base) * 0.8); /* ~3.36px */
+    --radius-button: calc(var(--radius-base) * 0.8);
     --radius-tooltip: var(--radius-base);
     --bar-border-height: 3px;
     --border-width-thin: 1px;
     --border-width-normal: 2px;
 
-    /* Transitions & Animations (Speed Multiplier for Standard Profile: 0.7, FX Duration Scale: 1) */
-    --transition-duration-base: calc(0.2s * 0.7 * 1); /* 0.14s */
-    --transition-duration-fast: calc(var(--transition-duration-base) * 0.6); /* ~0.084s */
+    --transition-duration-base: calc(0.2s * 0.7 * 1);
+    --transition-duration-fast: calc(var(--transition-duration-base) * 0.6);
     --transition-duration-normal: var(--transition-duration-base);
-    --transition-duration-slow: calc(var(--transition-duration-base) * 1.5); /* 0.21s */
+    --transition-duration-slow: calc(var(--transition-duration-base) * 1.5);
     --transition-timing-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-properties-common: background, color, border-color, opacity, box-shadow, transform, filter;
 
-    /* Shadows (Enabled, Dark Theme L-offset 0%, FX Detail Full) */
     --shadow-opacity-base: 0.1;
-    --shadow-color-ambient: hsla(0, 0%, 0%, calc(var(--shadow-opacity-base) * 0.8)); /* hsla(0,0%,0%,0.08) */
-    --shadow-color-direct: hsla(0, 0%, 0%, calc(var(--shadow-opacity-base) * 1.2));  /* hsla(0,0%,0%,0.12) */
+    --shadow-color-ambient: hsla(0, 0%, 0%, calc(var(--shadow-opacity-base) * 0.8));
+    --shadow-color-direct: hsla(0, 0%, 0%, calc(var(--shadow-opacity-base) * 1.2));
     --shadow-module: 0 2px 5px -1px var(--shadow-color-ambient), 0 4px 8px -2px var(--shadow-color-direct);
     --shadow-module-hover: 0 5px 10px -2px var(--shadow-color-ambient), 0 8px 16px -3px var(--shadow-color-direct);
     --shadow-tooltip: 0 8px 24px -4px var(--shadow-color-direct);
-    --shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, 0%, 0.2); /* Alpha fixed at 0.2 */
-    --text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, calc(0.1 * 1 * 1)); /* hsla(0,0%,0%,0.1) */
-    --text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, calc(0.15 * 1 * 1)); /* hsla(0,0%,0%,0.15) */
+    --shadow-inner-pressed: inset 0 2px 4px hsla(0, 0%, 0%, 0.2);
+    --text-shadow-subtle: 1px 1px 2px hsla(0, 0%, 0%, calc(0.1 * 1 * 1));
+    --text-shadow-header: 0 1px 3px hsla(0, 0%, 0%, calc(0.15 * 1 * 1));
 
-    /* Interactions (Transform Intensity: 1, Animations: On) */
     --transform-scale-factor: 0.03;
     --interaction-transform-hover-lift: translateY(-2px);
     --interaction-transform-hover-scale: scale(1.03);
-    --interaction-transform-active-press: scale(0.95545); /* scale(calc(0.97 * (1 - 0.03 / 2))) */
+    --interaction-transform-active-press: scale(0.95545);
 
-    /* Glow (Animations: On, FX Detail: Full) */
     --alpha-glow: 0.35;
     --glow-color: hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l-base) + 8%), var(--alpha-glow));
     --glow-focused: 0 0 15px 3px var(--glow-color);
 
-    /* Disabled/Error states (from original) */
     --opacity-disabled: 0.5;
     --cursor-disabled: not-allowed;
     --cursor-pointer: pointer;
@@ -114,10 +103,10 @@ window#waybar {
     background: var(--bg-primary);
     color: var(--fg-primary);
     position: relative;
-    border-bottom: none; /* Original had this, though ::after adds a border-like effect */
+    border-bottom: none;
 }
 
-window#waybar::after { /* Animated bar border is ON */
+window#waybar::after {
     content: '';
     position: absolute;
     left: 0;
@@ -131,26 +120,24 @@ window#waybar::after { /* Animated bar border is ON */
         var(--accent-primary), var(--accent-highlight),
         var(--accent-primary-grad-start));
     background-size: 400% 100%;
-    animation: bar-border-sweep-animation calc(10s * 0.7) linear infinite; /* Animation speed factor applied */
+    animation: bar-border-sweep-animation calc(10s * 0.7) linear infinite;
     z-index: 0;
-    opacity: 1; /* Was conditional, now fixed to 1 */
-    box-shadow: 0 -2px 8px -2px hsla(var(--accent-h), var(--accent-s), var(--accent-l-base), calc(0.3 * 1)); /* opacity fixed to 1 */
+    opacity: 1;
+    box-shadow: 0 -2px 8px -2px hsla(var(--accent-h), var(--accent-s), var(--accent-l-base), calc(0.3 * 1));
 }
-
-/* Noise texture is OFF, so window#waybar::before and module::before are removed */
 
 @keyframes bar-border-sweep-animation {
     0% {background-position: 0% 50%;}
     100% {background-position: 400% 50%;}
 }
 
-@keyframes urgent-pulse-animation { /* Using --accent-primary as fallback for --color-background-urgent */
+@keyframes urgent-pulse-animation {
     0% {transform: scale(1); box-shadow: 0 0 5px -1px var(--accent-primary), var(--shadow-module); opacity: 1;}
     50% {transform: scale(1.05); box-shadow: 0 0 15px 2px var(--accent-primary), var(--shadow-module-hover); opacity: 0.8;}
     100% {transform: scale(1); box-shadow: 0 0 5px -1px var(--accent-primary), var(--shadow-module); opacity: 1;}
 }
 
-@keyframes focused-glow-animation { /* HC focus shadow is 0, so removed from here */
+@keyframes focused-glow-animation {
     from {box-shadow: var(--shadow-module-hover), var(--glow-focused); transform: scale(1.01);}
     to {box-shadow: var(--shadow-module-hover), 0 0 20px 5px var(--glow-color); transform: scale(1.02);}
 }
@@ -166,7 +153,6 @@ window#waybar::after { /* Animated bar border is ON */
     to {transform: scaleX(1) translateX(-50%); opacity: 1;}
 }
 
-/* Common Module Styling */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray, #custom-power, #hyprland-window {
     padding: var(--module-padding-v) var(--module-padding-h);
     margin: var(--module-margin-v) var(--module-margin-h);
@@ -180,11 +166,9 @@ window#waybar::after { /* Animated bar border is ON */
     position: relative;
     z-index: 1;
     overflow: hidden;
-    background-color: var(--bg-secondary); /* Glassmorphism is OFF */
-    /* backdrop-filter: blur(0px); effectively no blur */
+    background-color: var(--bg-secondary);
 }
 
-/* Module Hover (Non-Active) */
 #clock:not(.disabled):not(.error):not(.active):hover,
 #battery:not(.disabled):not(.error):not(.active):hover,
 #cpu:not(.disabled):not(.error):not(.active):hover,
@@ -201,7 +185,6 @@ window#waybar::after { /* Animated bar border is ON */
     z-index: 10;
 }
 
-/* Module Focus (Non-Active) */
 #clock:not(.disabled):not(.error):focus, #clock:not(.disabled):not(.error):focus-within,
 #battery:not(.disabled):not(.error):focus, #battery:not(.disabled):not(.error):focus-within,
 #cpu:not(.disabled):not(.error):focus, #cpu:not(.disabled):not(.error):focus-within,
@@ -209,14 +192,12 @@ window#waybar::after { /* Animated bar border is ON */
 #network:not(.disabled):not(.error):focus, #network:not(.disabled):not(.error):focus-within,
 #pulseaudio:not(.disabled):not(.error):focus, #pulseaudio:not(.disabled):not(.error):focus-within,
 #tray:not(.disabled):not(.error):focus, #tray:not(.disabled):not(.error):focus-within {
-    /* outline: 0px dashed var(--accent-highlight); HC Focus Outline OFF */
     border-color: var(--accent-highlight);
-    box-shadow: var(--shadow-module-hover); /* HC Focus Ring Shadow is 0 */
-    animation: focused-glow-animation calc(2.2s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
+    box-shadow: var(--shadow-module-hover);
+    animation: focused-glow-animation calc(2.2s * 0.7) ease-in-out infinite alternate;
     z-index: 15;
 }
 
-/* Module Active */
 #clock.active:not(.disabled):not(.error),
 #battery.active:not(.disabled):not(.error),
 #cpu.active:not(.disabled):not(.error),
@@ -227,13 +208,12 @@ window#waybar::after { /* Animated bar border is ON */
     background: var(--accent-secondary);
     color: var(--fg-primary);
     border-color: var(--accent-primary);
-    box-shadow: var(--shadow-inner-pressed); /* HC Focus Ring Shadow is 0 */
+    box-shadow: var(--shadow-inner-pressed);
     transform: var(--interaction-transform-active-press);
-    animation: state-feedback-animation calc(0.4s * 0.7) var(--transition-timing-standard); /* Speed factor applied */
+    animation: state-feedback-animation calc(0.4s * 0.7) var(--transition-timing-standard);
     z-index: 20;
 }
 
-/* Disabled and Error States */
 .disabled, :disabled, .error {
     opacity: var(--opacity-disabled) !important;
     cursor: var(--cursor-disabled) !important;
@@ -255,11 +235,10 @@ window#waybar::after { /* Animated bar border is ON */
     font-weight: var(--font-weight-bold);
 }
 
-/* Workspaces */
 #workspaces {
     padding: 0 calc(var(--spacing-unit) * 0.5);
     margin: var(--module-margin-v) var(--module-margin-h);
-    background: var(--bg-tertiary); /* Was module-alternate */
+    background: var(--bg-tertiary);
     border: var(--border-width-thin) solid var(--border-default);
     border-radius: var(--radius-module);
     box-shadow: var(--shadow-module);
@@ -267,7 +246,7 @@ window#waybar::after { /* Animated bar border is ON */
 #workspaces button {
     padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2.75);
     margin: var(--spacing-unit) calc(var(--spacing-unit) * 0.5);
-    color: var(--fg-primary); /* Default text bar color */
+    color: var(--fg-primary);
     background: transparent;
     border: var(--border-width-thin) solid transparent;
     border-radius: var(--radius-button);
@@ -283,22 +262,20 @@ window#waybar::after { /* Animated bar border is ON */
 }
 #workspaces button:focus,
 #workspaces button:focus-visible {
-    /* outline: 0px dashed var(--accent-highlight); HC Focus Outline OFF */
-    /* box-shadow: none; HC Focus Ring Shadow is 0 */
 }
-#workspaces button:not(.focused):not(.urgent)::after { /* Dynamic WS Accents ON */
+#workspaces button:not(.focused):not(.urgent)::after {
     content: '';
     position: absolute;
     left: 50%;
     bottom: calc(var(--spacing-unit) * -0.25);
     height: var(--border-width-normal);
     width: 0%;
-    background: var(--accent-primary); /* Animated border color */
+    background: var(--accent-primary);
     border-radius: var(--border-width-normal);
     transform-origin: center;
-    animation: dynamic-border-animation calc(0.35s * 0.7) ease-out forwards; /* Speed factor applied */
+    animation: dynamic-border-animation calc(0.35s * 0.7) ease-out forwards;
     animation-play-state: paused;
-    opacity: 1; /* Was conditional, now 1 */
+    opacity: 1;
 }
 #workspaces button:not(.focused):not(.urgent):hover::after {
     animation-play-state: running;
@@ -313,21 +290,21 @@ window#waybar::after { /* Animated bar border is ON */
     color: var(--fg-primary);
     background: var(--bg-tertiary);
 }
-#workspaces button.focused { /* Gradients are ON */
+#workspaces button.focused {
     color: var(--fg-primary);
-    background: var(--accent-gradient); /* Using gradient as gradients-enabled is true */
+    background: var(--accent-gradient);
     border-color: transparent;
-    box-shadow: var(--shadow-module-hover), var(--glow-focused); /* HC Focus Ring Shadow is 0 */
+    box-shadow: var(--shadow-module-hover), var(--glow-focused);
     font-weight: var(--font-weight-bold);
     transform: var(--interaction-transform-hover-scale);
-    animation: focused-glow-animation calc(2.2s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
+    animation: focused-glow-animation calc(2.2s * 0.7) ease-in-out infinite alternate;
     z-index: 5;
 }
 #workspaces button.urgent {
     color: var(--fg-primary);
     background: var(--accent-secondary);
     border: var(--border-width-thin) solid var(--accent-highlight);
-    animation: urgent-pulse-animation calc(1.4s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
+    animation: urgent-pulse-animation calc(1.4s * 0.7) ease-in-out infinite alternate;
     font-weight: var(--font-weight-bold);
     box-shadow: 0 0 10px -2px var(--accent-secondary);
     z-index: 5;
@@ -340,13 +317,13 @@ window#waybar::after { /* Animated bar border is ON */
 }
 #workspaces button.visible:hover:not(.focused) {
     color: var(--fg-primary);
-    background: color-mix(in srgb, var(--bg-tertiary) 60%, var(--bg-tertiary) 40%); /* Simplified mix */
+    background: color-mix(in srgb, var(--bg-tertiary) 60%, var(--bg-tertiary) 40%);
     transform: var(--interaction-transform-hover-scale) var(--interaction-transform-hover-lift);
     z-index: 1;
 }
-#workspaces button.focused:hover { /* Gradients are ON */
+#workspaces button.focused:hover {
     background: var(--accent-gradient);
-    box-shadow: var(--shadow-module-hover), 0 0 25px -1px var(--glow-color); /* HC Focus Ring Shadow is 0 */
+    box-shadow: var(--shadow-module-hover), 0 0 25px -1px var(--glow-color);
     transform: scale(1.06);
 }
 #workspaces button.urgent:hover {
@@ -357,7 +334,6 @@ window#waybar::after { /* Animated bar border is ON */
     transform: var(--interaction-transform-hover-scale);
 }
 
-/* Specific Module Styles */
 #clock {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
@@ -398,7 +374,7 @@ window#waybar::after { /* Animated bar border is ON */
 }
 
 #pulseaudio, #network, #cpu, #memory {
-    background-color: var(--bg-tertiary); /* Was module-alternate */
+    background-color: var(--bg-tertiary);
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     color: var(--fg-primary);
@@ -407,25 +383,25 @@ window#waybar::after { /* Animated bar border is ON */
 }
 
 #network.disconnected {
-    animation: state-feedback-animation calc(0.4s * 0.7) var(--transition-timing-standard); /* Speed factor applied */
+    animation: state-feedback-animation calc(0.4s * 0.7) var(--transition-timing-standard);
 }
 
-#battery.critical:not(.charging) { /* Gradients are ON */
+#battery.critical:not(.charging) {
     background: var(--accent-gradient);
     color: var(--fg-primary);
     font-weight: var(--font-weight-bold);
-    animation: urgent-pulse-animation calc(1.4s * 0.7) ease-in-out infinite alternate; /* Speed factor applied */
+    animation: urgent-pulse-animation calc(1.4s * 0.7) ease-in-out infinite alternate;
 }
 
 #tray {
     padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
-    background: var(--bg-tertiary); /* Was module-alternate */
+    background: var(--bg-tertiary);
 }
 #tray > widget {
     margin: 0 var(--spacing-unit);
     opacity: 0.75;
     transition-property: opacity, transform;
-    transition-duration: 0.25s; /* Fixed duration */
+    transition-duration: 0.25s;
     transition-timing-function: var(--transition-timing-standard);
     filter: drop-shadow(var(--text-shadow-subtle));
 }
@@ -443,14 +419,14 @@ window#waybar::after { /* Animated bar border is ON */
     background: transparent;
     border: var(--border-width-normal) solid transparent;
     border-radius: 50%;
-    width: calc(var(--font-size-large) * 2.5); /* Density scale 1 */
-    height: calc(var(--font-size-large) * 2.5);/* Density scale 1 */
+    width: calc(var(--font-size-large) * 2.5);
+    height: calc(var(--font-size-large) * 2.5);
     display: flex;
     align-items: center;
     justify-content: center;
     transition-property: var(--transition-properties-common);
     transition-duration: var(--transition-duration-normal);
-    transition-timing-function: ease-out; /* Was var(--transition-timing-function-snap, ease-out) */
+    transition-timing-function: ease-out;
 }
 #custom-power:hover {
     background: var(--accent-secondary);
@@ -465,7 +441,6 @@ window#waybar::after { /* Animated bar border is ON */
     background: var(--accent-primary);
 }
 
-/* Tooltip */
 tooltip {
     padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3.5);
     color: var(--fg-primary);
@@ -476,39 +451,36 @@ tooltip {
     font-size: var(--font-size-small);
     line-height: 1.6;
     max-width: 380px;
-    /* backdrop-filter: blur(0px); Glassmorphism OFF */
-    background-color: var(--bg-secondary); /* Simplified from color-mix as glassmorphism is off */
+    background-color: var(--bg-secondary);
 }
-/* Tooltip noise is OFF */
 tooltip label {
     color: inherit;
 }
 
-/* Icons */
 .icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
     font-family: var(--font-icons) !important;
-    font-size: 1em; /* Was --dimension-icon-size-default */
-    color: inherit; /* Was --color-icon-default */
+    font-size: 1em;
+    color: inherit;
     margin-right: calc(var(--spacing-unit) * 0.85);
     vertical-align: -0.15em;
     transition-property: color, transform, text-shadow;
     transition-duration: var(--transition-duration-normal);
     transition-timing-function: var(--transition-timing-standard);
-    text-shadow: none; /* Was --text-shadow-icon-default */
+    text-shadow: none;
     display: inline-block;
     font-style: normal !important;
 }
 *:hover > .icon, *:hover > [class*="fa-"], *:hover > [class*="mdi-"], *:hover > [class*="nf-"],
 *:focus > .icon, *:focus > [class*="fa-"], *:focus > [class*="mdi-"], *:focus > [class*="nf-"],
 *:focus-within > .icon, *:focus-within > [class*="fa-"], *:focus-within > [class*="mdi-"], *:focus-within > [class*="nf-"] {
-    color: var(--accent-highlight); /* Was --color-icon-hover */
-    transform: scale(1.18) translateY(-1.5px); /* rotate(0deg) removed as visual profile enhanced is off */
-    text-shadow: 0 2px 4px hsla(var(--accent-h), var(--accent-s), var(--accent-l-highlight), 0.4); /* Fixed alpha */
+    color: var(--accent-highlight);
+    transform: scale(1.18) translateY(-1.5px);
+    text-shadow: 0 2px 4px hsla(var(--accent-h), var(--accent-s), var(--accent-l-highlight), 0.4);
 }
 .active .icon, .active [class*="fa-"], .active [class*="mdi-"], .active [class*="nf-"] {
-    color: var(--accent-primary); /* Was --color-icon-active */
+    color: var(--accent-primary);
     transform: scale(1.1);
-    text-shadow: 0 1px 3px hsla(var(--accent-h), var(--accent-s), var(--accent-l-base), 0.5); /* Fixed alpha */
+    text-shadow: 0 1px 3px hsla(var(--accent-h), var(--accent-s), var(--accent-l-base), 0.5);
 }
 .error .icon, .error [class*="fa-"], .error [class*="mdi-"], .error [class*="nf-"] {
     color: var(--fg-error) !important;
