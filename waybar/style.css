@@ -7,27 +7,27 @@
 }
 
 window#waybar {
-    background-color: hsl(0, 0%, 4%); /* Dark background */
-    color: hsl(0, 0%, 92%); /* Light text */
-    font-family: "Inter", "Noto Sans", sans-serif; /* Primary font */
+    background-color: #0A0A0A; /* Dark background */
+    color: #EBEBEB; /* Light text */
+    font-family: "Inter", "Noto Sans", sans-serif;
 }
 
 /* Common style for most modules */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray,
 #custom-power, #hyprland-window, #workspaces {
-    background-color: hsl(0, 0%, 8%); /* Slightly lighter module background */
-    border: 1px solid hsl(0, 0%, 18%); /* Subtle border */
+    background-color: #141414; /* Slightly lighter module background */
+    border: 1px solid #2E2E2E; /* Subtle border */
     padding: 3px 8px;
     margin: 3px 4px;
     border-radius: 4px;
 }
 
 #workspaces {
-    background-color: hsl(0, 0%, 12%); /* Different background for workspaces container */
+    background-color: #1F1F1F; /* Different background for workspaces container */
 }
 
 #workspaces button {
-    color: hsl(0, 0%, 75%); /* Secondary text color */
+    color: #BFBFBF; /* Secondary text color */
     background-color: transparent;
     padding: 2px 6px;
     margin: 2px;
@@ -36,31 +36,30 @@ window#waybar {
 }
 
 #workspaces button.focused {
-    background-color: hsl(348, 100%, 57%); /* Accent color */
-    color: hsl(0, 0%, 92%); /* Light text for contrast */
+    background-color: #FF235A; /* Accent color */
+    color: #EBEBEB; /* Light text for contrast */
 }
 
 #workspaces button.urgent {
-    background-color: hsl(348, 90%, 45%); /* Darker, urgent accent */
-    color: hsl(0, 0%, 92%);
+    background-color: #C30F42; /* Darker, urgent accent */
+    color: #EBEBEB;
 }
 
 #workspaces button.persistent {
-    color: hsl(0, 0%, 55%);
+    color: #8C8C8C;
     font-style: italic;
 }
 
 #battery.critical:not(.charging) {
-    background-color: hsl(348, 100%, 57%); /* Accent color for critical battery */
-    color: hsl(0, 0%, 92%);
+    background-color: #FF235A; /* Accent color for critical battery */
+    color: #EBEBEB;
     font-weight: 600;
 }
 
 #battery.warning:not(.charging) {
-    background-color: hsl(35, 100%, 50%); /* Orange for warning */
-    color: hsl(0, 0%, 4%);
+    background-color: #FFB300; /* Orange for warning */
+    color: #0A0A0A; /* Dark text for contrast */
 }
-
 
 #clock {
     font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
@@ -69,30 +68,30 @@ window#waybar {
 }
 
 #mode {
-    background-color: hsl(348, 90%, 45%); /* Accent for mode */
-    color: hsl(0, 0%, 92%);
+    background-color: #C30F42; /* Accent for mode */
+    color: #EBEBEB;
     font-weight: 600;
     padding: 3px 10px;
 }
 
-/* Basic icon styling (assuming Font Awesome or similar) */
+/* Basic icon styling */
 .icon, [class*="fa-"], [class*="mdi-"], [class*="nf-"] {
     font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font" !important;
-    font-size: 1.1em; /* Slightly larger icons */
+    font-size: 1.1em;
     margin-right: 4px;
-    vertical-align: -0.1em; /* Adjust vertical alignment */
+    vertical-align: -0.1em;
 }
 
 /* Basic styling for disabled/error states */
 .disabled, :disabled {
-    background-color: hsl(0, 0%, 50%) !important;
-    color: hsl(0, 0%, 30%) !important;
+    background-color: #808080 !important;
+    color: #4D4D4D !important;
     opacity: 0.6 !important;
 }
 
 .error {
-    background-color: hsl(0, 70%, 50%) !important; /* Red for errors */
-    color: hsl(0, 0%, 100%) !important;
+    background-color: #DB2A2A !important; /* Red for errors */
+    color: #FFFFFF !important;
     font-weight: 600;
 }
 
@@ -102,7 +101,7 @@ window#waybar {
 }
 
 #custom-power {
-    color: hsl(348, 100%, 57%);
+    color: #FF235A; /* Accent color */
     font-size: 1.2em;
     padding: 2px 5px;
 }
