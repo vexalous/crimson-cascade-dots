@@ -11,8 +11,29 @@ TEMP_CLONE_DIR=""
 # --- Helper Functions ---
 print_header() {
     echo "--------------------------------------------------------------------"
-    echo " Crimson Cascade Dotfiles - Forceful Setup v4 (Based on Your Structure)"
+    echo " Crimson Cascade Dotfiles - Forceful Setup v4.1 (Unattended)"
     echo "--------------------------------------------------------------------"
+    echo "INFO: This script will forcefully replace configurations."
+    echo "Existing configurations will be backed up mandatorily."
+    echo ""
+}
+
+ensure_base_directories() {
+    echo "Ensuring base target and backup directories are accessible..."
+    if ! mkdir -p "$CONFIG_TARGET_DIR"; then
+        echo "CRITICAL ERROR: Could not create or access target configuration directory: $CONFIG_TARGET_DIR"
+        echo "Please check permissions. If this directory requires root, run the script with sudo."
+        exit 1
+    fi
+    echo "Target configuration directory '$CONFIG_TARGET_DIR' is accessible."
+
+    if ! mkdir -p "$BACKUP_DIR_BASE"; then
+        echo "CRITICAL ERROR: Could not create or access backup base directory: $BACKUP_DIR_BASE"
+        echo "Please check permissions."
+        exit 1
+    fi
+    echo "Backup base directory '$BACKUP_DIR_BASE' is accessible."
+    echo ""
 }
 
 determine_source_dir() {
@@ -29,24 +50,29 @@ determine_source_dir() {
             git pull origin main # Or your default branch
         )
         if [ $? -ne 0 ]; then
-            echo "WARNING: 'git pull' failed. Using local state."
+            echo "WARNING: 'git pull' failed. Using local state of the repository."
         else
-            echo "Repository updated."
+            echo "Repository updated successfully."
         fi
     else
         echo "Not in a recognized dotfiles Git repository or key file (wallpaper) missing. Cloning fresh..."
         TEMP_CLONE_DIR=$(mktemp -d -t "${REPO_NAME}_XXXXXX")
+        if [ -z "$TEMP_CLONE_DIR" ] || [ ! -d "$TEMP_CLONE_DIR" ]; then # Check mktemp success
+            echo "ERROR: Failed to create temporary directory for cloning."
+            exit 1
+        fi
         git clone --depth 1 "$GIT_REPO_URL" "$TEMP_CLONE_DIR"
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed to clone $GIT_REPO_URL to $TEMP_CLONE_DIR."
-            rm -rf "$TEMP_CLONE_DIR"
+            rm -rf "$TEMP_CLONE_DIR" # Clean up
             exit 1
         fi
         DOTFILES_SOURCE_DIR="$TEMP_CLONE_DIR"
         echo "Repository cloned to temporary directory: $DOTFILES_SOURCE_DIR"
     fi
+    
     echo ""
-    echo "FINAL DOTFILES SOURCE DIR: $DOTFILES_SOURCE_DIR" 
+    echo "FINAL DOTFILES SOURCE DIR: $DOTFILES_SOURCE_DIR"
     if [ ! -d "$DOTFILES_SOURCE_DIR" ]; then
         echo "CRITICAL ERROR: DOTFILES_SOURCE_DIR is not a valid directory: $DOTFILES_SOURCE_DIR"
         exit 1
@@ -55,103 +81,101 @@ determine_source_dir() {
 }
 
 perform_backups() {
-    read -p "Overwrite existing configurations in $CONFIG_TARGET_DIR? Backup first? (Y/n): " backup_choice
-    backup_choice=$(echo "$backup_choice" | tr '[:upper:]' '[:lower:]')
+    echo "INFO: Existing configurations in $CONFIG_TARGET_DIR will be MANDATORILY backed up before being overwritten."
+    echo "Backing up existing configurations to $BACKUP_DIR_BASE..."
+    # mkdir -p "$BACKUP_DIR_BASE" # Already ensured by ensure_base_directories
 
-    if [[ "$backup_choice" == "y" || "$backup_choice" == "" ]]; then
-        echo "Backing up existing configurations to $BACKUP_DIR_BASE..."
-        mkdir -p "$BACKUP_DIR_BASE"
-        
-        # Rofi is still in this list; if ~/.config/rofi exists, it will be backed up.
-        # If not, the script will just note it wasn't found for backup.
-        local components_to_backup=("hypr" "waybar" "alacritty" "rofi") 
-        
-        for component in "${components_to_backup[@]}"; do
-            local target_path="${CONFIG_TARGET_DIR}/${component}"
-            # Check if the target path exists (can be a file or directory)
-            if [ -e "$target_path" ]; then 
-                TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-                SPECIFIC_BACKUP_DIR_FOR_COMPONENT="${BACKUP_DIR_BASE}/${component}_${TIMESTAMP}"
-                mkdir -p "$SPECIFIC_BACKUP_DIR_FOR_COMPONENT"
-                echo "Backing up '$target_path' to '$SPECIFIC_BACKUP_DIR_FOR_COMPONENT'..."
-                if mv "$target_path" "$SPECIFIC_BACKUP_DIR_FOR_COMPONENT/"; then
-                    echo "Backup of '$component' successful."
-                else
-                    echo "WARNING: Backup of '$component' FAILED. It might be overwritten."
-                fi
-            else
-                echo "No existing '$target_path' found to back up for component '${component}'."
+    local components_to_backup=("hypr" "waybar" "alacritty" "rofi") # Rofi backup included if dir exists
+
+    for component in "${components_to_backup[@]}"; do
+        local target_path="${CONFIG_TARGET_DIR}/${component}"
+        if [ -e "$target_path" ]; then
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            SPECIFIC_BACKUP_DIR_FOR_COMPONENT="${BACKUP_DIR_BASE}/${component}_${TIMESTAMP}"
+            
+            echo "Attempting to back up '$target_path' to '$SPECIFIC_BACKUP_DIR_FOR_COMPONENT'..."
+            # Ensure the specific component backup dir can be created
+            if ! mkdir -p "$SPECIFIC_BACKUP_DIR_FOR_COMPONENT"; then
+                echo "WARNING: Failed to create directory $SPECIFIC_BACKUP_DIR_FOR_COMPONENT for backing up '$component'."
+                echo "WARNING: '$component' at '$target_path' might be overwritten without backup. Skipping backup for this component."
+                continue # Skip trying to mv this component
             fi
-        done
-        echo "Backup process finished."
-    else
-        echo "Skipping backup."
-    fi
+
+            if mv "$target_path" "$SPECIFIC_BACKUP_DIR_FOR_COMPONENT/"; then
+                echo "Backup of '$component' successful to '$SPECIFIC_BACKUP_DIR_FOR_COMPONENT'."
+            else
+                echo "WARNING: Backup of '$component' FAILED (mv operation failed). '$target_path' might be overwritten."
+                # If mv fails, force_copy_content will attempt to rm -rf it.
+            fi
+        else
+            echo "No existing '$target_path' found to back up for component '${component}'."
+        fi
+    done
+    echo "Backup process finished."
     echo ""
 }
 
 force_copy_content() {
-    local source_relative_path_in_repo="$1" # Path to the source file/dir relative to DOTFILES_SOURCE_DIR
-    local target_relative_path_in_config="$2" # Path to the target file/dir relative to CONFIG_TARGET_DIR
-    local display_name="$3"                 # User-friendly name for logging
-
-    # This function forcefully copies content. It will:
-    # 1. Check if the source exists in the dotfiles repository.
-    # 2. Create the parent directory for the target if it doesn't exist.
-    # 3. If the target already exists, it will be REMOVED (rm -rf).
-    # 4. Copy the source to the target location.
-    #    - Uses 'cp -rT' for directories to copy contents directly into the target directory.
-    #    - Uses 'cp -f' for files.
+    local source_relative_path_in_repo="$1" 
+    local target_relative_path_in_config="$2" 
+    local display_name="$3"                
 
     local full_source_path="${DOTFILES_SOURCE_DIR}/${source_relative_path_in_repo}"
     local full_target_path="${CONFIG_TARGET_DIR}/${target_relative_path_in_config}"
 
     echo "--- Forcefully processing ${display_name} ---"
-    echo "DEBUG: Source Path to check: '${full_source_path}'"
-    echo "DEBUG: Target Path to create/replace: '${full_target_path}'"
+    # echo "DEBUG: Source Path to check: '${full_source_path}'" # Uncomment for more verbosity
+    # echo "DEBUG: Target Path to create/replace: '${full_target_path}'" # Uncomment for more verbosity
 
-    if [ ! -e "${full_source_path}" ]; then 
+    if [ ! -e "${full_source_path}" ]; then
         echo "ERROR: Source NOT FOUND: '${full_source_path}'. CANNOT COPY ${display_name}."
         echo "-------------------------------------------"
-        return 1 
+        return 1
     fi
 
-    mkdir -p "$(dirname "${full_target_path}")" # Ensure parent of target exists
+    # Ensure parent directory of the target item exists
+    local target_parent_dir
+    target_parent_dir=$(dirname "${full_target_path}")
+    if ! mkdir -p "${target_parent_dir}"; then
+        echo "ERROR: Failed to create parent directory '${target_parent_dir}' for ${display_name}."
+        echo "Check permissions or path validity."
+        echo "-------------------------------------------"
+        return 1
+    fi
 
-    if [ -e "${full_target_path}" ]; then 
+    if [ -e "${full_target_path}" ]; then
         echo "Removing existing target: '${full_target_path}'..."
-        rm -rf "${full_target_path}"
-        if [ $? -ne 0 ]; then
-            echo "ERROR: Failed to remove '${full_target_path}'. Permissions issue or target is busy?"
+        if ! rm -rf "${full_target_path}"; then # Added check for rm failure
+            echo "ERROR: Failed to remove existing '${full_target_path}'. Permissions issue or target is busy?"
+            echo "Skipping copy for ${display_name} due to removal failure."
             echo "-------------------------------------------"
-            return 1 # Stop this specific copy operation
+            return 1
         fi
     fi
 
     echo "Copying '${full_source_path}' to '${full_target_path}'..."
     if [ -d "${full_source_path}" ]; then
-        # -r: recursive, -T: treat source as a normal file (useful when source is a dir,
-        # ensures contents are copied into target_path, not source_dir as a subdir in target_path)
-        cp -rT "${full_source_path}" "${full_target_path}" 
-    else 
-        # -f: force (overwrite if target exists, though we removed it already)
+        cp -rT "${full_source_path}" "${full_target_path}"
+    else
         cp -f "${full_source_path}" "${full_target_path}"
     fi
-    
+
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to copy '${full_source_path}' to '${full_target_path}'."
+        echo "Possible reasons: disk full, permissions, source/target issues."
         echo "-------------------------------------------"
-        return 1 # Stop this specific copy operation
+        return 1
     fi
-    
+
     echo "${display_name} forcefully processed and copied to '${full_target_path}'."
     echo "-------------------------------------------"
 }
 
 # --- Main Script ---
 print_header
-determine_source_dir 
-perform_backups
+ensure_base_directories # New function call
+determine_source_dir
+perform_backups # Now non-interactive
 
 echo ">>> Starting UNCONDITIONAL forceful configuration copy process... <<<"
 echo ">>> Using DOTFILES_SOURCE_DIR: ${DOTFILES_SOURCE_DIR} <<<"
@@ -159,40 +183,32 @@ echo ">>> Target base directory: ${CONFIG_TARGET_DIR} <<<"
 echo ""
 
 # --- Component/File Copying ---
-# Paths are based on the directory structure you provided.
-
-# Source: ${DOTFILES_SOURCE_DIR}/hypr
-# Target: ${CONFIG_TARGET_DIR}/hypr
 force_copy_content "hypr" "hypr" "Hyprland"
-
-# Source: ${DOTFILES_SOURCE_DIR}/waybar
-# Target: ${CONFIG_TARGET_DIR}/waybar
 force_copy_content "waybar" "waybar" "Waybar"
-
-# Source: ${DOTFILES_SOURCE_DIR}/alacritty/alacritty.toml
-# Target: ${CONFIG_TARGET_DIR}/alacritty/alacritty.toml
 force_copy_content "alacritty/alacritty.toml" "alacritty/alacritty.toml" "Alacritty Config"
 
-# ROFI HAS BEEN REMOVED as it's not in the provided root structure.
-# If you have Rofi configs, provide the path within your dotfiles repo.
-# For example, if it was actually in 'dotfiles_repo/my_rofi_configs/', you'd use:
-# force_copy_content "my_rofi_configs" "rofi" "Rofi"
+# ROFI: Backup for existing ~/.config/rofi is handled in perform_backups.
+# If you have Rofi configs in your dotfiles repo (e.g., at 'rofi_configs_in_repo/'),
+# add a line like this:
+# force_copy_content "rofi_configs_in_repo" "rofi" "Rofi"
 
 
 # --- Specific File Copies (Standalone files) ---
-WALLPAPER_SOURCE_FILE_IN_REPO="crimson_black_wallpaper.png" # This is at the root of your repo
-HYPR_WALLPAPER_TARGET_DIR="${CONFIG_TARGET_DIR}/hypr/wallpaper" 
+WALLPAPER_SOURCE_FILE_IN_REPO="crimson_black_wallpaper.png"
+HYPR_WALLPAPER_TARGET_DIR="${CONFIG_TARGET_DIR}/hypr/wallpaper"
 
 if [ -f "${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}" ]; then
     echo "--- Forcefully copying Wallpaper ---"
-    echo "DEBUG: Wallpaper Source: '${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}'"
-    echo "DEBUG: Wallpaper Target Dir: '${HYPR_WALLPAPER_TARGET_DIR}/'"
-    mkdir -p "${HYPR_WALLPAPER_TARGET_DIR}"
-    cp -f "${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}" "${HYPR_WALLPAPER_TARGET_DIR}/"
-    if [ $? -eq 0 ]; then
-        echo "Wallpaper copied to ${HYPR_WALLPAPER_TARGET_DIR}/"
+    # echo "DEBUG: Wallpaper Source: '${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}'"
+    # echo "DEBUG: Wallpaper Target Dir: '${HYPR_WALLPAPER_TARGET_DIR}/'"
+    if ! mkdir -p "${HYPR_WALLPAPER_TARGET_DIR}"; then
+        echo "ERROR: Failed to create wallpaper target directory '${HYPR_WALLPAPER_TARGET_DIR}'."
     else
-        echo "ERROR: Failed to copy wallpaper."
+        if cp -f "${DOTFILES_SOURCE_DIR}/${WALLPAPER_SOURCE_FILE_IN_REPO}" "${HYPR_WALLPAPER_TARGET_DIR}/"; then
+            echo "Wallpaper copied to ${HYPR_WALLPAPER_TARGET_DIR}/"
+        else
+            echo "ERROR: Failed to copy wallpaper to ${HYPR_WALLPAPER_TARGET_DIR}/."
+        fi
     fi
     echo "-------------------------------------------"
 else
@@ -200,21 +216,23 @@ else
     echo "-------------------------------------------"
 fi
 
-# Hyprpaper script, located in scripts/config/ within your repo
-HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO="scripts/config/hyprpaper.sh" 
+HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO="scripts/config/hyprpaper.sh"
 HYPRPAPER_SCRIPT_TARGET_FULL_PATH="${CONFIG_TARGET_DIR}/hypr/scripts/hyprpaper.sh"
 
 if [ -f "${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}" ]; then
     echo "--- Forcefully copying Hyprpaper script ---"
-    echo "DEBUG: Hyprpaper Script Source: '${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}'"
-    echo "DEBUG: Hyprpaper Script Target: '${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}'"
-    mkdir -p "$(dirname "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}")"
-    cp -f "${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}" "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}"
-    if [ $? -eq 0 ]; then
-        chmod +x "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}"
-        echo "Hyprpaper script copied and made executable."
+    # echo "DEBUG: Hyprpaper Script Source: '${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}'"
+    # echo "DEBUG: Hyprpaper Script Target: '${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}'"
+    HYPRPAPER_SCRIPT_TARGET_DIR=$(dirname "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}")
+    if ! mkdir -p "$HYPRPAPER_SCRIPT_TARGET_DIR"; then
+        echo "ERROR: Failed to create Hyprpaper script target directory '${HYPRPAPER_SCRIPT_TARGET_DIR}'."
     else
-        echo "ERROR: Failed to copy Hyprpaper script."
+        if cp -f "${DOTFILES_SOURCE_DIR}/${HYPRPAPER_SCRIPT_SOURCE_PATH_IN_REPO}" "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}"; then
+            chmod +x "${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}"
+            echo "Hyprpaper script copied to '${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}' and made executable."
+        else
+            echo "ERROR: Failed to copy Hyprpaper script to '${HYPRPAPER_SCRIPT_TARGET_FULL_PATH}'."
+        fi
     fi
     echo "-------------------------------------------"
 else
@@ -235,6 +253,8 @@ echo "--------------------------------------------------------------------"
 echo " Crimson Cascade Dotfiles forceful setup process FINISHED."
 echo " It is STRONGLY RECOMMENDED to LOG OUT and LOG BACK IN"
 echo " for all changes to take full effect."
+echo " If you encountered permission errors, you may need to run this"
+echo " script with 'sudo'."
 echo "--------------------------------------------------------------------"
 
 exit 0
