@@ -1,67 +1,101 @@
-/* ===== Defined Colors ===== */
-@define-color main_bg_color #0A0A0A;
-@define-color main_fg_color #EBEBEB;
-@define-color module_bg_color #141414;
-@define-color module_border_color #2E2E2E;
-@define-color workspaces_bg_color #1F1F1F;
-@define-color focused_bg_color #FF235A;
-@define-color focused_fg_color #EBEBEB;
-@define-color urgent_bg_color #C30F42;
-@define-color urgent_fg_color #EBEBEB;
-@define-color critical_bg_color #FF235A;
-@define-color critical_fg_color #EBEBEB;
-@define-color warning_bg_color #FFB300;
-@define-color warning_fg_color #0A0A0A; /* Dark color for light warning background */
-@define-color mode_bg_color #C30F42;
-@define-color mode_fg_color #EBEBEB;
-@define-color disabled_bg_color #808080;
-@define-color disabled_fg_color #4D4D4D;
-@define-color error_bg_color #DB2A2A;
-@define-color error_fg_color #FFFFFF;
-@define-color custom_power_color #FF235A;
-@define-color workspace_button_color #BFBFBF;
-@define-color workspace_persistent_color #8C8C8C;
+/* ========================================================================== */
+/* == Waybar GTK CSS Theme                                                 == */
+/* ========================================================================== */
 
-/* ===== Global Styles ===== */
+/* -------------------------------------------------------------------------- */
+/* -- Color Definitions                                                    -- */
+/* -------------------------------------------------------------------------- */
+/* Usage: color: @defined_color_name;                                       */
+/* -------------------------------------------------------------------------- */
+@define-color main_bg_color #0A0A0A;         /* Overall bar background */
+@define-color main_fg_color #EBEBEB;         /* Overall bar foreground (text) */
+
+@define-color module_bg_color #141414;       /* Default background for modules */
+@define-color module_border_color #2E2E2E;  /* Default border for modules */
+
+@define-color workspaces_bg_color #1F1F1F;   /* Background for the workspaces module container */
+@define-color workspace_button_color #BFBFBF; /* Text color for individual workspace buttons */
+@define-color workspace_persistent_color #8C8C8C; /* Text color for persistent workspace buttons */
+
+@define-color focused_bg_color #FF235A;      /* Background for focused elements (e.g., workspace) */
+@define-color focused_fg_color #EBEBEB;      /* Foreground for focused elements */
+
+@define-color urgent_bg_color #C30F42;       /* Background for urgent elements (e.g., workspace) */
+@define-color urgent_fg_color #EBEBEB;       /* Foreground for urgent elements */
+
+@define-color critical_bg_color #FF235A;     /* Background for critical states (e.g., battery) */
+@define-color critical_fg_color #EBEBEB;     /* Foreground for critical states */
+
+@define-color warning_bg_color #FFB300;      /* Background for warning states (e.g., battery) */
+@define-color warning_fg_color #0A0A0A;      /* Foreground for warning states (ensure contrast) */
+
+@define-color mode_bg_color #C30F42;         /* Background for the mode indicator */
+@define-color mode_fg_color #EBEBEB;         /* Foreground for the mode indicator */
+
+@define-color custom_power_color #FF235A;    /* Color for the custom power button icon/text */
+
+@define-color disabled_bg_color #808080;    /* Background for disabled elements/states */
+@define-color disabled_fg_color #4D4D4D;    /* Foreground for disabled elements/states */
+@define-color error_bg_color #DB2A2A;        /* Background for error states */
+@define-color error_fg_color #FFFFFF;        /* Foreground for error states */
+
+/* -------------------------------------------------------------------------- */
+/* -- Global Element Reset & Base Styles                                   -- */
+/* -------------------------------------------------------------------------- */
 * {
+    /* Reset properties */
     border: none;
     border-radius: 0;
-    min-height: 0;
     padding: 0;
     margin: 0;
+    min-height: 0; /* Important for Waybar modules */
+
+    /* Base typography */
     font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif;
     font-size: 14px;
     font-weight: 400;
+
+    /* Font smoothing */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -- Main Waybar Container                                                -- */
+/* -------------------------------------------------------------------------- */
 window#waybar {
     background-color: @main_bg_color;
     color: @main_fg_color;
-    font-family: "Inter", "Noto Sans", sans-serif; /* Can be more specific if different from global */
+    font-family: "Inter", "Noto Sans", "Cantarell", "Ubuntu", sans-serif; /* Ensure consistent base font for the bar itself */
 }
 
-/* ===== Default Module Styling ===== */
+/* -------------------------------------------------------------------------- */
+/* -- Default Styling for All Modules                                      -- */
+/* -------------------------------------------------------------------------- */
+/* Applied to most modules for a consistent look and feel.                  */
+/* Individual modules can override these styles below.                      */
+/* -------------------------------------------------------------------------- */
 #mode, #clock, #battery, #cpu, #memory, #network, #pulseaudio, #tray,
 #custom-power, #hyprland-window, #workspaces {
     background-color: @module_bg_color;
     border: 1px solid @module_border_color;
+    border-radius: 4px;
     padding: 3px 8px;
     margin: 3px 4px;
-    border-radius: 4px;
 }
 
-/* ===== Workspace Styling ===== */
+/* -------------------------------------------------------------------------- */
+/* -- Workspaces Module Styling                                            -- */
+/* -------------------------------------------------------------------------- */
 #workspaces {
-    background-color: @workspaces_bg_color;
+    background-color: @workspaces_bg_color; /* Slightly different background for the container */
 }
 
 #workspaces button {
+    background-color: transparent; /* Buttons within workspaces are transparent by default */
     color: @workspace_button_color;
-    background-color: transparent;
     padding: 2px 6px;
-    margin: 2px;
+    margin: 2px; /* Spacing between workspace buttons */
     border-radius: 3px;
     font-weight: 500;
 }
@@ -81,7 +115,11 @@ window#waybar {
     font-style: italic;
 }
 
-/* ===== Specific Module Styling ===== */
+/* -------------------------------------------------------------------------- */
+/* -- Specific Module Overrides & Styling                                  -- */
+/* -------------------------------------------------------------------------- */
+
+/* --- Battery Module --- */
 #battery.critical:not(.charging) {
     background-color: @critical_bg_color;
     color: @critical_fg_color;
@@ -93,45 +131,61 @@ window#waybar {
     color: @warning_fg_color;
 }
 
+/* --- Clock Module --- */
 #clock {
     font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
-    letter-spacing: 0.05em;
     font-weight: 500;
+    letter-spacing: 0.05em;
 }
 
+/* --- Mode Module (e.g., Sway/Hyprland mode indicator) --- */
 #mode {
     background-color: @mode_bg_color;
     color: @mode_fg_color;
     font-weight: 600;
-    padding: 3px 10px; /* Specific padding */
+    padding: 3px 10px; /* Slightly more horizontal padding */
 }
 
+/* --- Custom Power Module --- */
 #custom-power {
     color: @custom_power_color;
-    font-size: 1.2em;
-    padding: 2px 5px; /* Specific padding */
+    font-size: 1.2em; /* Larger icon/text */
+    padding: 2px 5px; /* Adjusted padding for its size */
 }
 
-/* ===== Utility & State Styling ===== */
+/* -------------------------------------------------------------------------- */
+/* -- Utility & State-Specific Classes                                     -- */
+/* -------------------------------------------------------------------------- */
+
+/* --- Icon Styling (if using a class for icons within modules) --- */
 .icon {
     font-family: "Font Awesome 6 Free Solid", "Material Design Icons", "JetBrainsMono Nerd Font";
     font-size: 1.1em;
-    margin-right: 4px;
+    margin-right: 4px; /* Space between icon and text */
 }
 
+/* --- Disabled State --- */
 .disabled {
     background-color: @disabled_bg_color;
     color: @disabled_fg_color;
     opacity: 0.6;
 }
 
+/* --- Error State --- */
 .error {
     background-color: @error_bg_color;
     color: @error_fg_color;
     font-weight: 600;
 }
 
-#tray > widget {
-    margin: 0 3px;
-    opacity: 0.8;
+/* -------------------------------------------------------------------------- */
+/* -- Tray Module Styling                                                  -- */
+/* -------------------------------------------------------------------------- */
+#tray > widget { /* Direct children widgets of the tray */
+    margin: 0 3px; /* Spacing for tray icons */
+    opacity: 0.8;  /* Slight transparency for tray icons, adjust as needed */
 }
+
+/* ========================================================================== */
+/* == End of Waybar CSS Theme                                              == */
+/* ========================================================================== */
